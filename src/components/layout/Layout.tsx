@@ -10,7 +10,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
       <Navbar />
-      <main className="flex-1 overflow-x-hidden">{children}</main>
+      <main className="flex-1 pt-20">{children}</main>
       <Footer />
     </div>
   );
