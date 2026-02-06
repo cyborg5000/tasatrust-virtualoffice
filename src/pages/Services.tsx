@@ -1,191 +1,57 @@
-import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { ServiceCard } from "@/components/services/ServiceCard";
-import { FilterSidebar } from "@/components/services/FilterSidebar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Search, SlidersHorizontal, ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowRight, CheckCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface ServiceWithPricing {
-  id: string;
-  name: string;
-  description: string | null;
-  icon: string | null;
-  category: string | null;
-  oneTimePrice: number | null;
-  recurringPrice: number | null;
-  recurringInterval: string | null;
-}
+const coreServices = [
+  {
+    category: "Corporate Services",
+    icon: "🏢",
+    services: [
+      { name: "Corporate Secretary", description: "Nominee corporate secretary service for the year" },
+      { name: "Company Incorporation", description: "Set up your new company in Singapore" },
+      { name: "Registered Office Address", description: "Meet ACRA requirements with our address" },
+    ],
+  },
+  {
+    category: "Accounting & Bookkeeping",
+    icon: "📊",
+    services: [
+      { name: "Bookkeeping", description: "Cloud-based accounting system for proper records" },
+      { name: "Un-audited Financial Statements", description: "Annual financial statements preparation" },
+      { name: "XBRL Filing", description: "Digital financial data submission to ACRA" },
+    ],
+  },
+  {
+    category: "Taxation Services",
+    icon: "📋",
+    services: [
+      { name: "Corporate Tax Filing", description: "Tax computation and filing (Form C-S/ C)" },
+      { name: "GST Registration & Filing", description: "GST registration and quarterly submissions" },
+      { name: "AIS Submission", description: "Automated income statements to IRAS" },
+    ],
+  },
+  {
+    category: "Payroll Services",
+    icon: "💼",
+    services: [
+      { name: "Payroll Processing", description: "Monthly payroll for your employees" },
+      { name: "HR Functions", description: "Human resources management support" },
+    ],
+  },
+  {
+    category: "Virtual Office",
+    icon: "🏠",
+    services: [
+      { name: "Business Address", description: "Prestigious address for your business" },
+      { name: "Mail Handling", description: "Mail scanning and forwarding service" },
+      { name: "Meeting Room", description: "Book our meeting room for client meetings" },
+    ],
+  },
+];
 
 export default function Services() {
-  const { toast } = useToast();
-  
-  const [services, setServices] = useState<ServiceWithPricing[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
-  // Fetch services with pricing (using basic tier as default for public)
-  useEffect(() => {
-    async function fetchServices() {
-      setLoading(true);
-
-      // Fetch services visible on pricing page
-      const { data: servicesData, error: servicesError } = await supabase
-        .from("services")
-        .select("*")
-        .eq("is_active", true)
-        .in("visibility", ["pricing_page", "both"])
-        .order("display_order", { ascending: true });
-
-      if (servicesError) {
-        console.error("Error fetching services:", servicesError);
-        setLoading(false);
-        return;
-      }
-
-      // Fetch pricing for basic tier (public default)
-      const { data: pricingData, error: pricingError } = await supabase
-        .from("service_pricing")
-        .select("*")
-        .eq("tier", "basic");
-
-      if (pricingError) {
-        console.error("Error fetching pricing:", pricingError);
-      }
-
-      // Map services with pricing
-      const servicesWithPricing: ServiceWithPricing[] = (servicesData || []).map(
-        (service) => {
-          const pricing = pricingData?.find((p) => p.service_id === service.id);
-          return {
-            id: service.id,
-            name: service.name,
-            description: service.description,
-            icon: service.icon,
-            category: service.category,
-            oneTimePrice: pricing?.one_time_price || null,
-            recurringPrice: pricing?.recurring_price || null,
-            recurringInterval: pricing?.recurring_interval || null,
-          };
-        }
-      );
-
-      setServices(servicesWithPricing);
-      setLoading(false);
-    }
-
-    fetchServices();
-  }, []);
-
-  // Get unique categories
-  const categories = useMemo(() => {
-    const cats = services
-      .map((s) => s.category)
-      .filter((c): c is string => c !== null);
-    return [...new Set(cats)];
-  }, [services]);
-
-  // Get max price for slider
-  const maxPrice = useMemo(() => {
-    const prices = services.flatMap((s) => [
-      s.oneTimePrice || 0,
-      s.recurringPrice || 0,
-    ]);
-    return Math.max(...prices, 1000);
-  }, [services]);
-
-  // Filter services
-  const filteredServices = useMemo(() => {
-    return services.filter((service) => {
-      // Search filter
-      if (
-        searchQuery &&
-        !service.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !service.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      ) {
-        return false;
-      }
-
-      // Category filter
-      if (
-        selectedCategories.length > 0 &&
-        (!service.category || !selectedCategories.includes(service.category))
-      ) {
-        return false;
-      }
-
-      // Price filter
-      const price = Math.max(
-        service.oneTimePrice || 0,
-        service.recurringPrice || 0
-      );
-      if (price > 0 && (price < priceRange[0] || price > priceRange[1])) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [services, searchQuery, selectedCategories, priceRange]);
-
-  // Group services by category for display
-  const groupedServices = useMemo(() => {
-    const groups: Record<string, ServiceWithPricing[]> = {};
-    
-    // Define category order
-    const categoryOrder = [
-      "Virtual Office",
-      "Corporate",
-      "Accounting",
-      "Tax & Compliance",
-    ];
-
-    filteredServices.forEach((service) => {
-      const category = service.category || "Other";
-      if (!groups[category]) {
-        groups[category] = [];
-      }
-      groups[category].push(service);
-    });
-
-    // Sort categories by predefined order
-    const sortedGroups: Record<string, ServiceWithPricing[]> = {};
-    categoryOrder.forEach((cat) => {
-      if (groups[cat]) {
-        sortedGroups[cat] = groups[cat];
-        delete groups[cat];
-      }
-    });
-    
-    // Add remaining categories
-    Object.keys(groups).forEach((cat) => {
-      sortedGroups[cat] = groups[cat];
-    });
-
-    return sortedGroups;
-  }, [filteredServices]);
-
-  const handleContactSales = (serviceId: string) => {
-    const service = services.find((s) => s.id === serviceId);
-    toast({
-      title: "Contact Sales",
-      description: `Our team will reach out about ${service?.name || "this service"}.`,
-    });
-  };
-
-  const handleClearFilters = () => {
-    setSelectedCategories([]);
-    setPriceRange([0, maxPrice]);
-    setSearchQuery("");
-  };
-
   return (
     <Layout>
       {/* Hero Section */}
@@ -195,114 +61,40 @@ export default function Services() {
             Our <span className="text-primary">Services</span>
           </h1>
           <p className="mx-auto max-w-2xl text-muted-foreground">
-            From virtual office solutions to comprehensive corporate services, 
-            we provide everything your business needs to thrive in Singapore.
+            Comprehensive corporate services for businesses in Singapore. 
+            From company incorporation to ongoing compliance, we've got you covered.
           </p>
         </div>
       </section>
 
-      {/* Search and Filters Bar */}
-      <section className="border-b border-border bg-background py-4 sticky top-16 z-40">
+      {/* Core Services Grid */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="flex gap-2">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search services..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" className="lg:hidden">
-                  <SlidersHorizontal className="h-4 w-4 mr-2" />
-                  Filters
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left">
-                <FilterSidebar
-                  categories={categories}
-                  selectedCategories={selectedCategories}
-                  onCategoryChange={setSelectedCategories}
-                  priceRange={priceRange}
-                  maxPrice={maxPrice}
-                  onPriceRangeChange={setPriceRange}
-                  onClearFilters={handleClearFilters}
-                />
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Content */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-8">
-            {/* Desktop Sidebar */}
-            <aside className="hidden lg:block w-64 flex-shrink-0">
-              <div className="sticky top-32 rounded-lg border border-border bg-card p-4">
-                <FilterSidebar
-                  categories={categories}
-                  selectedCategories={selectedCategories}
-                  onCategoryChange={setSelectedCategories}
-                  priceRange={priceRange}
-                  maxPrice={maxPrice}
-                  onPriceRangeChange={setPriceRange}
-                  onClearFilters={handleClearFilters}
-                />
+          <div className="space-y-16">
+            {coreServices.map((category) => (
+              <div key={category.category}>
+                <div className="mb-6 flex items-center gap-3">
+                  <span className="text-3xl">{category.icon}</span>
+                  <h2 className="text-2xl font-bold text-foreground">
+                    {category.category}
+                  </h2>
+                </div>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {category.services.map((service) => (
+                    <Card key={service.name} className="border-border bg-card">
+                      <CardHeader>
+                        <CardTitle className="text-lg">{service.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-muted-foreground">
+                          {service.description}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
-            </aside>
-
-            {/* Services Content */}
-            <div className="flex-1">
-              {loading ? (
-                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="rounded-lg border border-border p-6">
-                      <Skeleton className="h-12 w-12 rounded-lg mb-4" />
-                      <Skeleton className="h-5 w-3/4 mb-2" />
-                      <Skeleton className="h-4 w-full mb-1" />
-                      <Skeleton className="h-4 w-2/3 mb-4" />
-                      <Skeleton className="h-6 w-20 mb-4" />
-                      <Skeleton className="h-10 w-full" />
-                    </div>
-                  ))}
-                </div>
-              ) : Object.keys(groupedServices).length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <p className="text-muted-foreground mb-4">
-                    No services found matching your criteria.
-                  </p>
-                  <Button variant="outline" onClick={handleClearFilters}>
-                    Clear Filters
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-12">
-                  {Object.entries(groupedServices).map(([category, categoryServices]) => (
-                    <div key={category}>
-                      <h2 className="text-2xl font-bold text-foreground mb-6">
-                        {category}
-                      </h2>
-                      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                        {categoryServices.map((service) => (
-                          <ServiceCard
-                            key={service.id}
-                            {...service}
-                            isIncluded={false}
-                            isAuthenticated={false}
-                            onContactSales={handleContactSales}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -338,8 +130,8 @@ export default function Services() {
               Retail, and Healthcare industries.
             </p>
             <Button size="lg" asChild className="gap-2">
-              <Link to="/#pricing">
-                View Pricing Plans
+              <Link to="/contact">
+                Contact Us for Pricing
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -355,7 +147,7 @@ export default function Services() {
           </h2>
           <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
             Our team is happy to discuss your requirements and recommend 
-            the right services for your business. Get in touch today.
+            the right services for your business.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" asChild className="gap-2">
