@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const footerLinks = {
@@ -22,10 +22,10 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { href: "https://facebook.com", icon: Facebook, label: "Facebook" },
-  { href: "https://twitter.com", icon: Twitter, label: "Twitter" },
-  { href: "https://linkedin.com", icon: Linkedin, label: "LinkedIn" },
-  { href: "https://instagram.com", icon: Instagram, label: "Instagram" },
+  { href: "https://www.facebook.com/Contact.TASATrust/", icon: Facebook, label: "Facebook" },
+  { href: "https://www.linkedin.com/company/tasa-trust-pte-ltd/", icon: Linkedin, label: "LinkedIn" },
+  { href: "https://www.instagram.com/tasatrust", icon: Instagram, label: "Instagram" },
+  { href: "https://wa.me/6584463191", icon: Phone, label: "WhatsApp" },
 ];
 
 export function Footer() {
@@ -50,11 +50,15 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4 text-primary" />
-                <span>+65 8446 3191</span>
+                <a href="https://wa.me/6584463191" target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                  +65 8446 3191
+                </a>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary" />
-                <span>info@tasatrust.com</span>
+                <a href="mailto:info@tasatrust.com" className="hover:text-primary">
+                  info@tasatrust.com
+                </a>
               </div>
             </div>
           </div>
