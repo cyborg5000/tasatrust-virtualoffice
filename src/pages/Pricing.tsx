@@ -133,22 +133,17 @@ export default function Pricing() {
                   <CardDescription>{tier.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1">
-                  {/* Pricing Display */}
-                  <div className="mb-4 space-y-1 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-sm text-muted-foreground">Monthly:</span>
-                      <span className={cn(
-                        "text-lg font-bold",
-                        !isAnnual ? "text-primary" : "text-muted-foreground"
-                      )}>${tier.monthlyPrice}/mo</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-sm text-muted-foreground">Annual:</span>
-                      <span className={cn(
-                        "text-lg font-bold",
-                        isAnnual ? "text-primary" : "text-muted-foreground"
-                      )}>${tier.annualPrice}/mo</span>
-                    </div>
+                  {/* Dynamic Price Display */}
+                  <div className="mb-4 text-center">
+                    <span className="text-4xl font-bold text-primary">
+                      ${isAnnual ? tier.annualPrice : tier.monthlyPrice}
+                    </span>
+                    <span className="text-muted-foreground">/mo</span>
+                    {isAnnual && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        billed annually
+                      </p>
+                    )}
                   </div>
 
                   {/* Meeting Hours */}
