@@ -11,6 +11,7 @@ interface PricingTier {
   name: string;
   description: string;
   monthlyPrice: number;
+  annualPrice: number;
   popular?: boolean;
   freeGift?: string;
   features: string[];
@@ -21,6 +22,7 @@ const pricingTiers: PricingTier[] = [
     name: "Basic",
     description: "Essential virtual office services",
     monthlyPrice: 17.99,
+    annualPrice: 15.99,
     features: [
       "Business Address",
       "Mail Alerts",
@@ -32,6 +34,7 @@ const pricingTiers: PricingTier[] = [
     name: "Essential",
     description: "Everything you need with meeting room access",
     monthlyPrice: 18.99,
+    annualPrice: 16.99,
     popular: true,
     features: [
       "Everything in Basic",
@@ -44,6 +47,7 @@ const pricingTiers: PricingTier[] = [
     name: "Professional",
     description: "Complete solution with exclusive benefits",
     monthlyPrice: 26.90,
+    annualPrice: 24.90,
     freeGift: "FREE Website",
     features: [
       "Everything in Essential",
@@ -56,14 +60,6 @@ const pricingTiers: PricingTier[] = [
 
 export function PricingSection() {
   const [isAnnual, setIsAnnual] = useState(true); // Default to annual
-  const discount = 0.12;
-
-  const calculatePrice = (monthlyPrice: number) => {
-    if (isAnnual) {
-      return (monthlyPrice * (1 - discount)).toFixed(2);
-    }
-    return monthlyPrice.toFixed(2);
-  };
 
   return (
     <>
@@ -139,43 +135,44 @@ export function PricingSection() {
                   <CardDescription>{tier.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1">
-                  <div className="mb-4 space-y-2 text-center">
-                    {/* Main price - shows Annual when selected (default), Monthly when toggled */}
+                  {/* Pricing Display */}
+                  <div className="mb-4 space-y-1 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <span className="text-sm text-muted-foreground">
-                        {isAnnual ? 'Annual:' : 'Monthly:'}
-                      </span>
+                      <span className="text-sm text-muted-foreground">Monthly:</span>
                       <span className={cn(
-                        "text-2xl font-bold",
-                        isAnnual ? "text-primary" : "text-foreground"
-                      )}>
-                        ${isAnnual ? calculatePrice(tier.monthlyPrice) : tier.monthlyPrice.toFixed(2)}
-                      </span>
-                      <span className="text-sm text-muted-foreground">/mo</span>
-                    </div>
-                    {/* Other price option */}
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-sm text-muted-foreground">
-                        {isAnnual ? 'Monthly:' : 'Annual:'}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        ${isAnnual ? tier.monthlyPrice.toFixed(2) : calculatePrice(tier.monthlyPrice)}
-                      </span>
+                        "text-lg font-bold",
+                        !isAnnual ? "text-primary" : "text-muted-foreground"
+                      )}>${tier.monthlyPrice}/mo</span>
                     </div>
                     <div className="flex items-center justify-center gap-2">
-                      <span className="text-sm text-muted-foreground">Meeting Hours:</span>
-                      <span className="text-sm font-medium">
-                        {tier.name === 'Basic' ? '0 hrs/mo' : tier.name === 'Essential' ? '4 hrs/mo' : '8 hrs/mo'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-sm text-muted-foreground">Gift:</span>
-                      <span className="text-sm font-medium text-amber-500">
-                        {tier.name === 'Professional' ? '🎁 FREE Website' : '—'}
-                      </span>
+                      <span className="text-sm text-muted-foreground">Annual:</span>
+                      <span className={cn(
+                        "text-lg font-bold",
+                        isAnnual ? "text-primary" : "text-muted-foreground"
+                      )}>${tier.annualPrice}/mo</span>
                     </div>
                   </div>
-                  <ul className="space-y-3">
+
+                  {/* Meeting Hours */}
+                  <div className="mb-3 text-center">
+                    <span className="text-sm font-medium">
+                      {tier.name === 'Basic' ? 'Meeting Hours: 0' : 
+                       tier.name === 'Essential' ? 'Meeting Hours: 4 hrs/mo' : 
+                       'Meeting Hours: 8 hrs/mo'}
+                    </span>
+                  </div>
+
+                  {/* Gift */}
+                  {tier.freeGift && (
+                    <div className="mb-3 text-center">
+                      <span className="text-sm font-medium text-amber-500">
+                        Gift: {tier.freeGift}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Features */}
+                  <ul className="space-y-3 mt-4">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-3">
                         <Check className="h-5 w-5 flex-shrink-0 text-primary" />
