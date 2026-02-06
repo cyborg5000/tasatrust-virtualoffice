@@ -55,10 +55,10 @@ export default function Index() {
       {/* Hero Section - Virtual Office Focus */}
       <section className="relative overflow-hidden bg-secondary py-20 lg:py-32">
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-10"
+          className="absolute inset-0 bg-cover bg-center opacity-30"
           style={{ backgroundImage: `url(${heroOffice})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/95 to-secondary/80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary/90 via-secondary/70 to-secondary/50" />
         <div className="container relative mx-auto px-4">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
