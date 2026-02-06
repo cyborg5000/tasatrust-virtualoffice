@@ -1,20 +1,30 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/services", label: "Services" },
+];
+
+const servicesLinks = [
+  { href: "/services?cat=virtual-office", label: "Virtual Office" },
+  { href: "/services?cat=accounting", label: "Accounting" },
+  { href: "/services?cat=tax", label: "Tax" },
+  { href: "/services?cat=corp-sec", label: "Corp Sec" },
+];
+
+const footerNavLinks = [
   { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
   const location = useLocation();
 
   return (
@@ -27,8 +37,60 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:gap-8">
+          <div className="hidden md:flex md:items-center md:gap-6">
             {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  location.pathname === link.href
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {/* Services Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setServicesOpen(true)}
+              onMouseLeave={() => setServicesOpen(false)}
+            >
+              <button
+                className={cn(
+                  "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary",
+                  location.pathname.includes("/services")
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
+              >
+                Services
+                <ChevronDown className={cn(
+                  "h-4 w-4 transition-transform",
+                  servicesOpen && "rotate-180"
+                )} />
+              </button>
+
+              {servicesOpen && (
+                <div className="absolute left-0 top-full mt-2 w-48 rounded-lg border border-border bg-card py-2 shadow-lg">
+                  {servicesLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-primary"
+                      onClick={() => setServicesOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {footerNavLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
@@ -87,6 +149,50 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+
+              {/* Services Links (mobile) */}
+              <div className="space-y-2">
+                <button
+                  className="text-sm font-medium text-muted-foreground"
+                  onClick={() => setServicesOpen(!servicesOpen)}
+                >
+                  Services
+                </button>
+                {servicesOpen && (
+                  <div className="ml-4 space-y-2">
+                    {servicesLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        className="block text-sm text-muted-foreground hover:text-primary"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setServicesOpen(false);
+                        }}
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {footerNavLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    "text-sm font-medium transition-colors hover:text-primary",
+                    location.pathname === link.href
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+
               <div className="flex flex-col gap-2 pt-4">
                 <Button variant="outline" asChild className="w-full">
                   <Link to="/login" onClick={() => setIsOpen(false)}>
