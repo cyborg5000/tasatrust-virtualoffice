@@ -29,6 +29,7 @@ const pricingTiers: PricingTier[] = [
       "Mail Alerts",
       "Digital Mail Scans",
       "Business Registration Use",
+      "0 hrs Meeting Room",
     ],
   },
   {
@@ -53,7 +54,7 @@ const pricingTiers: PricingTier[] = [
     features: [
       "Everything in Essential",
       "8 hrs Meeting Room/month",
-      "FREE Website Build",
+      "**FREE Website**",
       "Priority Support",
     ],
   },
@@ -146,30 +147,17 @@ export default function Pricing() {
                     )}
                   </div>
 
-                  {/* Meeting Hours */}
-                  <div className="mb-3 text-center">
-                    <span className="text-sm font-medium">
-                      {tier.name === 'Basic' ? 'Meeting Hours: 0' : 
-                       tier.name === 'Essential' ? 'Meeting Hours: 4 hrs/mo' : 
-                       'Meeting Hours: 8 hrs/mo'}
-                    </span>
-                  </div>
-
-                  {/* Gift */}
-                  {tier.freeGift && (
-                    <div className="mb-3 text-center">
-                      <span className="text-sm font-medium text-amber-500">
-                        Gift: {tier.freeGift}
-                      </span>
-                    </div>
-                  )}
-
                   {/* Features */}
-                  <ul className="space-y-3 mt-4">
+                  <ul className="space-y-3">
                     {tier.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-3">
-                        <Check className="h-5 w-5 flex-shrink-0 text-primary" />
-                        <span className="text-sm text-foreground">{feature}</span>
+                      <li key={feature} className="flex items-start gap-3">
+                        <Check className="h-5 w-5 flex-shrink-0 text-primary mt-0.5" />
+                        <span 
+                          className="text-sm text-foreground"
+                          dangerouslySetInnerHTML={{
+                            __html: feature.replace(/\*\*(.*?)\*\*/g, '<strong class="text-amber-500 font-semibold">$1</strong>')
+                          }}
+                        />
                       </li>
                     ))}
                   </ul>
