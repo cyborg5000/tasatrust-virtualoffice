@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MemberLayout } from "@/components/member/MemberLayout";
+import { WebsiteBuildCard } from "@/components/member/WebsiteBuildCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -119,7 +120,9 @@ export default function MemberDashboard() {
         </Card>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {/* Website Build Card - Only for Professional tier */}
+          <WebsiteBuildCard tier={subscription?.tier || null} />
           {/* Subscription Status */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">

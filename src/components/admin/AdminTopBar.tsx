@@ -10,6 +10,7 @@ import {
   Users,
   Package,
   Receipt,
+  Globe,
   Settings,
   LogOut,
   ChevronLeft,
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/services", label: "Services", icon: Package },
   { href: "/admin/orders", label: "Orders", icon: Receipt },
+  { href: "/admin/website-builds", label: "Website Builds", icon: Globe },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

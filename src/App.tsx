@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminMembers from "./pages/admin/Members";
 import AdminServices from "./pages/admin/Services";
 import AdminOrders from "./pages/admin/Orders";
+import AdminWebsiteBuilds from "./pages/admin/WebsiteBuilds";
 import AdminSettings from "./pages/admin/Settings";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -105,6 +106,14 @@ const App = () => (
             element={
               <AdminProtectedRoute>
                 <AdminOrders />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/website-builds"
+            element={
+              <AdminProtectedRoute>
+                <AdminWebsiteBuilds />
               </AdminProtectedRoute>
             }
           />
