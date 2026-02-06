@@ -14,8 +14,12 @@ import MemberDashboard from "./pages/member/Dashboard";
 import MemberServicesPage from "./pages/member/Services";
 import MemberBookings from "./pages/member/Bookings";
 import MemberSettings from "./pages/member/Settings";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminMembers from "./pages/admin/Members";
+import AdminSettings from "./pages/admin/Settings";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +70,32 @@ const App = () => (
               <ProtectedRoute>
                 <MemberSettings />
               </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/members"
+            element={
+              <AdminProtectedRoute>
+                <AdminMembers />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <AdminProtectedRoute>
+                <AdminSettings />
+              </AdminProtectedRoute>
             }
           />
 
