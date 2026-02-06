@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, MessageCircle } from "lucide-react";
 
 const contactSchema = z.object({
   name: z
@@ -24,7 +23,15 @@ const contactSchema = z.object({
     .trim()
     .email({ message: "Please enter a valid email address" })
     .max(255, { message: "Email must be less than 255 characters" }),
-  inquiryType: z.enum(["sales", "support", "partnership"], {
+  phone: z
+    .string()
+    .trim()
+    .optional(),
+  company: z
+    .string()
+    .trim()
+    .optional(),
+  inquiryType: z.enum(["virtual-office", "incorporation", "accounting", "general"], {
     required_error: "Please select an inquiry type",
   }),
   message: z
@@ -38,28 +45,45 @@ type ContactFormData = z.infer<typeof contactSchema>;
 
 const contactInfo = [
   {
-    icon: Mail,
-    title: "Email",
-    value: "hello@tasatrust.com",
-    description: "Send us an email anytime",
-  },
-  {
     icon: Phone,
     title: "Phone",
-    value: "(555) 123-4567",
-    description: "Mon-Fri from 8am to 6pm",
+    value: "+65 8446 3191",
+    description: "WhatsApp available",
+    link: "tel:+6584463191",
+  },
+  {
+    icon: Mail,
+    title: "Email",
+    value: "info@tasatrust.com",
+    description: "We'll respond within 24 hours",
+    link: "mailto:info@tasatrust.com",
   },
   {
     icon: MapPin,
     title: "Office",
-    value: "123 Business Ave, Suite 100",
-    description: "New York, NY 10001",
+    value: "Blk 2 Joo Chiat Road #05-1131",
+    description: "Singapore 420002",
   },
   {
     icon: Clock,
-    title: "Hours",
-    value: "Monday - Friday",
-    description: "8:00 AM - 6:00 PM EST",
+    title: "Office Hours",
+    value: "Monday – Friday",
+    description: "9:00 AM – 6:00 PM SGT",
+  },
+];
+
+const faqs = [
+  {
+    question: "How quickly can I get a virtual address?",
+    answer: "Same day setup is possible. Once you sign up and complete verification, you can start using your Singapore business address immediately.",
+  },
+  {
+    question: "Can I use the address for company registration?",
+    answer: "Yes! Our addresses are fully compliant for ACRA company registration and can be used as your official registered office address.",
+  },
+  {
+    question: "What's included in the All-in-1 packages?",
+    answer: "Our packages include corporate secretary, bookkeeping, un-audited reports, taxation, and XBRL filing. Specific inclusions vary by tier.",
   },
 ];
 
@@ -72,6 +96,8 @@ export default function Contact() {
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
+      company: "",
       inquiryType: undefined,
       message: "",
     },
@@ -85,7 +111,7 @@ export default function Contact() {
     
     toast({
       title: "Message sent!",
-      description: "We'll get back to you as soon as possible.",
+      description: "Thank you for reaching out. We'll get back to you within 24 hours.",
     });
     
     form.reset();
@@ -101,8 +127,8 @@ export default function Contact() {
             Get in <span className="text-primary">Touch</span>
           </h1>
           <p className="mx-auto max-w-2xl text-muted-foreground">
-            Have questions about our virtual office services? We're here to help.
-            Reach out and our team will respond promptly.
+            Have questions about our services? Ready to get started? 
+            We're here to help your business succeed in Singapore.
           </p>
         </div>
       </section>
@@ -116,72 +142,108 @@ export default function Contact() {
               <CardHeader>
                 <CardTitle className="text-2xl">Send us a message</CardTitle>
                 <CardDescription>
-                  Fill out the form below and we'll get back to you within 24
-                  hours.
+                  Fill out the form below and we'll get back to you within 24 hours.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-6"
+                    className="space-y-5"
                   >
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Your full name"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Name *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Your name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="email"
-                              placeholder="you@example.com"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Phone</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="+65 XXXX XXXX"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="you@company.com"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="company"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Company</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Your company name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
                     <FormField
                       control={form.control}
                       name="inquiryType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Inquiry Type</FormLabel>
+                          <FormLabel>What can we help you with? *</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select inquiry type" />
+                                <SelectValue placeholder="Select a service" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="sales">Sales</SelectItem>
-                              <SelectItem value="support">Support</SelectItem>
-                              <SelectItem value="partnership">
-                                Partnership
-                              </SelectItem>
+                              <SelectItem value="virtual-office">Virtual Office / Business Address</SelectItem>
+                              <SelectItem value="incorporation">Company Incorporation</SelectItem>
+                              <SelectItem value="accounting">Accounting & Tax Services</SelectItem>
+                              <SelectItem value="general">General Inquiry</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -194,10 +256,10 @@ export default function Contact() {
                       name="message"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Message</FormLabel>
+                          <FormLabel>Message *</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Tell us how we can help..."
+                              placeholder="Tell us about your business and how we can help..."
                               rows={5}
                               {...field}
                             />
@@ -226,22 +288,31 @@ export default function Contact() {
                   Contact Information
                 </h2>
                 <p className="text-muted-foreground">
-                  Prefer to reach out directly? Here's how you can contact us.
+                  Reach out directly or visit us at our office in Singapore.
                 </p>
               </div>
 
-              <div className="grid gap-6 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {contactInfo.map((info) => (
                   <Card key={info.title} className="border-border">
-                    <CardContent className="flex items-start gap-4 p-6">
-                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                        <info.icon className="h-6 w-6 text-primary" />
+                    <CardContent className="flex items-start gap-4 p-5">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                        <info.icon className="h-5 w-5 text-primary" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">
                           {info.title}
                         </h3>
-                        <p className="text-foreground">{info.value}</p>
+                        {info.link ? (
+                          <a 
+                            href={info.link} 
+                            className="text-foreground hover:text-primary transition-colors"
+                          >
+                            {info.value}
+                          </a>
+                        ) : (
+                          <p className="text-foreground">{info.value}</p>
+                        )}
                         <p className="text-sm text-muted-foreground">
                           {info.description}
                         </p>
@@ -251,19 +322,46 @@ export default function Contact() {
                 ))}
               </div>
 
-              {/* Map Placeholder */}
-              <Card className="overflow-hidden border-border">
-                <div className="aspect-video bg-muted">
-                  <div className="flex h-full items-center justify-center">
-                    <div className="text-center">
-                      <MapPin className="mx-auto mb-2 h-12 w-12 text-muted-foreground" />
-                      <p className="text-muted-foreground">
-                        Interactive map coming soon
-                      </p>
-                    </div>
+              {/* WhatsApp CTA */}
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="flex items-center gap-4 p-6">
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary">
+                    <MessageCircle className="h-6 w-6 text-primary-foreground" />
                   </div>
-                </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground">
+                      Prefer WhatsApp?
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Message us directly for a quick response
+                    </p>
+                  </div>
+                  <Button asChild>
+                    <a 
+                      href="https://wa.me/6584463191" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      Chat Now
+                    </a>
+                  </Button>
+                </CardContent>
               </Card>
+
+              {/* FAQs */}
+              <div>
+                <h3 className="mb-4 text-lg font-semibold text-foreground">
+                  Frequently Asked Questions
+                </h3>
+                <div className="space-y-4">
+                  {faqs.map((faq) => (
+                    <div key={faq.question} className="rounded-lg border border-border p-4">
+                      <h4 className="font-medium text-foreground">{faq.question}</h4>
+                      <p className="mt-1 text-sm text-muted-foreground">{faq.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

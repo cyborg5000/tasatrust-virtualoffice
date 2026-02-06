@@ -2,102 +2,116 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { PricingSection } from "@/components/pricing/PricingSection";
-import { FileText, Calculator, Receipt, CheckCircle, ArrowRight } from "lucide-react";
+import { MapPin, Mail, Phone, Building, CheckCircle, ArrowRight, Shield, Clock, Globe } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-const valueProps = [
+const virtualOfficeFeatures = [
   {
-    icon: FileText,
-    title: "Corporate Secretary",
+    icon: MapPin,
+    title: "Prestigious Business Address",
     description:
-      "Every company must appoint a company secretary within 6 months of its incorporation. We handle all administrative and reporting responsibilities.",
+      "Establish your business presence with a professional Singapore address. Perfect for company registration and building credibility.",
   },
   {
-    icon: Calculator,
-    title: "Accounting Services",
+    icon: Mail,
+    title: "Mail Handling & Forwarding",
     description:
-      "Cloud accounting based system to help business owners keep proper records. Check your company's financial health wherever, whenever.",
+      "We receive, scan, and forward your business mail. Never miss important correspondence wherever you are.",
   },
   {
-    icon: Receipt,
-    title: "GST & Tax Submissions",
+    icon: Phone,
+    title: "Professional Call Handling",
     description:
-      "Expert team familiar with Singapore tax regulations. We help maximise your tax savings while abiding to statutory requirements.",
+      "Dedicated phone answering with your company name. Calls forwarded directly to you or take messages professionally.",
   },
 ];
 
-const features = [
-  "Corporate secretary services",
-  "Bookkeeping & accounting",
-  "Un-audited reports",
-  "Taxation services",
-  "XBRL submissions",
-  "Payroll management",
-  "GST submissions",
-  "AIS submissions",
+const benefits = [
+  "Use for ACRA company registration",
+  "Professional business correspondence address",
+  "Mail scanning and forwarding service",
+  "Call answering in your company name",
+  "Meeting room access when needed",
+  "No long-term lease commitments",
+  "Flexible monthly plans",
+  "Instant setup — start today",
+];
+
+const trustedBy = [
+  "Startups",
+  "Freelancers",
+  "SMEs",
+  "Remote Teams",
+  "Overseas Companies",
+  "E-Commerce",
 ];
 
 export default function Index() {
   return (
     <Layout>
-      {/* Hero Section */}
+      {/* Hero Section - Virtual Office Focus */}
       <section className="relative overflow-hidden bg-secondary py-20 lg:py-32">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
         <div className="container relative mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mb-6 text-4xl font-bold tracking-tight text-secondary-foreground md:text-5xl lg:text-6xl">
-              Trusted{" "}
-              <span className="text-primary">Accountants</span>
-            </h1>
-            <p className="mb-4 text-lg font-medium text-primary md:text-xl">
-              PROFESSIONAL SERVICE OF THE HIGHEST QUALITY
+            <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-primary">
+              Singapore's Trusted Virtual Office Provider
             </p>
+            <h1 className="mb-6 text-4xl font-bold tracking-tight text-secondary-foreground md:text-5xl lg:text-6xl">
+              Your Professional{" "}
+              <span className="text-primary">Business Address</span>{" "}
+              in Singapore
+            </h1>
             <p className="mb-8 text-lg text-muted-foreground md:text-xl">
-              A Team of Accountability, Skilled and Agility ("TASA"). 
-              Your trusted partner for all corporate, accounting, and compliance needs in Singapore.
+              Establish your business presence without the overhead. Get a prestigious 
+              Singapore address, mail handling, and professional call answering — 
+              everything you need to build credibility and grow.
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <Button size="lg" asChild className="gap-2">
                 <a href="#pricing">
-                  View Pricing
+                  Get Your Address Today
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
               <Button size="lg" variant="outline" asChild className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
-                <Link to="/contact">Contact Us</Link>
+                <Link to="/contact">Talk to Us</Link>
               </Button>
             </div>
+            <p className="mt-6 text-sm text-muted-foreground">
+              ✓ Instant setup &nbsp; ✓ No long-term contracts &nbsp; ✓ Cancel anytime
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Value Props Section */}
+      {/* Why Virtual Office Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">
-              All-in-1 Services
+              Everything Your Business Needs
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground">
-              Complete corporate solutions for your business. From incorporation to 
-              accounting, we handle it all so you can focus on growing your business.
+              A virtual office gives you the professional presence of a physical office 
+              without the costs. Perfect for startups, remote teams, and businesses expanding to Singapore.
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
-            {valueProps.map((prop) => (
+            {virtualOfficeFeatures.map((feature) => (
               <Card
-                key={prop.title}
+                key={feature.title}
                 className="border-border bg-card transition-shadow hover:shadow-lg"
               >
                 <CardHeader>
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <prop.icon className="h-6 w-6 text-primary" />
+                    <feature.icon className="h-6 w-6 text-primary" />
                   </div>
-                  <CardTitle className="text-xl">{prop.title}</CardTitle>
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">
-                    {prop.description}
+                    {feature.description}
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -106,42 +120,129 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <PricingSection />
-
-      {/* Features Grid */}
-      <section className="py-20">
+      {/* Benefits Grid */}
+      <section className="bg-muted/50 py-20">
         <div className="container mx-auto px-4">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
               <h2 className="mb-6 text-3xl font-bold text-foreground md:text-4xl">
-                Comprehensive Business Services
+                Why Choose Our Virtual Office?
               </h2>
               <p className="mb-8 text-muted-foreground">
-                Whether you're a startup or established business, our comprehensive 
-                services are tailored to Trading, Service, Catering, Retail, and Healthcare industries.
+                Join hundreds of businesses that trust TASA Trust for their professional 
+                presence in Singapore. We make it easy to start and grow your business.
               </p>
-              <ul className="grid gap-4 sm:grid-cols-2">
-                {features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3">
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {benefits.map((benefit) => (
+                  <li key={benefit} className="flex items-center gap-3">
                     <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary" />
-                    <span className="text-foreground">{feature}</span>
+                    <span className="text-foreground">{benefit}</span>
                   </li>
                 ))}
               </ul>
               <Button className="mt-8 gap-2" asChild>
                 <a href="#pricing">
-                  Get Started
+                  View Plans & Pricing
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 p-8">
-                <div className="h-full w-full rounded-xl bg-card shadow-2xl" />
+              <div className="rounded-2xl bg-secondary p-8">
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <Building className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-secondary-foreground">Professional Image</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Project credibility with a real Singapore business address
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <Shield className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-secondary-foreground">Privacy Protection</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Keep your home address private on public registers
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <Clock className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-secondary-foreground">Instant Setup</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Start using your address within 24 hours
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <Globe className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-secondary-foreground">Work From Anywhere</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Manage your business remotely with full flexibility
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <PricingSection />
+
+      {/* Trusted By Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="mb-8 text-center">
+            <p className="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              Trusted by Businesses Across Industries
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
+            {trustedBy.map((industry) => (
+              <div
+                key={industry}
+                className="flex items-center justify-center rounded-lg bg-muted/50 p-6"
+              >
+                <span className="text-sm font-medium text-muted-foreground">
+                  {industry}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* More Services Teaser */}
+      <section className="bg-muted/30 py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="mb-4 text-2xl font-bold text-foreground md:text-3xl">
+            Need More Than a Virtual Address?
+          </h2>
+          <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
+            TASA Trust offers comprehensive corporate services including company incorporation, 
+            accounting, taxation, and more. Let us handle the paperwork while you focus on growing your business.
+          </p>
+          <Button size="lg" variant="outline" asChild>
+            <Link to="/services" className="gap-2">
+              Explore All Services
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </section>
 
@@ -149,18 +250,15 @@ export default function Index() {
       <section className="bg-secondary py-20">
         <div className="container mx-auto px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold text-secondary-foreground md:text-4xl">
-            Ready to Get Started?
+            Ready to Get Your Singapore Address?
           </h2>
           <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
-            Join hundreds of businesses that trust TASA Trust for their 
-            corporate and accounting needs. Let us handle the paperwork.
+            Join hundreds of businesses using TASA Trust Virtual Office. 
+            Setup takes less than 24 hours — start building your professional presence today.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Button
-              size="lg"
-              asChild
-            >
-              <a href="#pricing">View Plans</a>
+            <Button size="lg" asChild>
+              <a href="#pricing">Get Started Now</a>
             </Button>
             <Button
               size="lg"
@@ -168,7 +266,7 @@ export default function Index() {
               asChild
               className="border-primary text-primary hover:bg-primary/10"
             >
-              <Link to="/contact">Contact Us</Link>
+              <Link to="/contact">Schedule a Call</Link>
             </Button>
           </div>
         </div>

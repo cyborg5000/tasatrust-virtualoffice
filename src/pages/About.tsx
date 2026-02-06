@@ -2,62 +2,58 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Users, Globe, Award, ArrowRight } from "lucide-react";
+import { Building2, Users, Shield, Award, ArrowRight, Target, Heart, Lightbulb } from "lucide-react";
 
 const stats = [
-  { value: "10,000+", label: "Businesses Served" },
-  { value: "50+", label: "Locations" },
-  { value: "99.9%", label: "Uptime" },
-  { value: "24/7", label: "Support" },
+  { value: "500+", label: "Businesses Served" },
+  { value: "10+", label: "Years Experience" },
+  { value: "99%", label: "Client Satisfaction" },
+  { value: "24hr", label: "Response Time" },
 ];
 
 const values = [
   {
-    icon: Building2,
-    title: "Professional Excellence",
+    icon: Target,
+    title: "Accountability",
     description:
-      "We maintain the highest standards in everything we do, ensuring your business always looks its best.",
+      "We take responsibility for our work and deliver on our promises. Your success is our accountability.",
   },
   {
-    icon: Users,
-    title: "Customer First",
+    icon: Lightbulb,
+    title: "Skilled Excellence",
     description:
-      "Your success is our priority. We go above and beyond to support your business growth.",
+      "Our team brings deep expertise in accounting, corporate law, and business services to every engagement.",
   },
   {
-    icon: Globe,
-    title: "Global Reach",
+    icon: Heart,
+    title: "Agility",
     description:
-      "With locations across major cities, we help businesses establish presence worldwide.",
+      "We adapt quickly to your needs and Singapore's ever-evolving business landscape.",
   },
   {
-    icon: Award,
-    title: "Trusted Reliability",
+    icon: Shield,
+    title: "Trust & Integrity",
     description:
-      "Count on us for consistent, dependable service that keeps your business running smoothly.",
+      "We build lasting relationships through transparency, honesty, and ethical business practices.",
   },
 ];
 
-const team = [
+const whyChooseUs = [
   {
-    name: "Sarah Johnson",
-    role: "CEO & Founder",
-    bio: "20+ years in business services",
+    title: "Local Expertise",
+    description: "Deep understanding of Singapore's regulatory requirements and business environment.",
   },
   {
-    name: "Michael Chen",
-    role: "COO",
-    bio: "Expert in operations management",
+    title: "All-in-One Solution",
+    description: "From virtual office to accounting — we handle everything so you can focus on growth.",
   },
   {
-    name: "Emily Rodriguez",
-    role: "Head of Customer Success",
-    bio: "Passionate about client satisfaction",
+    title: "Technology-Driven",
+    description: "Cloud-based systems give you real-time visibility into your business finances.",
   },
   {
-    name: "David Kim",
-    role: "CTO",
-    bio: "Leading our digital innovation",
+    title: "Personal Service",
+    description: "Dedicated account managers who know your business and are always available.",
   },
 ];
 
@@ -68,11 +64,11 @@ export default function About() {
       <section className="bg-secondary py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="mb-4 text-4xl font-bold text-secondary-foreground md:text-5xl">
-            About <span className="text-primary">TasaTrust Virtual</span>
+            About <span className="text-primary">TASA Trust</span>
           </h1>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
-            We're on a mission to make professional business presence accessible
-            to everyone. Learn more about who we are and what drives us.
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+            A Team of Accountability, Skilled and Agility — delivering professional 
+            service of the highest quality since 2014.
           </p>
         </div>
       </section>
@@ -87,27 +83,37 @@ export default function About() {
               </h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  Founded in 2015, TasaTrust Virtual started with a simple idea:
-                  businesses shouldn't need expensive office leases to project
-                  professionalism.
+                  TASA Trust was founded with a simple belief: every business deserves 
+                  access to professional corporate services, regardless of size. Too many 
+                  entrepreneurs were struggling with the administrative burden of running 
+                  a business in Singapore.
                 </p>
                 <p>
-                  What began as a single location has grown into a network of
-                  50+ premium addresses across major business centers. We've
-                  helped over 10,000 businesses establish their professional
-                  presence.
+                  With Singapore's push toward becoming a Smart Nation, we saw an opportunity 
+                  to modernize how businesses handle their corporate needs. We embraced 
+                  cloud technology early, giving our clients real-time visibility into 
+                  their financial health — a far cry from traditional accounting.
                 </p>
                 <p>
-                  Today, we continue to innovate, offering comprehensive virtual
-                  office solutions that combine prestigious addresses, modern
-                  technology, and exceptional service.
+                  Today, we serve hundreds of businesses across Trading, Service, Catering, 
+                  Retail, and Healthcare industries. From startups to established SMEs, 
+                  our clients trust us to handle their corporate secretary, accounting, 
+                  taxation, and virtual office needs with professionalism and care.
                 </p>
               </div>
             </div>
             <div className="relative">
               <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 p-8">
                 <div className="flex h-full w-full items-center justify-center rounded-xl bg-card shadow-2xl">
-                  <Building2 className="h-24 w-24 text-primary" />
+                  <div className="text-center p-8">
+                    <p className="text-4xl font-bold text-primary mb-2">TASA</p>
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold">T</span>eam of{" "}
+                      <span className="font-semibold">A</span>ccountability,{" "}
+                      <span className="font-semibold">S</span>killed and{" "}
+                      <span className="font-semibold">A</span>gility
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -136,10 +142,10 @@ export default function About() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold text-foreground">
-              Our Values
+              Our Core Values
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground">
-              These core values guide everything we do at TasaTrust Virtual.
+              The principles that guide everything we do at TASA Trust.
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -162,29 +168,29 @@ export default function About() {
         </div>
       </section>
 
-      {/* Team Section */}
+      {/* Why Choose Us Section */}
       <section className="bg-muted/50 py-16">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold text-foreground">
-              Leadership Team
+              Why Businesses Choose Us
             </h2>
-            <p className="mx-auto max-w-2xl text-muted-foreground">
-              Meet the people driving TasaTrust Virtual forward.
-            </p>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {team.map((member) => (
-              <Card key={member.name} className="border-border text-center">
-                <CardContent className="p-6">
-                  <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/5" />
-                  <h3 className="font-semibold text-foreground">
-                    {member.name}
-                  </h3>
-                  <p className="text-sm text-primary">{member.role}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {member.bio}
-                  </p>
+          <div className="grid gap-8 md:grid-cols-2">
+            {whyChooseUs.map((item) => (
+              <Card key={item.title} className="border-border">
+                <CardContent className="flex items-start gap-4 p-6">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Award className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1 text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -192,25 +198,50 @@ export default function About() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Location Section */}
       <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="mb-4 text-3xl font-bold text-foreground">
+              Visit Our Office
+            </h2>
+            <p className="mb-6 text-muted-foreground">
+              We're located in the heart of Singapore's East district.
+            </p>
+            <div className="rounded-lg bg-muted p-6 text-left">
+              <p className="font-semibold text-foreground">TASA Trust Pte. Ltd.</p>
+              <p className="text-muted-foreground">
+                Blk 2 Joo Chiat Road #05-1131<br />
+                Singapore 420002
+              </p>
+              <p className="mt-4 text-muted-foreground">
+                <span className="font-medium">Office Hours:</span><br />
+                Monday – Friday: 9:00 AM – 6:00 PM
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-secondary py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold text-foreground">
-            Ready to Join Us?
+          <h2 className="mb-4 text-3xl font-bold text-secondary-foreground">
+            Ready to Work With Us?
           </h2>
           <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
-            Become part of the TasaTrust Virtual community and elevate your
-            business presence today.
+            Let's discuss how TASA Trust can support your business. 
+            Contact us for a free consultation.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" asChild className="gap-2">
-              <Link to="/pricing">
-                Get Started
+              <Link to="/contact">
+                Get in Touch
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link to="/contact">Contact Us</Link>
+            <Button size="lg" variant="outline" asChild className="border-primary text-primary hover:bg-primary/10">
+              <Link to="/services">View Our Services</Link>
             </Button>
           </div>
         </div>
