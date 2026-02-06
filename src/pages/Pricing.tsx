@@ -13,60 +13,63 @@ interface PricingTier {
   description: string;
   monthlyPrice: number;
   popular?: boolean;
+  freeGift?: string;
   features: string[];
 }
 
 const pricingTiers: PricingTier[] = [
   {
     name: "Basic",
-    description: "Essential virtual office services for startups",
+    description: "Professional business address for your brand",
     monthlyPrice: 17.99,
     features: [
-      "Virtual Business Address",
-      "Mail Handling",
-      "Digital Mail Scans",
+      "Business Address in Prime Location",
+      "Mail Alerts & Notifications",
+      "Digital Mail Scanning",
       "Business Registration Use",
       "Online Dashboard Access",
     ],
   },
   {
     name: "Essential",
-    description: "Everything you need for a professional presence",
+    description: "Everything you need with meeting room access",
     monthlyPrice: 18.99,
     popular: true,
     features: [
       "Everything in Basic",
-      "Phone Answering Service",
-      "Personalized Greeting",
-      "Call Forwarding",
-      "Message Taking",
-      "2 Hours Meeting Room/month",
+      "Mail Forwarding Service",
+      "4 Hours Meeting Room/month",
+      "Professional Meeting Space",
+      "Coffee & Refreshments",
     ],
   },
   {
     name: "Professional",
-    description: "Complete solution for growing businesses",
+    description: "Complete solution with FREE website build",
     monthlyPrice: 26.90,
+    freeGift: "FREE Website Build ($1,499 Value)",
     features: [
       "Everything in Essential",
-      "Registered Agent Service",
-      "5 Hours Meeting Room/month",
-      "Priority Mail Handling",
-      "Dedicated Account Manager",
-      "Premium Support",
+      "8 Hours Meeting Room/month",
+      "FREE Professional Website Build",
+      "Custom Domain Setup",
+      "SEO Optimization",
+      "Priority Support",
     ],
   },
 ];
 
 const featureMatrix = [
-  { feature: "Virtual Business Address", basic: true, essential: true, professional: true },
-  { feature: "Mail Handling", basic: true, essential: true, professional: true },
+  { feature: "Business Address", basic: true, essential: true, professional: true },
+  { feature: "Mail Alerts", basic: true, essential: true, professional: true },
+  { feature: "Mail Forwarding", basic: false, essential: true, professional: true },
   { feature: "Digital Mail Scans", basic: true, essential: true, professional: true },
-  { feature: "Phone Answering", basic: false, essential: true, professional: true },
-  { feature: "Call Forwarding", basic: false, essential: true, professional: true },
-  { feature: "Meeting Room Hours", basic: "—", essential: "2 hrs/mo", professional: "5 hrs/mo" },
-  { feature: "Registered Agent", basic: false, essential: false, professional: true },
-  { feature: "Dedicated Manager", basic: false, essential: false, professional: true },
+  { feature: "Business Registration Use", basic: true, essential: true, professional: true },
+  { feature: "Meeting Room Hours", basic: "0 hrs", essential: "4 hrs/mo", professional: "8 hrs/mo" },
+  { feature: "Extra Hours Rate", basic: "$30/hr", essential: "$25/hr", professional: "$20/hr" },
+  { feature: "Website Build", basic: false, essential: false, professional: true },
+  { feature: "Custom Domain", basic: false, essential: false, professional: true },
+  { feature: "SEO Optimization", basic: false, essential: false, professional: true },
   { feature: "Priority Support", basic: false, essential: false, professional: true },
 ];
 
@@ -145,6 +148,11 @@ export default function Pricing() {
                 {tier.popular && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary">
                     Most Popular
+                  </Badge>
+                )}
+                {tier.freeGift && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 mt-6">
+                    🎁 {tier.freeGift}
                   </Badge>
                 )}
                 <CardHeader className="text-center">
