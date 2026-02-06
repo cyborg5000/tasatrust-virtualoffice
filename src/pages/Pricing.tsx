@@ -20,14 +20,13 @@ interface PricingTier {
 const pricingTiers: PricingTier[] = [
   {
     name: "Basic",
-    description: "Professional business address for your brand",
+    description: "Essential virtual office services",
     monthlyPrice: 17.99,
     features: [
-      "Business Address in Prime Location",
-      "Mail Alerts & Notifications",
-      "Digital Mail Scanning",
+      "Business Address",
+      "Mail Alerts",
+      "Digital Mail Scans",
       "Business Registration Use",
-      "Online Dashboard Access",
     ],
   },
   {
@@ -37,23 +36,20 @@ const pricingTiers: PricingTier[] = [
     popular: true,
     features: [
       "Everything in Basic",
-      "Mail Forwarding Service",
-      "4 Hours Meeting Room/month",
+      "Mail Forwarding",
+      "4 hrs Meeting Room/month",
       "Professional Meeting Space",
-      "Coffee & Refreshments",
     ],
   },
   {
     name: "Professional",
-    description: "Complete solution with FREE website build",
+    description: "Complete solution with exclusive benefits",
     monthlyPrice: 26.90,
-    freeGift: "FREE Website Build ($1,499 Value)",
+    freeGift: "FREE Website",
     features: [
       "Everything in Essential",
-      "8 Hours Meeting Room/month",
-      "FREE Professional Website Build",
-      "Custom Domain Setup",
-      "SEO Optimization",
+      "8 hrs Meeting Room/month",
+      "FREE Website Build",
       "Priority Support",
     ],
   },
@@ -74,7 +70,7 @@ const featureMatrix = [
 ];
 
 export default function Pricing() {
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(true); // Show annual by default
   const discount = 0.12; // 12% savings for annual
 
   const calculatePrice = (monthlyPrice: number) => {
@@ -109,18 +105,20 @@ export default function Pricing() {
           <div className="flex items-center justify-center gap-4">
             <span
               className={cn(
-                "text-sm font-medium",
-                !isAnnual ? "text-foreground" : "text-muted-foreground"
+                "text-sm font-medium cursor-pointer",
+                isAnnual ? "text-muted-foreground" : "text-primary"
               )}
+              onClick={() => setIsAnnual(false)}
             >
               Monthly
             </span>
             <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
             <span
               className={cn(
-                "text-sm font-medium",
-                isAnnual ? "text-foreground" : "text-muted-foreground"
+                "text-sm font-medium cursor-pointer",
+                isAnnual ? "text-primary" : "text-muted-foreground"
               )}
+              onClick={() => setIsAnnual(true)}
             >
               Annual
             </span>
@@ -160,16 +158,28 @@ export default function Pricing() {
                   <CardDescription>{tier.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1">
-                  <div className="mb-6 text-center">
-                    <span className="text-4xl font-bold text-foreground">
-                      ${calculatePrice(tier.monthlyPrice)}
-                    </span>
-                    <span className="text-muted-foreground">/month</span>
-                    {isAnnual && (
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        ${calculateAnnualTotal(tier.monthlyPrice)} billed annually
-                      </p>
-                    )}
+                  <div className="mb-4 space-y-2 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">Monthly:</span>
+                      <span className="text-xl font-bold">${tier.monthlyPrice.toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">Annual:</span>
+                      <span className="text-xl font-bold text-primary">${calculatePrice(tier.monthlyPrice)}</span>
+                      <span className="text-sm text-muted-foreground">/mo</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">Meeting Hours:</span>
+                      <span className="text-sm font-medium">
+                        {tier.name === 'Basic' ? '0 hrs/mo' : tier.name === 'Essential' ? '4 hrs/mo' : '8 hrs/mo'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">Gift:</span>
+                      <span className="text-sm font-medium text-amber-500">
+                        {tier.name === 'Professional' ? '🎁 FREE Website' : '—'}
+                      </span>
+                    </div>
                   </div>
                   <ul className="space-y-3">
                     {tier.features.map((feature) => (
