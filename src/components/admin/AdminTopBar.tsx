@@ -8,6 +8,8 @@ import {
   Menu,
   LayoutDashboard,
   Users,
+  Package,
+  Receipt,
   Settings,
   LogOut,
   ChevronLeft,
@@ -18,6 +20,8 @@ import logo from "@/assets/logo.png";
 const navItems = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/members", label: "Members", icon: Users },
+  { href: "/admin/services", label: "Services", icon: Package },
+  { href: "/admin/orders", label: "Orders", icon: Receipt },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
