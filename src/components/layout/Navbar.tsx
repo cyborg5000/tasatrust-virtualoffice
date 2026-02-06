@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
@@ -25,19 +25,49 @@ const footerNavLinks = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
+  // Track scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav
+      className={cn(
+        "sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300",
+        scrolled && "shadow-md"
+      )}
+    >
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+        <div
+          className={cn(
+            "flex items-center transition-all duration-300",
+            scrolled ? "h-14" : "h-20",
+            // Mobile: center logo
+            "md:justify-between",
+            "justify-center"
+          )}
+        >
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src={logo} alt="TASA Trust" className="h-12 w-auto" />
+          <Link to="/" className="flex items-center absolute md:relative">
+            <img
+              src={logo}
+              alt="TASA Trust"
+              className={cn(
+                "w-auto transition-all duration-300",
+                scrolled ? "h-10" : "h-12"
+              )}
+            />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:gap-6">
+          <div className="hidden md:flex md:items-center md:gap-6 ml-auto">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -68,10 +98,12 @@ export function Navbar() {
                 )}
               >
                 Services
-                <ChevronDown className={cn(
-                  "h-4 w-4 transition-transform",
-                  servicesOpen && "rotate-180"
-                )} />
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    servicesOpen && "rotate-180"
+                  )}
+                />
               </button>
 
               {servicesOpen && (
@@ -107,7 +139,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex md:items-center md:gap-4">
+          <div className="hidden md:flex md:items-center md:gap-4 ml-6">
             <Button variant="ghost" asChild>
               <Link to="/login">Log In</Link>
             </Button>
@@ -118,7 +150,7 @@ export function Navbar() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden"
+            className="md:hidden absolute right-4"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
           >
