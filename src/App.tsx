@@ -8,6 +8,9 @@ import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import Services from "./pages/Services";
 import About from "./pages/About";
+import Privacy from "./pages/legal/Privacy";
+import Terms from "./pages/legal/Terms";
+import Cookies from "./pages/legal/Cookies";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import MemberDashboard from "./pages/member/Dashboard";
@@ -24,6 +27,7 @@ import AdminSettings from "./pages/admin/Settings";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +37,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Index />} />
@@ -40,6 +45,9 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/cookies" element={<Cookies />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
