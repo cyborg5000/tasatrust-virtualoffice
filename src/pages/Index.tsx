@@ -74,7 +74,7 @@ export default function Index() {
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
-              <Button size="lg" variant="outline" asChild className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
+              <Button size="lg" variant="outline" asChild className="border-primary text-primary hover:bg-primary/10">
                 <Link to="/contact">Talk to Us</Link>
               </Button>
             </div>
