@@ -3,6 +3,8 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building2, Users, Shield, Award, ArrowRight, Target, Heart, Lightbulb } from "lucide-react";
+import teamMeeting from "@/assets/team-meeting.jpg";
+import corporateBuilding from "@/assets/corporate-building.jpg";
 
 const stats = [
   { value: "500+", label: "Businesses Served" },
@@ -61,8 +63,13 @@ export default function About() {
   return (
     <Layout>
       {/* Header Section */}
-      <section className="bg-secondary py-16">
-        <div className="container mx-auto px-4 text-center">
+      <section className="relative overflow-hidden bg-secondary py-20">
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-20"
+          style={{ backgroundImage: `url(${corporateBuilding})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary via-secondary/95 to-secondary" />
+        <div className="container relative mx-auto px-4 text-center">
           <h1 className="mb-4 text-4xl font-bold text-secondary-foreground md:text-5xl">
             About <span className="text-primary">TASA Trust</span>
           </h1>
@@ -103,18 +110,20 @@ export default function About() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 p-8">
-                <div className="flex h-full w-full items-center justify-center rounded-xl bg-card shadow-2xl">
-                  <div className="text-center p-8">
-                    <p className="text-4xl font-bold text-primary mb-2">TASA</p>
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-semibold">T</span>eam of{" "}
-                      <span className="font-semibold">A</span>ccountability,{" "}
-                      <span className="font-semibold">S</span>killed and{" "}
-                      <span className="font-semibold">A</span>gility
-                    </p>
-                  </div>
-                </div>
+              <div className="absolute -inset-4 rounded-2xl bg-primary/10 blur-xl" />
+              <img 
+                src={teamMeeting} 
+                alt="TASA Trust team meeting" 
+                className="relative rounded-2xl shadow-2xl"
+              />
+              <div className="absolute -bottom-6 -left-6 rounded-xl bg-card p-6 shadow-xl">
+                <p className="text-3xl font-bold text-primary mb-1">TASA</p>
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-semibold">T</span>eam of{" "}
+                  <span className="font-semibold">A</span>ccountability,{" "}
+                  <span className="font-semibold">S</span>killed and{" "}
+                  <span className="font-semibold">A</span>gility
+                </p>
               </div>
             </div>
           </div>
