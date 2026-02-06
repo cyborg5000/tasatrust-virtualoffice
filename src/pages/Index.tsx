@@ -2,63 +2,67 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Users, Briefcase, CheckCircle, ArrowRight } from "lucide-react";
+import { FileText, Users, Calculator, CheckCircle, ArrowRight, Building, Receipt, ClipboardList } from "lucide-react";
 
 const valueProps = [
   {
-    icon: MapPin,
-    title: "Virtual Business Address",
+    icon: FileText,
+    title: "Corporate Secretary",
     description:
-      "Establish your business presence with a prestigious address in prime locations. Perfect for startups and remote teams.",
+      "Every company must appoint a company secretary within 6 months of its incorporation. We handle all administrative and reporting responsibilities.",
   },
   {
-    icon: Users,
-    title: "Meeting Rooms",
+    icon: Calculator,
+    title: "Accounting Services",
     description:
-      "Book professional meeting rooms on-demand. Impress clients with fully-equipped spaces when you need them.",
+      "Cloud accounting based system to help business owners keep proper records. Check your company's financial health wherever, whenever.",
   },
   {
-    icon: Briefcase,
-    title: "Professional Image",
+    icon: Receipt,
+    title: "GST & Tax Submissions",
     description:
-      "Project credibility with dedicated phone answering, mail handling, and a registered business address.",
+      "Expert team familiar with Singapore tax regulations. We help maximise your tax savings while abiding to statutory requirements.",
   },
 ];
 
 const clientLogos = [
-  "TechCorp",
-  "Innovate Inc",
-  "StartupXYZ",
-  "Global Solutions",
-  "FutureTech",
-  "Nexus Labs",
+  "SME Partners",
+  "Tech Startups",
+  "Healthcare",
+  "Retail",
+  "Catering",
+  "Trading",
 ];
 
 const features = [
-  "Professional business address",
-  "Mail handling & forwarding",
-  "Phone answering service",
-  "Meeting room access",
-  "Registered agent service",
-  "24/7 support",
+  "Corporate secretary services",
+  "Bookkeeping & accounting",
+  "Un-audited reports",
+  "Taxation services",
+  "XBRL submissions",
+  "Payroll management",
+  "GST submissions",
+  "AIS submissions",
 ];
 
 export default function Index() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary to-primary/20 py-20 lg:py-32">
+      <section className="relative overflow-hidden bg-secondary py-20 lg:py-32">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
         <div className="container relative mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="mb-6 text-4xl font-bold tracking-tight text-secondary-foreground md:text-5xl lg:text-6xl">
-              Elevate Your{" "}
-              <span className="text-primary">Business Presence</span>
+              Trusted{" "}
+              <span className="text-primary">Accountants</span>
             </h1>
+            <p className="mb-4 text-lg font-medium text-primary md:text-xl">
+              PROFESSIONAL SERVICE OF THE HIGHEST QUALITY
+            </p>
             <p className="mb-8 text-lg text-muted-foreground md:text-xl">
-              Establish credibility with a professional virtual office. Get a
-              prestigious business address, meeting rooms, and dedicated support
-              — without the overhead of traditional office space.
+              A Team of Accountability, Skilled and Agility ("TASA"). 
+              Your trusted partner for all corporate, accounting, and compliance needs in Singapore.
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <Button size="lg" asChild className="gap-2">
@@ -67,8 +71,8 @@ export default function Index() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/contact">Contact Sales</Link>
+              <Button size="lg" variant="outline" asChild className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
+                <Link to="/contact">Contact Us</Link>
               </Button>
             </div>
           </div>
@@ -80,11 +84,11 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">
-              Everything You Need to Succeed
+              All-in-1 Services
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground">
-              Our virtual office solutions give you the tools and services to
-              project a professional image while keeping costs low.
+              Complete corporate solutions for your business. From incorporation to 
+              accounting, we handle it all so you can focus on growing your business.
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
@@ -116,11 +120,11 @@ export default function Index() {
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
               <h2 className="mb-6 text-3xl font-bold text-foreground md:text-4xl">
-                Professional Services for Modern Businesses
+                Comprehensive Business Services
               </h2>
               <p className="mb-8 text-muted-foreground">
-                Whether you're a startup, freelancer, or established business,
-                our virtual office solutions scale with your needs.
+                Whether you're a startup or established business, our comprehensive 
+                services are tailored to Trading, Service, Catering, Retail, and Healthcare industries.
               </p>
               <ul className="grid gap-4 sm:grid-cols-2">
                 {features.map((feature) => (
@@ -173,21 +177,19 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-primary py-20">
+      <section className="bg-secondary py-20">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold text-primary-foreground md:text-4xl">
+          <h2 className="mb-4 text-3xl font-bold text-secondary-foreground md:text-4xl">
             Ready to Get Started?
           </h2>
-          <p className="mx-auto mb-8 max-w-2xl text-primary-foreground/80">
-            Join thousands of businesses that trust TasaTrust Virtual for their
-            professional presence. Start your journey today.
+          <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
+            Join hundreds of businesses that trust TASA Trust for their 
+            corporate and accounting needs. Let us handle the paperwork.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button
               size="lg"
-              variant="secondary"
               asChild
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
             >
               <Link to="/pricing">View Plans</Link>
             </Button>
@@ -195,9 +197,9 @@ export default function Index() {
               size="lg"
               variant="outline"
               asChild
-              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
+              className="border-primary text-primary hover:bg-primary/10"
             >
-              <Link to="/contact">Talk to Sales</Link>
+              <Link to="/contact">Contact Us</Link>
             </Button>
           </div>
         </div>

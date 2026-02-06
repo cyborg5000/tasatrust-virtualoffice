@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Building2, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const footerLinks = {
   company: [
@@ -34,29 +35,26 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2">
-              <Building2 className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">
-                TasaTrust <span className="text-primary">Virtual</span>
-              </span>
+            <Link to="/" className="inline-block">
+              <img src={logo} alt="TASA Trust" className="h-12 w-auto brightness-0 invert" />
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-              Elevate your business presence with our professional virtual office
-              solutions. Trusted by thousands of businesses worldwide.
+              A Team of Accountability, Skilled and Agility ("TASA"). Professional 
+              service of the highest quality for your business needs.
             </p>
             {/* Contact Info */}
             <div className="mt-6 space-y-2">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4 text-primary" />
-                <span>123 Business Ave, Suite 100, New York, NY 10001</span>
+                <span>Singapore</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4 text-primary" />
-                <span>(555) 123-4567</span>
+                <span>+65 8446 3191</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary" />
-                <span>hello@tasatrust.com</span>
+                <span>info@tasatrust.com</span>
               </div>
             </div>
           </div>
@@ -122,7 +120,7 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} TasaTrust Virtual. All rights reserved.
+            © {new Date().getFullYear()} TASA Trust Pte. Ltd. All rights reserved.
           </p>
           <div className="flex gap-4">
             {socialLinks.map((social) => (
