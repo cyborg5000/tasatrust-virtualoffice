@@ -28,8 +28,8 @@ export function AdminSidebar() {
   const { signOut } = useAuth();
 
   return (
-    <aside className="hidden w-64 flex-shrink-0 border-r border-border bg-card lg:block">
-      <div className="flex h-full flex-col">
+    <aside className="hidden w-64 flex-shrink-0 border-r border-border bg-card lg:flex lg:flex-col h-screen sticky top-0">
+      <div className="flex h-full flex-col overflow-hidden">
         {/* Logo */}
         <div className="flex h-16 items-center gap-2 border-b border-border px-6">
           <img src={logo} alt="TASA Trust" className="h-10 w-auto" />
@@ -37,7 +37,7 @@ export function AdminSidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 p-4">
+        <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
