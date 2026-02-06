@@ -12,6 +12,7 @@ import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import MemberDashboard from "./pages/member/Dashboard";
 import MemberServicesPage from "./pages/member/Services";
+import MemberBookings from "./pages/member/Bookings";
 import MemberSettings from "./pages/member/Settings";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -48,6 +49,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <MemberServicesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member/bookings"
+            element={
+              <ProtectedRoute>
+                <MemberBookings />
               </ProtectedRoute>
             }
           />
