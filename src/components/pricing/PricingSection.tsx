@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PricingTier {
@@ -12,66 +12,50 @@ interface PricingTier {
   description: string;
   monthlyPrice: number;
   popular?: boolean;
+  freeGift?: string;
   features: string[];
 }
 
 const pricingTiers: PricingTier[] = [
   {
     name: "Basic",
-    description: "Essential services for startups",
+    description: "Essential virtual office services",
     monthlyPrice: 17.99,
     features: [
-      "Corporate Secretary*",
-      "Bookkeeping*",
-      "Un-Audited Report*",
-      "Taxation*",
-      "Online Dashboard Access",
+      "Business Address",
+      "Mail Alerts",
+      "Digital Mail Scans",
+      "Business Registration Use",
     ],
   },
   {
     name: "Essential",
-    description: "Everything for professional presence",
+    description: "Everything you need with meeting room access",
     monthlyPrice: 18.99,
     popular: true,
     features: [
       "Everything in Basic",
-      "Payroll for 5 Staffs",
-      "XBRL*",
-      "GST Submission",
-      "AIS Submission",
-      "Priority Support",
+      "Mail Forwarding",
+      "4 hrs Meeting Room/month",
+      "Professional Meeting Space",
     ],
   },
   {
     name: "Professional",
-    description: "Complete solution for growing businesses",
+    description: "Complete solution with exclusive benefits",
     monthlyPrice: 26.90,
+    freeGift: "FREE Website",
     features: [
       "Everything in Essential",
-      "Registered Agent Service",
-      "Multiple Entity Support",
-      "Dedicated Account Manager",
-      "Premium Support",
-      "Custom Reporting",
+      "8 hrs Meeting Room/month",
+      "FREE Website Build",
+      "Priority Support",
     ],
   },
 ];
 
-const featureMatrix = [
-  { feature: "Corporate Secretary", basic: true, essential: true, professional: true },
-  { feature: "Bookkeeping", basic: true, essential: true, professional: true },
-  { feature: "Un-Audited Report", basic: true, essential: true, professional: true },
-  { feature: "Taxation", basic: true, essential: true, professional: true },
-  { feature: "Payroll Management", basic: false, essential: "5 Staffs", professional: "Unlimited" },
-  { feature: "XBRL Submission", basic: false, essential: true, professional: true },
-  { feature: "GST Submission", basic: false, essential: true, professional: true },
-  { feature: "AIS Submission", basic: false, essential: true, professional: true },
-  { feature: "Dedicated Manager", basic: false, essential: false, professional: true },
-  { feature: "Priority Support", basic: false, essential: true, professional: true },
-];
-
 export function PricingSection() {
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(true); // Default to annual
   const discount = 0.12;
 
   const calculatePrice = (monthlyPrice: number) => {
@@ -79,10 +63,6 @@ export function PricingSection() {
       return (monthlyPrice * (1 - discount)).toFixed(2);
     }
     return monthlyPrice.toFixed(2);
-  };
-
-  const calculateAnnualTotal = (monthlyPrice: number) => {
-    return (monthlyPrice * 12 * (1 - discount)).toFixed(2);
   };
 
   return (
@@ -95,11 +75,7 @@ export function PricingSection() {
           </h2>
           <p className="mx-auto max-w-2xl text-muted-foreground">
             Choose the plan that fits your business needs. All plans include our
-            core corporate services with no hidden fees.
-          </p>
-          <p className="mx-auto mt-2 max-w-xl text-xs text-muted-foreground">
-            * Nominee corporate secretary service for the year. Price inclusive of all systems for bookkeeping. 
-            Un-audited report, taxation & XBRL for single entity only.
+            core virtual office features with no hidden fees.
           </p>
         </div>
       </section>
@@ -110,18 +86,20 @@ export function PricingSection() {
           <div className="flex items-center justify-center gap-4">
             <span
               className={cn(
-                "text-sm font-medium",
-                !isAnnual ? "text-foreground" : "text-muted-foreground"
+                "text-sm font-medium cursor-pointer",
+                isAnnual ? "text-muted-foreground" : "text-primary"
               )}
+              onClick={() => setIsAnnual(false)}
             >
               Monthly
             </span>
             <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
             <span
               className={cn(
-                "text-sm font-medium",
-                isAnnual ? "text-foreground" : "text-muted-foreground"
+                "text-sm font-medium cursor-pointer",
+                isAnnual ? "text-primary" : "text-muted-foreground"
               )}
+              onClick={() => setIsAnnual(true)}
             >
               Annual
             </span>
@@ -143,7 +121,7 @@ export function PricingSection() {
                 key={tier.name}
                 className={cn(
                   "relative flex flex-col",
-                  tier.popular && "border-primary shadow-lg md:scale-105"
+                  tier.popular && "border-primary shadow-lg scale-105"
                 )}
               >
                 {tier.popular && (
@@ -151,21 +129,51 @@ export function PricingSection() {
                     Most Popular
                   </Badge>
                 )}
+                {tier.freeGift && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 mt-6">
+                    🎁 {tier.freeGift}
+                  </Badge>
+                )}
                 <CardHeader className="text-center">
                   <CardTitle className="text-2xl">{tier.name}</CardTitle>
                   <CardDescription>{tier.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1">
-                  <div className="mb-6 text-center">
-                    <span className="text-4xl font-bold text-foreground">
-                      ${calculatePrice(tier.monthlyPrice)}
-                    </span>
-                    <span className="text-muted-foreground">/month</span>
-                    {isAnnual && (
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        ${calculateAnnualTotal(tier.monthlyPrice)} billed annually
-                      </p>
-                    )}
+                  <div className="mb-4 space-y-2 text-center">
+                    {/* Main price - shows Annual when selected (default), Monthly when toggled */}
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        {isAnnual ? 'Annual:' : 'Monthly:'}
+                      </span>
+                      <span className={cn(
+                        "text-2xl font-bold",
+                        isAnnual ? "text-primary" : "text-foreground"
+                      )}>
+                        ${isAnnual ? calculatePrice(tier.monthlyPrice) : tier.monthlyPrice.toFixed(2)}
+                      </span>
+                      <span className="text-sm text-muted-foreground">/mo</span>
+                    </div>
+                    {/* Other price option */}
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        {isAnnual ? 'Monthly:' : 'Annual:'}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        ${isAnnual ? tier.monthlyPrice.toFixed(2) : calculatePrice(tier.monthlyPrice)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">Meeting Hours:</span>
+                      <span className="text-sm font-medium">
+                        {tier.name === 'Basic' ? '0 hrs/mo' : tier.name === 'Essential' ? '4 hrs/mo' : '8 hrs/mo'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">Gift:</span>
+                      <span className="text-sm font-medium text-amber-500">
+                        {tier.name === 'Professional' ? '🎁 FREE Website' : '—'}
+                      </span>
+                    </div>
                   </div>
                   <ul className="space-y-3">
                     {tier.features.map((feature) => (
@@ -187,87 +195,6 @@ export function PricingSection() {
                 </CardFooter>
               </Card>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Comparison Matrix */}
-      <section className="bg-muted/50 py-16">
-        <div className="container mx-auto px-4">
-          <h3 className="mb-8 text-center text-2xl font-bold text-foreground">
-            Feature Comparison
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px] border-collapse">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="py-4 text-left font-medium text-foreground">
-                    Feature
-                  </th>
-                  <th className="py-4 text-center font-medium text-foreground">
-                    Basic
-                  </th>
-                  <th className="py-4 text-center font-medium text-primary">
-                    Essential
-                  </th>
-                  <th className="py-4 text-center font-medium text-foreground">
-                    Professional
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {featureMatrix.map((row, index) => (
-                  <tr
-                    key={row.feature}
-                    className={cn(
-                      "border-b border-border",
-                      index % 2 === 0 && "bg-background"
-                    )}
-                  >
-                    <td className="py-4 text-foreground">{row.feature}</td>
-                    <td className="py-4 text-center">
-                      {typeof row.basic === "boolean" ? (
-                        row.basic ? (
-                          <Check className="mx-auto h-5 w-5 text-primary" />
-                        ) : (
-                          <X className="mx-auto h-5 w-5 text-muted-foreground" />
-                        )
-                      ) : (
-                        <span className="text-sm text-muted-foreground">
-                          {row.basic}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-4 text-center">
-                      {typeof row.essential === "boolean" ? (
-                        row.essential ? (
-                          <Check className="mx-auto h-5 w-5 text-primary" />
-                        ) : (
-                          <X className="mx-auto h-5 w-5 text-muted-foreground" />
-                        )
-                      ) : (
-                        <span className="text-sm font-medium text-primary">
-                          {row.essential}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-4 text-center">
-                      {typeof row.professional === "boolean" ? (
-                        row.professional ? (
-                          <Check className="mx-auto h-5 w-5 text-primary" />
-                        ) : (
-                          <X className="mx-auto h-5 w-5 text-muted-foreground" />
-                        )
-                      ) : (
-                        <span className="text-sm text-muted-foreground">
-                          {row.professional}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
       </section>
