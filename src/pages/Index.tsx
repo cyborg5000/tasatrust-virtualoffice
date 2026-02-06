@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { MapPin, Mail, Phone, Building, CheckCircle, ArrowRight, Shield, Clock, Globe } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import heroOffice from "@/assets/hero-office.jpg";
+import workspaceProfessional from "@/assets/workspace-professional.jpg";
+import businessHandshake from "@/assets/business-handshake.jpg";
 
 const virtualOfficeFeatures = [
   {
@@ -51,36 +54,52 @@ export default function Index() {
     <Layout>
       {/* Hero Section - Virtual Office Focus */}
       <section className="relative overflow-hidden bg-secondary py-20 lg:py-32">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-10"
+          style={{ backgroundImage: `url(${heroOffice})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/95 to-secondary/80" />
         <div className="container relative mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-primary">
-              Singapore's Trusted Virtual Office Provider
-            </p>
-            <h1 className="mb-6 text-4xl font-bold tracking-tight text-secondary-foreground md:text-5xl lg:text-6xl">
-              Your Professional{" "}
-              <span className="text-primary">Business Address</span>{" "}
-              in Singapore
-            </h1>
-            <p className="mb-8 text-lg text-muted-foreground md:text-xl">
-              Establish your business presence without the overhead. Get a prestigious 
-              Singapore address, mail handling, and professional call answering — 
-              everything you need to build credibility and grow.
-            </p>
-            <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <Button size="lg" asChild className="gap-2">
-                <a href="#pricing">
-                  Get Your Address Today
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="border-primary text-primary hover:bg-primary/10">
-                <Link to="/contact">Talk to Us</Link>
-              </Button>
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div>
+              <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-primary">
+                Singapore's Trusted Virtual Office Provider
+              </p>
+              <h1 className="mb-6 text-4xl font-bold tracking-tight text-secondary-foreground md:text-5xl lg:text-6xl">
+                Your Professional{" "}
+                <span className="text-primary">Business Address</span>{" "}
+                in Singapore
+              </h1>
+              <p className="mb-8 text-lg text-muted-foreground md:text-xl">
+                Establish your business presence without the overhead. Get a prestigious 
+                Singapore address, mail handling, and professional call answering — 
+                everything you need to build credibility and grow.
+              </p>
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <Button size="lg" asChild className="gap-2">
+                  <a href="#pricing">
+                    Get Your Address Today
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </Button>
+                <Button size="lg" variant="outline" asChild className="border-primary text-primary hover:bg-primary/10">
+                  <Link to="/contact">Talk to Us</Link>
+                </Button>
+              </div>
+              <p className="mt-6 text-sm text-muted-foreground">
+                ✓ Instant setup &nbsp; ✓ No long-term contracts &nbsp; ✓ Cancel anytime
+              </p>
             </div>
-            <p className="mt-6 text-sm text-muted-foreground">
-              ✓ Instant setup &nbsp; ✓ No long-term contracts &nbsp; ✓ Cancel anytime
-            </p>
+            <div className="hidden lg:block">
+              <div className="relative">
+                <div className="absolute -inset-4 rounded-2xl bg-primary/20 blur-2xl" />
+                <img 
+                  src={heroOffice} 
+                  alt="Professional office space" 
+                  className="relative rounded-2xl shadow-2xl"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -148,8 +167,13 @@ export default function Index() {
               </Button>
             </div>
             <div className="relative">
-              <div className="rounded-2xl bg-secondary p-8">
-                <div className="space-y-6">
+              <img 
+                src={workspaceProfessional} 
+                alt="Professional workspace" 
+                className="rounded-2xl shadow-xl"
+              />
+              <div className="absolute -bottom-6 -right-6 rounded-2xl bg-secondary p-6 shadow-xl">
+                <div className="space-y-4">
                   <div className="flex items-start gap-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       <Building className="h-5 w-5" />
@@ -228,8 +252,13 @@ export default function Index() {
       </section>
 
       {/* More Services Teaser */}
-      <section className="bg-muted/30 py-16">
-        <div className="container mx-auto px-4 text-center">
+      <section className="relative overflow-hidden py-20">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${businessHandshake})` }}
+        />
+        <div className="absolute inset-0 bg-background/90" />
+        <div className="container relative mx-auto px-4 text-center">
           <h2 className="mb-4 text-2xl font-bold text-foreground md:text-3xl">
             Need More Than a Virtual Address?
           </h2>

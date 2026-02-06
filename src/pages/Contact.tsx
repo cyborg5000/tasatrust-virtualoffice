@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Mail, Phone, MapPin, Clock, MessageCircle } from "lucide-react";
+import corporateBuilding from "@/assets/corporate-building.jpg";
 
 const contactSchema = z.object({
   name: z
@@ -121,8 +122,13 @@ export default function Contact() {
   return (
     <Layout>
       {/* Header Section */}
-      <section className="bg-secondary py-16">
-        <div className="container mx-auto px-4 text-center">
+      <section className="relative overflow-hidden bg-secondary py-20">
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-15"
+          style={{ backgroundImage: `url(${corporateBuilding})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary via-secondary/95 to-secondary" />
+        <div className="container relative mx-auto px-4 text-center">
           <h1 className="mb-4 text-4xl font-bold text-secondary-foreground md:text-5xl">
             Get in <span className="text-primary">Touch</span>
           </h1>
