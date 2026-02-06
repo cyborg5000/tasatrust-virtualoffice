@@ -159,14 +159,27 @@ export default function Pricing() {
                 </CardHeader>
                 <CardContent className="flex-1">
                   <div className="mb-4 space-y-2 text-center">
+                    {/* Main price - shows Annual when selected (default), Monthly when toggled */}
                     <div className="flex items-center justify-center gap-2">
-                      <span className="text-sm text-muted-foreground">Monthly:</span>
-                      <span className="text-xl font-bold">${tier.monthlyPrice.toFixed(2)}</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-sm text-muted-foreground">Annual:</span>
-                      <span className="text-xl font-bold text-primary">${calculatePrice(tier.monthlyPrice)}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {isAnnual ? 'Annual:' : 'Monthly:'}
+                      </span>
+                      <span className={cn(
+                        "text-2xl font-bold",
+                        isAnnual ? "text-primary" : "text-foreground"
+                      )}>
+                        ${isAnnual ? calculatePrice(tier.monthlyPrice) : tier.monthlyPrice.toFixed(2)}
+                      </span>
                       <span className="text-sm text-muted-foreground">/mo</span>
+                    </div>
+                    {/* Other price option */}
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        {isAnnual ? 'Monthly:' : 'Annual:'}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        ${isAnnual ? tier.monthlyPrice.toFixed(2) : calculatePrice(tier.monthlyPrice)}
+                      </span>
                     </div>
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-sm text-muted-foreground">Meeting Hours:</span>
