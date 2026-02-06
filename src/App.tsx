@@ -13,6 +13,7 @@ import Signup from "./pages/auth/Signup";
 import MemberDashboard from "./pages/member/Dashboard";
 import MemberServicesPage from "./pages/member/Services";
 import MemberBookings from "./pages/member/Bookings";
+import MemberBilling from "./pages/member/Billing";
 import MemberSettings from "./pages/member/Settings";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminMembers from "./pages/admin/Members";
@@ -64,6 +65,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <MemberBookings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member/billing"
+            element={
+              <ProtectedRoute>
+                <MemberBilling />
               </ProtectedRoute>
             }
           />

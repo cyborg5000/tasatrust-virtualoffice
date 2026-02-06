@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ServiceFormDialog } from "@/components/admin/ServiceFormDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +58,8 @@ const TIERS: SubscriptionTier[] = ["basic", "essential", "professional"];
 
 export default function AdminServices() {
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const categoryFilter = searchParams.get("category");
   const [services, setServices] = useState<ServiceWithPricing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -66,10 +69,16 @@ export default function AdminServices() {
 
   const fetchServices = async () => {
     setIsLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from("services")
       .select(`*, service_pricing(*)`)
       .order("display_order", { ascending: true });
+
+    if (categoryFilter) {
+      query = query.eq("category", categoryFilter);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("Error fetching services:", error);
@@ -82,7 +91,7 @@ export default function AdminServices() {
 
   useEffect(() => {
     fetchServices();
-  }, []);
+  }, [categoryFilter]);
 
   const handleCreate = () => {
     setDialogMode("create");
@@ -262,8 +271,12 @@ export default function AdminServices() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Service Management</h1>
-            <p className="text-muted-foreground">Manage services and tier-based pricing</p>
+            <h1 className="text-2xl font-bold text-foreground">
+              {categoryFilter ? `${categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)} Services` : "Service Management"}
+            </h1>
+            <p className="text-muted-foreground">
+              {categoryFilter ? `Showing services in "${categoryFilter}" category` : "Manage services and tier-based pricing"}
+            </p>
           </div>
           <Button onClick={handleCreate}>
             <Plus className="mr-2 h-4 w-4" />
