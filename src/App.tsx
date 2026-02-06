@@ -11,6 +11,7 @@ import About from "./pages/About";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import MemberDashboard from "./pages/member/Dashboard";
+import MemberServicesPage from "./pages/member/Services";
 import MemberSettings from "./pages/member/Settings";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -39,6 +40,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <MemberDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member/services"
+            element={
+              <ProtectedRoute>
+                <MemberServicesPage />
               </ProtectedRoute>
             }
           />
