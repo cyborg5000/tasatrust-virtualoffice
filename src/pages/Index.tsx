@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { PricingSection } from "@/components/pricing/PricingSection";
+import { FileText, Calculator, Receipt, CheckCircle, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Users, Calculator, CheckCircle, ArrowRight, Building, Receipt, ClipboardList } from "lucide-react";
 
 const valueProps = [
   {
@@ -23,15 +24,6 @@ const valueProps = [
     description:
       "Expert team familiar with Singapore tax regulations. We help maximise your tax savings while abiding to statutory requirements.",
   },
-];
-
-const clientLogos = [
-  "SME Partners",
-  "Tech Startups",
-  "Healthcare",
-  "Retail",
-  "Catering",
-  "Trading",
 ];
 
 const features = [
@@ -66,10 +58,10 @@ export default function Index() {
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <Button size="lg" asChild className="gap-2">
-                <Link to="/pricing">
-                  Get Started
+                <a href="#pricing">
+                  View Pricing
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </a>
               </Button>
               <Button size="lg" variant="outline" asChild className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
                 <Link to="/contact">Contact Us</Link>
@@ -114,8 +106,11 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <PricingSection />
+
       {/* Features Grid */}
-      <section className="bg-muted/50 py-20">
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
@@ -135,10 +130,10 @@ export default function Index() {
                 ))}
               </ul>
               <Button className="mt-8 gap-2" asChild>
-                <Link to="/pricing">
-                  View Pricing
+                <a href="#pricing">
+                  Get Started
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </a>
               </Button>
             </div>
             <div className="relative">
@@ -146,32 +141,6 @@ export default function Index() {
                 <div className="h-full w-full rounded-xl bg-card shadow-2xl" />
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Social Proof Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <p className="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-              Trusted by Leading Companies
-            </p>
-            <h2 className="text-2xl font-bold text-foreground md:text-3xl">
-              Join Thousands of Successful Businesses
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
-            {clientLogos.map((logo) => (
-              <div
-                key={logo}
-                className="flex items-center justify-center rounded-lg bg-muted/50 p-6"
-              >
-                <span className="text-lg font-semibold text-muted-foreground">
-                  {logo}
-                </span>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -191,7 +160,7 @@ export default function Index() {
               size="lg"
               asChild
             >
-              <Link to="/pricing">View Plans</Link>
+              <a href="#pricing">View Plans</a>
             </Button>
             <Button
               size="lg"

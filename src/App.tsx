@@ -8,7 +8,12 @@ import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import Services from "./pages/Services";
 import About from "./pages/About";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import MemberDashboard from "./pages/member/Dashboard";
+import MemberSettings from "./pages/member/Settings";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -19,12 +24,34 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* Protected Member Routes */}
+          <Route
+            path="/member"
+            element={
+              <ProtectedRoute>
+                <MemberDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member/settings"
+            element={
+              <ProtectedRoute>
+                <MemberSettings />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
