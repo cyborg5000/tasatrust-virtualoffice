@@ -40,7 +40,7 @@ export function PricingSection() {
   );
 
   return (
-    <section id="pricing" className="relative overflow-hidden py-20">
+    <section id="pricing" className="relative overflow-hidden py-14 sm:py-20">
       <div className="absolute inset-0 section-grid-bg opacity-40" aria-hidden="true" />
       <div className="container relative mx-auto px-4">
         <div className="mx-auto max-w-3xl text-center">
@@ -55,8 +55,9 @@ export function PricingSection() {
         </div>
 
         <div className="mx-auto mt-8 inline-flex w-full justify-center">
-          <div className="surface-panel flex items-center gap-4 px-5 py-3">
+          <div className="surface-panel flex flex-wrap items-center justify-center gap-3 px-4 py-3 sm:gap-4 sm:px-5">
             <button
+              type="button"
               className={cn("text-sm font-semibold", isAnnual ? "text-muted-foreground" : "text-secondary")}
               onClick={() => setIsAnnual(false)}
             >
@@ -64,6 +65,7 @@ export function PricingSection() {
             </button>
             <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
             <button
+              type="button"
               className={cn("text-sm font-semibold", isAnnual ? "text-secondary" : "text-muted-foreground")}
               onClick={() => setIsAnnual(true)}
             >
@@ -93,7 +95,7 @@ export function PricingSection() {
               <CardContent className="flex-1">
                 <div className="mb-6 rounded-xl bg-muted/70 p-4">
                   <div className="flex items-end gap-2">
-                    <span className="text-4xl font-bold text-secondary">
+                    <span className="text-3xl font-bold text-secondary sm:text-4xl">
                       ${isAnnual ? tier.annualPrice.toFixed(2) : tier.monthlyPrice.toFixed(2)}
                     </span>
                     <span className="pb-1 text-sm text-muted-foreground">/month</span>
@@ -103,23 +105,29 @@ export function PricingSection() {
                   </p>
                 </div>
 
-                <ul className="space-y-3">
-                  {[...tier.baseFeatures, ...tierIncludedFeatures[tier.tier]].map((feature) => (
-                    <li key={`${feature}-${index}`} className="flex items-start gap-3">
-                      <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
-                        <Check className="h-3.5 w-3.5 text-primary" />
-                      </span>
-                      <span
-                        className={cn(
-                          "text-sm text-foreground",
-                          isEmphasizedFeatureLabel(feature) && "font-semibold"
-                        )}
-                      >
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                {[...tier.baseFeatures, ...tierIncludedFeatures[tier.tier]].length > 0 ? (
+                  <ul className="space-y-3">
+                    {[...tier.baseFeatures, ...tierIncludedFeatures[tier.tier]].map((feature) => (
+                      <li key={`${feature}-${index}`} className="flex items-start gap-3">
+                        <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
+                          <Check className="h-3.5 w-3.5 text-primary" />
+                        </span>
+                        <span
+                          className={cn(
+                            "text-sm text-foreground",
+                            isEmphasizedFeatureLabel(feature) && "font-semibold"
+                          )}
+                        >
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Included features will appear here once configured in admin.
+                  </p>
+                )}
 
                 <div className="mt-6 rounded-xl border border-border/70 bg-muted/40 p-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">

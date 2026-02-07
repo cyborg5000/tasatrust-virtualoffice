@@ -112,6 +112,7 @@ export default function MemberOnboarding() {
   }, [selectedTier, selectableAddons]);
 
   const plan = selectedTier ? SUBSCRIPTION_PLAN_BY_TIER[selectedTier] : null;
+  const hasSelectedPlan = Boolean(selectedTier);
 
   const addonTotals = useMemo(() => {
     if (!selectedTier) return { oneTime: 0, recurring: 0 };
@@ -170,35 +171,37 @@ export default function MemberOnboarding() {
     <div className="min-h-screen bg-muted/20">
       <section className="relative overflow-hidden border-b border-border bg-secondary text-secondary-foreground">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_0%,hsl(var(--primary)/0.24),transparent_44%)]" />
-        <div className="container relative mx-auto px-4 py-10">
+        <div className="container relative mx-auto px-4 py-8 sm:py-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Badge className="border border-white/20 bg-white/10 text-white">
-              Member Onboarding
-            </Badge>
+            <Badge className="border border-white/20 bg-white/10 text-white">Member Onboarding</Badge>
             <Button
               variant="ghost"
               onClick={handleSignOut}
-              className="text-white hover:bg-white/10 hover:text-white"
+              className="h-9 text-white hover:bg-white/10 hover:text-white"
             >
               Sign Out
             </Button>
           </div>
-          <h1 className="mt-4 max-w-3xl text-3xl font-bold md:text-4xl">
+          <h1 className="mt-4 max-w-3xl text-2xl font-bold sm:text-3xl md:text-4xl">
             {companyName ? `${companyName}, let's activate your account.` : "Let's activate your account."}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-white/80 md:text-base">
             Choose your base plan and any optional services you want right away. Your setup remains flexible, and you
             can add more services later from your member portal.
           </p>
-          <div className="mt-6 flex items-center gap-3 text-sm">
+          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs sm:gap-3 sm:text-sm">
             <div
-              className={`rounded-full px-3 py-1 ${step === "plan" ? "bg-primary text-primary-foreground" : "bg-white/10 text-white/80"}`}
+              className={`rounded-full px-2.5 py-1.5 sm:px-3 sm:py-1 ${
+                step === "plan" ? "bg-primary text-primary-foreground" : "bg-white/10 text-white/80"
+              }`}
             >
               1. Plan
             </div>
             <ArrowRight className="h-4 w-4 text-white/60" />
             <div
-              className={`rounded-full px-3 py-1 ${step === "addons" ? "bg-primary text-primary-foreground" : "bg-white/10 text-white/80"}`}
+              className={`rounded-full px-2.5 py-1.5 sm:px-3 sm:py-1 ${
+                step === "addons" ? "bg-primary text-primary-foreground" : "bg-white/10 text-white/80"
+              }`}
             >
               2. Add-ons & Checkout
             </div>
@@ -206,17 +209,17 @@ export default function MemberOnboarding() {
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-10">
+      <section className="container mx-auto px-4 py-6 pb-28 sm:py-10 sm:pb-10">
         {step === "plan" && (
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-bold text-secondary">Pick Your Base Plan</h2>
+                <h2 className="text-xl font-bold text-secondary sm:text-2xl">Pick Your Base Plan</h2>
                 <p className="text-sm text-muted-foreground">
                   Built for practical setup speed, compliance readiness, and smooth day-to-day operations.
                 </p>
               </div>
-              <Badge className="bg-primary/10 text-primary">
+              <Badge className="bg-primary/10 text-primary max-sm:w-full max-sm:justify-center">
                 <ShieldCheck className="mr-1 h-3.5 w-3.5" />
                 Secure checkout powered by Stripe
               </Badge>
@@ -237,13 +240,15 @@ export default function MemberOnboarding() {
                     <CardHeader className="space-y-3">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-2xl text-secondary">{subscriptionPlan.name}</CardTitle>
-                        {subscriptionPlan.popular && (
+                        {isSelected ? (
+                          <Badge className="bg-primary text-primary-foreground">Selected</Badge>
+                        ) : subscriptionPlan.popular ? (
                           <Badge className="bg-secondary text-secondary-foreground">Most Popular</Badge>
-                        )}
+                        ) : null}
                       </div>
                       <CardDescription>{subscriptionPlan.description}</CardDescription>
                       <div className="rounded-xl bg-muted/70 p-4">
-                        <p className="text-3xl font-bold text-secondary">
+                        <p className="text-3xl font-bold text-secondary sm:text-4xl">
                           {formatCurrency(subscriptionPlan.checkoutMonthlyPrice)}
                           <span className="ml-1 text-sm font-medium text-muted-foreground">/month</span>
                         </p>
@@ -260,12 +265,10 @@ export default function MemberOnboarding() {
                         <ul className="mt-3 space-y-2">
                           {[...subscriptionPlan.baseFeatures, ...includedFeaturesByTier[subscriptionPlan.tier]].map(
                             (feature) => (
-                            <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
-                              <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                              <span className={cn(isEmphasizedFeatureLabel(feature) && "font-semibold")}>
-                                {feature}
-                              </span>
-                            </li>
+                              <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
+                                <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                                <span className={cn(isEmphasizedFeatureLabel(feature) && "font-semibold")}>{feature}</span>
+                              </li>
                             )
                           )}
                         </ul>
@@ -293,15 +296,13 @@ export default function MemberOnboarding() {
                             ))}
                           </ul>
                         ) : (
-                          <p className="mt-3 text-sm text-muted-foreground">
-                            No extra line items currently configured.
-                          </p>
+                          <p className="mt-3 text-sm text-muted-foreground">No extra line items currently configured.</p>
                         )}
                       </div>
                     </CardContent>
                     <div className="p-6 pt-0">
                       <Button
-                        className="w-full"
+                        className="h-11 w-full"
                         variant={isSelected ? "default" : "outline"}
                         onClick={() => setSelectedTier(subscriptionPlan.tier)}
                       >
@@ -313,8 +314,8 @@ export default function MemberOnboarding() {
               })}
             </div>
 
-            <div className="flex items-center justify-end">
-              <Button onClick={handleContinueToAddons} size="lg" className="gap-2">
+            <div className="hidden items-center justify-end sm:flex">
+              <Button onClick={handleContinueToAddons} size="lg" className="gap-2" disabled={!hasSelectedPlan}>
                 Continue to Add-ons
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -326,7 +327,7 @@ export default function MemberOnboarding() {
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-secondary">Choose Optional Add-ons</h2>
+                <h2 className="text-xl font-bold text-secondary sm:text-2xl">Choose Optional Add-ons</h2>
                 <p className="text-sm text-muted-foreground">
                   Select services you want to activate now. You can leave them unchecked and purchase later anytime.
                 </p>
@@ -334,9 +335,7 @@ export default function MemberOnboarding() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-secondary">
-                    {plan.name} Plan Add-ons
-                  </CardTitle>
+                  <CardTitle className="text-lg text-secondary">{plan.name} Plan Add-ons</CardTitle>
                   <CardDescription>
                     Only services marked as <strong>Pricing page</strong> or <strong>Both</strong> in admin are shown
                     here.
@@ -355,9 +354,7 @@ export default function MemberOnboarding() {
                         <label
                           key={addon.id}
                           className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${
-                            checked
-                              ? "border-primary bg-primary/5"
-                              : "border-border hover:border-primary/40"
+                            checked ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
                           }`}
                         >
                           <Checkbox
@@ -366,9 +363,11 @@ export default function MemberOnboarding() {
                             className="mt-0.5"
                           />
                           <div className="flex-1">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                               <p className="font-semibold text-foreground">{addon.name}</p>
-                              <Badge variant="outline">{getAddonCheckoutLabel(addon, selectedTier)}</Badge>
+                              <Badge variant="outline" className="w-fit">
+                                {getAddonCheckoutLabel(addon, selectedTier)}
+                              </Badge>
                             </div>
                             <p className="mt-1 text-sm text-muted-foreground">
                               {addon.description || "Professional add-on service for your business setup."}
@@ -410,7 +409,7 @@ export default function MemberOnboarding() {
             </div>
 
             <div className="space-y-4">
-              <Card className="sticky top-6 border-primary/30 bg-white/95">
+              <Card className="border-primary/30 bg-white/95 lg:sticky lg:top-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl text-secondary">
                     <Sparkles className="h-5 w-5 text-primary" />
@@ -422,17 +421,15 @@ export default function MemberOnboarding() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">{plan.name} plan</span>
-                      <span className="font-semibold text-foreground">
-                        {formatCurrency(plan.checkoutMonthlyPrice)}/mo
-                      </span>
+                      <span className="font-semibold text-foreground">{formatCurrency(plan.checkoutMonthlyPrice)}/mo</span>
                     </div>
                     {selectedAddonIds.map((addonId) => {
                       const addon = selectableAddons.find((item) => item.id === addonId);
                       if (!addon) return null;
                       return (
-                        <div key={addonId} className="flex items-center justify-between text-sm">
+                        <div key={addonId} className="flex items-center justify-between gap-4 text-sm">
                           <span className="text-muted-foreground">{addon.name}</span>
-                          <span className="font-semibold text-foreground">
+                          <span className="text-right font-semibold text-foreground">
                             {getAddonCheckoutLabel(addon, selectedTier)}
                           </span>
                         </div>
@@ -461,7 +458,12 @@ export default function MemberOnboarding() {
                     </p>
                   </div>
 
-                  <Button onClick={handleCheckout} className="w-full" size="lg" disabled={isRedirecting}>
+                  <Button
+                    onClick={handleCheckout}
+                    className="hidden w-full lg:flex"
+                    size="lg"
+                    disabled={isRedirecting}
+                  >
                     {isRedirecting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -482,6 +484,41 @@ export default function MemberOnboarding() {
           </div>
         )}
       </section>
+
+      {step === "plan" && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 p-4 shadow-[0_-8px_24px_-18px_hsl(var(--secondary)/0.7)] backdrop-blur sm:hidden">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">
+              {selectedTier ? `Selected: ${SUBSCRIPTION_PLAN_BY_TIER[selectedTier].name}` : "Select a plan to continue"}
+            </p>
+            <Button onClick={handleContinueToAddons} className="h-11 gap-2" disabled={!hasSelectedPlan}>
+              Continue
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {step === "addons" && plan && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 p-4 shadow-[0_-8px_24px_-18px_hsl(var(--secondary)/0.7)] backdrop-blur lg:hidden">
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
+            <div>
+              <p className="text-xs text-muted-foreground">Monthly recurring</p>
+              <p className="text-base font-bold text-secondary">{formatCurrency(recurringTotal)}/mo</p>
+            </div>
+            <Button onClick={handleCheckout} className="h-11" disabled={isRedirecting}>
+              {isRedirecting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Redirecting...
+                </>
+              ) : (
+                "Checkout"
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
