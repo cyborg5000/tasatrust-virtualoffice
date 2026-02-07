@@ -18,6 +18,8 @@ import MemberServicesPage from "./pages/member/Services";
 import MemberBookings from "./pages/member/Bookings";
 import MemberBilling from "./pages/member/Billing";
 import MemberSettings from "./pages/member/Settings";
+import MemberOnboarding from "./pages/member/Onboarding";
+import CheckoutSuccess from "./pages/member/CheckoutSuccess";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminMembers from "./pages/admin/Members";
 import AdminServices from "./pages/admin/Services";
@@ -55,15 +57,31 @@ const App = () => (
           <Route
             path="/member"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <MemberDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member/onboarding"
+            element={
+              <ProtectedRoute onlyWithoutSubscription>
+                <MemberOnboarding />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member/checkout/success"
+            element={
+              <ProtectedRoute>
+                <CheckoutSuccess />
               </ProtectedRoute>
             }
           />
           <Route
             path="/member/services"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <MemberServicesPage />
               </ProtectedRoute>
             }
@@ -71,7 +89,7 @@ const App = () => (
           <Route
             path="/member/bookings"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <MemberBookings />
               </ProtectedRoute>
             }
@@ -79,7 +97,7 @@ const App = () => (
           <Route
             path="/member/billing"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <MemberBilling />
               </ProtectedRoute>
             }
@@ -87,7 +105,7 @@ const App = () => (
           <Route
             path="/member/settings"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireSubscription>
                 <MemberSettings />
               </ProtectedRoute>
             }

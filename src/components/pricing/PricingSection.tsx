@@ -1,66 +1,43 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface PricingTier {
-  name: string;
-  description: string;
-  monthlyPrice: number;
-  annualPrice: number;
-  popular?: boolean;
-  freeGift?: string;
-  features: string[];
-}
-
-const pricingTiers: PricingTier[] = [
-  {
-    name: "Basic",
-    description: "Essential virtual office services",
-    monthlyPrice: 17.99,
-    annualPrice: 15.99,
-    features: [
-      "Business Address",
-      "Mail Alerts",
-      "Digital Mail Scans",
-      "Business Registration Use",
-      "0 hrs Meeting Room",
-    ],
-  },
-  {
-    name: "Essential",
-    description: "Everything you need with meeting room access",
-    monthlyPrice: 18.99,
-    annualPrice: 16.99,
-    popular: true,
-    features: [
-      "Everything in Basic",
-      "Mail Forwarding",
-      "4 hrs Meeting Room/month",
-      "Professional Meeting Space",
-    ],
-  },
-  {
-    name: "Professional",
-    description: "Complete solution with exclusive benefits",
-    monthlyPrice: 26.9,
-    annualPrice: 24.9,
-    freeGift: "Free Website Build",
-    features: [
-      "Everything in Essential",
-      "8 hrs Meeting Room/month",
-      "Website Build Included",
-      "Priority Support",
-    ],
-  },
-];
+import { usePricingCatalog } from "@/hooks/usePricingCatalog";
+import { getTierIncludedFeature, getTierOptionalLineItems } from "@/lib/pricingCatalog";
+import { isEmphasizedFeatureLabel, SUBSCRIPTION_PLANS } from "@/lib/subscriptionPlans";
 
 export function PricingSection() {
   const [isAnnual, setIsAnnual] = useState(true);
+  const { addons, loading } = usePricingCatalog();
+
+  const tierOptionalLineItems = useMemo(
+    () => ({
+      basic: getTierOptionalLineItems(addons, "basic"),
+      essential: getTierOptionalLineItems(addons, "essential"),
+      professional: getTierOptionalLineItems(addons, "professional"),
+    }),
+    [addons]
+  );
+
+  const tierIncludedFeatures = useMemo(
+    () => ({
+      basic: addons
+        .map((addon) => getTierIncludedFeature(addon, "basic"))
+        .filter(Boolean) as string[],
+      essential: addons
+        .map((addon) => getTierIncludedFeature(addon, "essential"))
+        .filter(Boolean) as string[],
+      professional: addons
+        .map((addon) => getTierIncludedFeature(addon, "professional"))
+        .filter(Boolean) as string[],
+    }),
+    [addons]
+  );
 
   return (
     <section id="pricing" className="relative overflow-hidden py-20">
@@ -97,9 +74,9 @@ export function PricingSection() {
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          {pricingTiers.map((tier, index) => (
+          {SUBSCRIPTION_PLANS.map((tier, index) => (
             <Card
-              key={tier.name}
+              key={tier.tier}
               className={cn(
                 "surface-panel flex flex-col border bg-white/90",
                 tier.popular && "border-primary/60 shadow-[0_20px_40px_-32px_hsl(var(--secondary)/0.95)]"
@@ -109,9 +86,6 @@ export function PricingSection() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-2xl text-secondary">{tier.name}</CardTitle>
                   {tier.popular && <Badge className="bg-secondary text-secondary-foreground">Most Popular</Badge>}
-                  {!tier.popular && tier.freeGift && (
-                    <Badge className="bg-amber-500/20 text-amber-700">{tier.freeGift}</Badge>
-                  )}
                 </div>
                 <CardDescription>{tier.description}</CardDescription>
               </CardHeader>
@@ -130,15 +104,46 @@ export function PricingSection() {
                 </div>
 
                 <ul className="space-y-3">
-                  {tier.features.map((feature) => (
+                  {[...tier.baseFeatures, ...tierIncludedFeatures[tier.tier]].map((feature) => (
                     <li key={`${feature}-${index}`} className="flex items-start gap-3">
                       <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
                         <Check className="h-3.5 w-3.5 text-primary" />
                       </span>
-                      <span className="text-sm text-foreground">{feature}</span>
+                      <span
+                        className={cn(
+                          "text-sm text-foreground",
+                          isEmphasizedFeatureLabel(feature) && "font-semibold"
+                        )}
+                      >
+                        {feature}
+                      </span>
                     </li>
                   ))}
                 </ul>
+
+                <div className="mt-6 rounded-xl border border-border/70 bg-muted/40 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    Add-On
+                  </p>
+                  {loading ? (
+                    <div className="mt-3 space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-11/12" />
+                    </div>
+                  ) : tierOptionalLineItems[tier.tier].length > 0 ? (
+                    <ul className="mt-3 space-y-2">
+                      {tierOptionalLineItems[tier.tier].map((line) => (
+                        <li key={`${tier.tier}-${line}`} className="text-sm text-muted-foreground">
+                          {line}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      No add-on items configured for this tier.
+                    </p>
+                  )}
+                </div>
               </CardContent>
 
               <CardFooter>

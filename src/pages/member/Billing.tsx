@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { Tables } from "@/integrations/supabase/types";
+import { SUBSCRIPTION_PLAN_BY_TIER } from "@/lib/subscriptionPlans";
 
 type Order = Tables<"orders">;
 type Subscription = Tables<"subscriptions">;
@@ -88,16 +89,9 @@ export default function MemberBilling() {
   };
 
   const getTierPrice = (tier: string) => {
-    switch (tier) {
-      case "basic":
-        return "$17.99";
-      case "essential":
-        return "$18.99";
-      case "professional":
-        return "$26.90";
-      default:
-        return "$0";
-    }
+    const typedTier = tier as keyof typeof SUBSCRIPTION_PLAN_BY_TIER;
+    if (!SUBSCRIPTION_PLAN_BY_TIER[typedTier]) return "$0.00";
+    return `$${SUBSCRIPTION_PLAN_BY_TIER[typedTier].checkoutMonthlyPrice.toFixed(2)}`;
   };
 
   const totalSpent = orders

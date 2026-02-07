@@ -35,7 +35,7 @@ export default function Signup() {
 
       if (authData.user) {
         // Create member record
-        const { error: memberError } = await supabase.from("members").insert({
+        const { error: memberError } = await supabase.from("members").upsert({
           id: authData.user.id,
           email,
           company_name: companyName,
@@ -46,10 +46,15 @@ export default function Signup() {
         }
       }
 
-      toast.success("Account created! Please check your email to verify.");
-      navigate("/login");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create account");
+      if (authData.session) {
+        toast.success("Account created. Welcome to your member setup.");
+        navigate("/member");
+      } else {
+        toast.success("Account created. Please sign in to continue.");
+        navigate("/login");
+      }
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to create account");
     } finally {
       setLoading(false);
     }
