@@ -66,16 +66,14 @@ export function AdminSidebar() {
   const currentCategory = searchParams.get("category");
 
   return (
-    <aside className="hidden w-64 flex-shrink-0 border-r border-border bg-card lg:flex lg:flex-col h-screen sticky top-0">
+    <aside className="sticky top-0 hidden h-screen w-64 flex-shrink-0 border-r border-border bg-secondary text-secondary-foreground lg:flex lg:flex-col">
       <div className="flex h-full flex-col overflow-hidden">
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-          <img src={logo} alt="TASA Trust" className="h-10 w-auto" />
-          <span className="text-xs font-medium text-primary">Admin</span>
+        <div className="flex h-16 items-center gap-2 border-b border-secondary-foreground/10 px-6">
+          <img src={logo} alt="TASA Trust" className="h-10 w-auto brightness-0 invert" />
+          <span className="text-xs font-medium uppercase tracking-[0.12em] text-primary">Admin</span>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
+        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -91,7 +89,7 @@ export function AdminSidebar() {
                       "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                       isActive
                         ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                        : "text-secondary-foreground/85 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
                     )}
                   >
                     <div className="flex items-center gap-3">
@@ -105,14 +103,14 @@ export function AdminSidebar() {
                     )}
                   </button>
                   {servicesExpanded && (
-                    <div className="ml-4 mt-1 space-y-1 border-l border-border pl-3">
+                    <div className="ml-4 mt-1 space-y-1 border-l border-secondary-foreground/15 pl-3">
                       <Link
                         to="/admin/services"
                         className={cn(
                           "block rounded-lg px-3 py-1.5 text-sm transition-colors",
                           location.pathname === "/admin/services" && !currentCategory
-                            ? "bg-muted font-medium text-foreground"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            ? "bg-secondary-foreground/15 font-medium text-secondary-foreground"
+                            : "text-secondary-foreground/75 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
                         )}
                       >
                         All Services
@@ -124,8 +122,8 @@ export function AdminSidebar() {
                           className={cn(
                             "block rounded-lg px-3 py-1.5 text-sm capitalize transition-colors",
                             currentCategory === category
-                              ? "bg-muted font-medium text-foreground"
-                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                              ? "bg-secondary-foreground/15 font-medium text-secondary-foreground"
+                              : "text-secondary-foreground/75 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
                           )}
                         >
                           {category}
@@ -145,7 +143,7 @@ export function AdminSidebar() {
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   isActive
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    : "text-secondary-foreground/85 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -155,11 +153,10 @@ export function AdminSidebar() {
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="border-t border-border p-4 space-y-2">
+        <div className="space-y-2 border-t border-secondary-foreground/10 p-4">
           <Button
             variant="ghost"
-            className="w-full justify-start text-muted-foreground"
+            className="w-full justify-start text-secondary-foreground/85 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
             asChild
           >
             <Link to="/member">
@@ -169,7 +166,7 @@ export function AdminSidebar() {
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start text-muted-foreground hover:text-destructive"
+            className="w-full justify-start text-secondary-foreground/85 hover:bg-secondary-foreground/10 hover:text-destructive"
             onClick={signOut}
           >
             <LogOut className="mr-2 h-4 w-4" />

@@ -6,11 +6,14 @@ import {
   CreditCard, 
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Shield
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import logo from "@/assets/logo.png";
 
 const sidebarLinks = [
@@ -24,6 +27,7 @@ const sidebarLinks = [
 export function MemberSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const { isAdmin } = useAdminAuth();
 
   const isActive = (href: string, end?: boolean) => {
     if (end) {
@@ -35,7 +39,7 @@ export function MemberSidebar() {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r border-border bg-secondary transition-all duration-300",
+        "sticky top-0 flex h-screen flex-shrink-0 flex-col border-r border-border bg-secondary transition-all duration-300",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -59,7 +63,7 @@ export function MemberSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-2">
+      <nav className="flex-1 space-y-1 overflow-y-auto p-2">
         {sidebarLinks.map((link) => (
           <NavLink
             key={link.href}
@@ -79,13 +83,28 @@ export function MemberSidebar() {
       </nav>
 
       {/* Footer */}
-      {!collapsed && (
-        <div className="border-t border-border p-4">
+      <div className="border-t border-border p-3">
+        {isAdmin && (
+          <Button
+            variant="ghost"
+            asChild
+            className={cn(
+              "mb-2 w-full text-secondary-foreground hover:bg-secondary-foreground/10",
+              collapsed ? "justify-center px-2" : "justify-start"
+            )}
+          >
+            <Link to="/admin">
+              <Shield className={cn("h-4 w-4", !collapsed && "mr-2")} />
+              {!collapsed && "Admin Portal"}
+            </Link>
+          </Button>
+        )}
+        {!collapsed && (
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} TASA Trust
           </p>
-        </div>
-      )}
+        )}
+      </div>
     </aside>
   );
 }

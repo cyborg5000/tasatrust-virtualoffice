@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,14 +17,14 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 40 34% 58%;
+    --primary: 39 47% 56%;
     --primary-foreground: 222 47% 11%;
 
     --secondary: 222 47% 11%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 220 22% 96%;
+    --muted-foreground: 220 10% 40%;
 
     --accent: 40 34% 58%;
     --accent-foreground: 222 47% 11%;
@@ -30,15 +32,15 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 40 34% 58%;
+    --border: 220 14% 88%;
+    --input: 220 14% 88%;
+    --ring: 39 47% 56%;
 
     --radius: 0.5rem;
 
     /* Custom brand colors */
     --brand-dark: 222 47% 11%;
-    --brand-gold: 40 34% 58%;
+    --brand-gold: 39 47% 56%;
     --brand-light: 0 0% 100%;
 
     --sidebar-background: 222 47% 11%;
@@ -61,7 +63,7 @@
     --popover: 222 47% 15%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 40 34% 58%;
+    --primary: 39 47% 56%;
     --primary-foreground: 222 47% 11%;
 
     --secondary: 222 47% 20%;
@@ -78,7 +80,7 @@
 
     --border: 222 47% 20%;
     --input: 222 47% 20%;
-    --ring: 40 34% 58%;
+    --ring: 39 47% 56%;
 
     --sidebar-background: 222 47% 8%;
     --sidebar-foreground: 0 0% 100%;
@@ -97,11 +99,28 @@
   }
 
   html {
-    @apply overflow-x-hidden;
+    @apply overflow-x-hidden scroll-smooth;
   }
 
   body {
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
     @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at 0% 0%, hsl(var(--primary) / 0.12), transparent 34%),
+      radial-gradient(circle at 100% 0%, hsl(var(--secondary) / 0.1), transparent 30%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Fraunces", "Times New Roman", serif;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    @apply bg-primary/25 text-foreground;
   }
 }
 
@@ -113,5 +132,36 @@
 
   .glass-effect {
     @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+
+  .surface-panel {
+    @apply rounded-2xl border border-border/60 bg-white/85 shadow-[0_14px_30px_-24px_hsl(var(--secondary)/0.55)] backdrop-blur-sm;
+  }
+
+  .hero-overlay {
+    background:
+      linear-gradient(115deg, hsl(var(--secondary) / 0.95) 0%, hsl(var(--secondary) / 0.75) 45%, hsl(var(--secondary) / 0.45) 100%);
+  }
+
+  .section-grid-bg {
+    background-image:
+      linear-gradient(to right, hsl(var(--secondary) / 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--secondary) / 0.08) 1px, transparent 1px);
+    background-size: 36px 36px;
+  }
+
+  .animate-fade-up {
+    animation: fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

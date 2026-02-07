@@ -31,11 +31,11 @@ export function MemberLayout({ children }: MemberLayoutProps) {
   }, [user]);
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex h-screen w-full overflow-hidden bg-muted/30">
       <MemberSidebar />
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <MemberTopBar companyName={companyName} />
-        <main className="flex-1 overflow-auto bg-muted/30 p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );

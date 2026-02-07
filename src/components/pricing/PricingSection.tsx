@@ -47,137 +47,109 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Professional",
     description: "Complete solution with exclusive benefits",
-    monthlyPrice: 26.90,
-    annualPrice: 24.90,
-    freeGift: "FREE Website",
+    monthlyPrice: 26.9,
+    annualPrice: 24.9,
+    freeGift: "Free Website Build",
     features: [
       "Everything in Essential",
       "8 hrs Meeting Room/month",
-      "**FREE Website**",
+      "Website Build Included",
       "Priority Support",
     ],
   },
 ];
 
 export function PricingSection() {
-  const [isAnnual, setIsAnnual] = useState(true); // Default to annual
+  const [isAnnual, setIsAnnual] = useState(true);
 
   return (
-    <>
-      {/* Pricing Header */}
-      <section className="py-16" id="pricing">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">
-            Simple, Transparent <span className="text-primary">Pricing</span>
+    <section id="pricing" className="relative overflow-hidden py-20">
+      <div className="absolute inset-0 section-grid-bg opacity-40" aria-hidden="true" />
+      <div className="container relative mx-auto px-4">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Plans & Pricing</p>
+          <h2 className="mt-4 text-3xl font-bold text-foreground md:text-4xl">
+            Simple, Transparent <span className="text-gradient">Pricing</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
-            Choose the plan that fits your business needs. All plans include our
-            core virtual office features with no hidden fees.
+          <p className="mt-4 text-muted-foreground">
+            Choose the plan that fits your business stage. Every package includes a real Singapore address and the
+            core virtual office essentials.
           </p>
         </div>
-      </section>
 
-      {/* Billing Toggle */}
-      <section className="pb-8">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-4">
-            <span
-              className={cn(
-                "text-sm font-medium cursor-pointer",
-                isAnnual ? "text-muted-foreground" : "text-primary"
-              )}
+        <div className="mx-auto mt-8 inline-flex w-full justify-center">
+          <div className="surface-panel flex items-center gap-4 px-5 py-3">
+            <button
+              className={cn("text-sm font-semibold", isAnnual ? "text-muted-foreground" : "text-secondary")}
               onClick={() => setIsAnnual(false)}
             >
               Monthly
-            </span>
+            </button>
             <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
-            <span
-              className={cn(
-                "text-sm font-medium cursor-pointer",
-                isAnnual ? "text-primary" : "text-muted-foreground"
-              )}
+            <button
+              className={cn("text-sm font-semibold", isAnnual ? "text-secondary" : "text-muted-foreground")}
               onClick={() => setIsAnnual(true)}
             >
               Annual
-            </span>
-            {isAnnual && (
-              <Badge variant="secondary" className="bg-primary/10 text-primary">
-                Save 12%
-              </Badge>
-            )}
+            </button>
+            <Badge className="bg-primary/15 text-primary">Save 12%</Badge>
           </div>
         </div>
-      </section>
 
-      {/* Pricing Cards */}
-      <section className="pb-16">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-8 md:grid-cols-3">
-            {pricingTiers.map((tier) => (
-              <Card
-                key={tier.name}
-                className={cn(
-                  "relative flex flex-col",
-                  tier.popular && "border-primary shadow-lg scale-105"
-                )}
-              >
-                {tier.popular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary">
-                    Most Popular
-                  </Badge>
-                )}
-                {tier.freeGift && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 mt-6">
-                    🎁 {tier.freeGift}
-                  </Badge>
-                )}
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl">{tier.name}</CardTitle>
-                  <CardDescription>{tier.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  {/* Dynamic Price Display */}
-                  <div className="mb-4 text-center">
-                    <span className="text-4xl font-bold text-primary">
-                      ${isAnnual ? tier.annualPrice : tier.monthlyPrice}
+        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+          {pricingTiers.map((tier, index) => (
+            <Card
+              key={tier.name}
+              className={cn(
+                "surface-panel flex flex-col border bg-white/90",
+                tier.popular && "border-primary/60 shadow-[0_20px_40px_-32px_hsl(var(--secondary)/0.95)]"
+              )}
+            >
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl text-secondary">{tier.name}</CardTitle>
+                  {tier.popular && <Badge className="bg-secondary text-secondary-foreground">Most Popular</Badge>}
+                  {!tier.popular && tier.freeGift && (
+                    <Badge className="bg-amber-500/20 text-amber-700">{tier.freeGift}</Badge>
+                  )}
+                </div>
+                <CardDescription>{tier.description}</CardDescription>
+              </CardHeader>
+
+              <CardContent className="flex-1">
+                <div className="mb-6 rounded-xl bg-muted/70 p-4">
+                  <div className="flex items-end gap-2">
+                    <span className="text-4xl font-bold text-secondary">
+                      ${isAnnual ? tier.annualPrice.toFixed(2) : tier.monthlyPrice.toFixed(2)}
                     </span>
-                    <span className="text-muted-foreground">/mo</span>
-                    {isAnnual && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        billed annually
-                      </p>
-                    )}
+                    <span className="pb-1 text-sm text-muted-foreground">/month</span>
                   </div>
+                  <p className="mt-2 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                    {isAnnual ? "Billed annually" : "Billed monthly"}
+                  </p>
+                </div>
 
-                  {/* Features */}
-                  <ul className="space-y-3">
-                    {tier.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3">
-                        <Check className="h-5 w-5 flex-shrink-0 text-primary mt-0.5" />
-                        <span 
-                          className="text-sm text-foreground"
-                          dangerouslySetInnerHTML={{
-                            __html: feature.replace(/\*\*(.*?)\*\*/g, '<strong class="text-amber-500 font-semibold">$1</strong>')
-                          }}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full"
-                    variant={tier.popular ? "default" : "outline"}
-                    asChild
-                  >
-                    <Link to="/signup">Get Started</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+                <ul className="space-y-3">
+                  {tier.features.map((feature) => (
+                    <li key={`${feature}-${index}`} className="flex items-start gap-3">
+                      <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      </span>
+                      <span className="text-sm text-foreground">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+
+              <CardFooter>
+                <Button className="w-full" variant={tier.popular ? "default" : "outline"} asChild>
+                  <Link to="/signup">Get Started</Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

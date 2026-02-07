@@ -35,7 +35,7 @@ export function MemberTopBar({ companyName }: MemberTopBarProps) {
     : user?.email?.slice(0, 2).toUpperCase() || "U";
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border bg-background px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur">
       <div>
         <h1 className="text-lg font-semibold text-foreground">Member Portal</h1>
       </div>
