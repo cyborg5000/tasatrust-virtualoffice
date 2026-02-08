@@ -2,11 +2,12 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { corsHeaders } from "../_shared/cors.ts";
-import { PLAN_PRICING, type SubscriptionTier } from "../_shared/plans.ts";
+import { PLAN_PRICING, type BillingCycle, type SubscriptionTier } from "../_shared/plans.ts";
 
 interface CheckoutRequestBody {
   tier: SubscriptionTier;
   addonIds?: string[];
+  billingCycle?: BillingCycle;
 }
 
 function jsonResponse(body: unknown, status = 200) {
@@ -23,6 +24,10 @@ function isTier(value: string): value is SubscriptionTier {
   return value === "basic" || value === "essential" || value === "professional";
 }
 
+function isBillingCycle(value: string): value is BillingCycle {
+  return value === "monthly" || value === "annual";
+}
+
 function normalizeInterval(interval: string | null) {
   if (!interval) return "month";
   const lower = interval.toLowerCase();
@@ -31,6 +36,14 @@ function normalizeInterval(interval: string | null) {
   if (lower === "week" || lower === "weekly") return "week";
   if (lower === "day" || lower === "daily") return "day";
   return "month";
+}
+
+function toAnnualAmount(price: number, interval: string | null) {
+  const normalized = normalizeInterval(interval);
+  if (normalized === "year") return price;
+  if (normalized === "week") return price * 52;
+  if (normalized === "day") return price * 365;
+  return price * 12;
 }
 
 serve(async (req) => {
@@ -66,6 +79,11 @@ serve(async (req) => {
   if (!body?.tier || !isTier(body.tier)) {
     return jsonResponse({ error: "Invalid subscription tier." }, 400);
   }
+
+  const billingCycle =
+    typeof body.billingCycle === "string" && isBillingCycle(body.billingCycle)
+      ? body.billingCycle
+      : "annual";
 
   const addonIds = Array.isArray(body.addonIds)
     ? body.addonIds.filter((id): id is string => typeof id === "string")
@@ -130,17 +148,22 @@ serve(async (req) => {
   }
 
   const plan = PLAN_PRICING[body.tier];
+  const basePlanAmount = billingCycle === "monthly" ? plan.monthly : plan.annual * 12;
+  const basePlanInterval = billingCycle === "monthly" ? "month" : "year";
 
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
     {
       quantity: 1,
       price_data: {
         currency: "usd",
-        unit_amount: Math.round(plan.monthly * 100),
-        recurring: { interval: "month" },
+        unit_amount: Math.round(basePlanAmount * 100),
+        recurring: { interval: basePlanInterval },
         product_data: {
           name: `${plan.name} Plan`,
-          description: "TASA Trust virtual office subscription",
+          description:
+            billingCycle === "annual"
+              ? "TASA Trust virtual office subscription (annual billing)"
+              : "TASA Trust virtual office subscription (monthly rate)",
         },
       },
     },
@@ -200,17 +223,24 @@ serve(async (req) => {
       }
 
       if (recurringPrice > 0) {
+        const recurringInterval = normalizeInterval(pricing.recurring_interval);
+        const recurringUnitAmount = billingCycle === "annual"
+          ? toAnnualAmount(recurringPrice, recurringInterval) * 100
+          : recurringPrice * 100;
+
         lineItems.push({
           quantity: 1,
           price_data: {
             currency: "usd",
-            unit_amount: Math.round(recurringPrice * 100),
+            unit_amount: Math.round(recurringUnitAmount),
             recurring: {
-              interval: normalizeInterval(pricing.recurring_interval) as "month" | "year" | "week" | "day",
+              interval: (
+                billingCycle === "annual" ? "year" : recurringInterval
+              ) as "month" | "year" | "week" | "day",
             },
             product_data: {
               name: `Addon: ${service.name}`,
-              description: "Recurring add-on charge",
+              description: billingCycle === "annual" ? "Recurring annual add-on charge" : "Recurring add-on charge",
             },
           },
         });
@@ -248,18 +278,20 @@ serve(async (req) => {
     allow_promotion_codes: true,
     line_items: lineItems,
     success_url: `${siteUrl}/member/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${siteUrl}/member/onboarding?step=addons&tier=${body.tier}`,
+    cancel_url: `${siteUrl}/member/onboarding/addons?tier=${body.tier}&billing=${billingCycle}`,
     client_reference_id: user.id,
     metadata: {
       member_id: user.id,
       tier: body.tier,
+      billing_cycle: billingCycle,
       selected_addon_ids: validAddonIds.join(","),
-      base_plan_monthly: plan.monthly.toString(),
+      base_plan_amount: basePlanAmount.toString(),
     },
     subscription_data: {
       metadata: {
         member_id: user.id,
         tier: body.tier,
+        billing_cycle: billingCycle,
         selected_addon_ids: validAddonIds.join(","),
       },
     },

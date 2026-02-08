@@ -3,12 +3,25 @@ import type { SubscriptionTier } from "@/lib/subscriptionPlans";
 
 type ServiceType = Database["public"]["Enums"]["service_type"];
 type ServiceVisibility = Database["public"]["Enums"]["service_visibility"];
+export type BillingCycle = "monthly" | "annual";
 
 interface TierPricing {
   isIncluded: boolean;
   oneTimePrice: number;
   recurringPrice: number;
   recurringInterval: string;
+}
+
+export interface OptionalLinePricePart {
+  current: number;
+  baseline: number;
+  suffix: "" | "/mo";
+}
+
+export interface TierOptionalLineItem {
+  serviceName: string;
+  parts: OptionalLinePricePart[];
+  optional: boolean;
 }
 
 export interface PricingAddon {
@@ -43,11 +56,38 @@ export function normalizeInterval(interval?: string | null) {
   return lower;
 }
 
+function toAnnualAmount(price: number, interval?: string | null) {
+  const normalized = normalizeInterval(interval);
+  if (normalized === "year") return price;
+  if (normalized === "week") return price * 52;
+  if (normalized === "day") return price * 365;
+  return price * 12;
+}
+
+function toMonthlyAmount(price: number, interval?: string | null) {
+  const normalized = normalizeInterval(interval);
+  if (normalized === "year") return price / 12;
+  if (normalized === "week") return (price * 52) / 12;
+  if (normalized === "day") return (price * 365) / 12;
+  return price;
+}
+
 function formatTierPriceRange(
   current: number,
   baseline: number,
   suffix: "" | "/mo"
+) : OptionalLinePricePart {
+  return {
+    current,
+    baseline,
+    suffix,
+  };
+}
+
+function formatTierPriceRangeText(
+  part: OptionalLinePricePart
 ) {
+  const { current, baseline, suffix } = part;
   if (baseline > 0 && current > 0 && current < baseline) {
     return `${formatCurrency(baseline)}${suffix} -> ${formatCurrency(current)}${suffix}`;
   }
@@ -81,7 +121,7 @@ export function getTierLineItem(addon: PricingAddon, tier: SubscriptionTier) {
     return `Included: ${addon.name} (FREE)`;
   }
 
-  const parts: string[] = [];
+  const parts: OptionalLinePricePart[] = [];
 
   if (current.oneTimePrice > 0) {
     parts.push(formatTierPriceRange(current.oneTimePrice, baseline.oneTimePrice, ""));
@@ -93,8 +133,11 @@ export function getTierLineItem(addon: PricingAddon, tier: SubscriptionTier) {
 
   if (parts.length === 0) return null;
 
-  const optionalSuffix = tier === "basic" ? "" : " - optional";
-  return `Addon: ${addon.name} (${parts.join(" + ")})${optionalSuffix}`;
+  return {
+    serviceName: addon.name,
+    parts,
+    optional: tier !== "basic",
+  } satisfies TierOptionalLineItem;
 }
 
 export function getTierIncludedFeature(addon: PricingAddon, tier: SubscriptionTier) {
@@ -110,7 +153,12 @@ export function getTierOptionalLineItems(addons: PricingAddon[], tier: Subscript
       if (pricing.isIncluded) return null;
       return getTierLineItem(addon, tier);
     })
-    .filter(Boolean) as string[];
+    .filter(Boolean) as TierOptionalLineItem[];
+}
+
+export function getTierOptionalLineItemText(item: TierOptionalLineItem) {
+  const suffix = item.optional ? " - optional" : "";
+  return `${item.serviceName} (${item.parts.map(formatTierPriceRangeText).join(" + ")})${suffix}`;
 }
 
 export function getTierSelectableAddons(addons: PricingAddon[], tier: SubscriptionTier) {
@@ -140,6 +188,28 @@ export function getAddonCheckoutLabel(addon: PricingAddon, tier: SubscriptionTie
   return parts.join(" + ");
 }
 
+export function getAddonCheckoutLabelForBillingCycle(
+  addon: PricingAddon,
+  tier: SubscriptionTier,
+  billingCycle: BillingCycle
+) {
+  const pricing = addon.pricing[tier];
+  const parts: string[] = [];
+
+  if (pricing.oneTimePrice > 0) {
+    parts.push(`${formatCurrency(pricing.oneTimePrice)} one-time`);
+  }
+
+  if (pricing.recurringPrice > 0) {
+    const recurring = billingCycle === "annual"
+      ? toAnnualAmount(pricing.recurringPrice, pricing.recurringInterval)
+      : toMonthlyAmount(pricing.recurringPrice, pricing.recurringInterval);
+    parts.push(`${formatCurrency(recurring)}/${billingCycle === "annual" ? "year" : "mo"}`);
+  }
+
+  return parts.join(" + ");
+}
+
 export function calculateAddonTotals(
   addons: PricingAddon[],
   selectedAddonIds: string[],
@@ -156,6 +226,33 @@ export function calculateAddonTotals(
       return {
         oneTime: totals.oneTime + (pricing.oneTimePrice || 0),
         recurring: totals.recurring + (pricing.recurringPrice || 0),
+      };
+    },
+    { oneTime: 0, recurring: 0 }
+  );
+}
+
+export function calculateAddonTotalsForBillingCycle(
+  addons: PricingAddon[],
+  selectedAddonIds: string[],
+  tier: SubscriptionTier,
+  billingCycle: BillingCycle
+) {
+  const selectedSet = new Set(selectedAddonIds);
+
+  return addons.reduce(
+    (totals, addon) => {
+      if (!selectedSet.has(addon.id)) return totals;
+      const pricing = addon.pricing[tier];
+      if (pricing.isIncluded) return totals;
+
+      const recurring = billingCycle === "annual"
+        ? toAnnualAmount(pricing.recurringPrice || 0, pricing.recurringInterval)
+        : toMonthlyAmount(pricing.recurringPrice || 0, pricing.recurringInterval);
+
+      return {
+        oneTime: totals.oneTime + (pricing.oneTimePrice || 0),
+        recurring: totals.recurring + recurring,
       };
     },
     { oneTime: 0, recurring: 0 }

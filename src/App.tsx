@@ -19,6 +19,7 @@ import MemberBookings from "./pages/member/Bookings";
 import MemberBilling from "./pages/member/Billing";
 import MemberSettings from "./pages/member/Settings";
 import MemberOnboarding from "./pages/member/Onboarding";
+import OnboardingAddons from "./pages/member/OnboardingAddons";
 import CheckoutSuccess from "./pages/member/CheckoutSuccess";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminMembers from "./pages/admin/Members";
@@ -67,6 +68,14 @@ const App = () => (
             element={
               <ProtectedRoute onlyWithoutSubscription>
                 <MemberOnboarding />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member/onboarding/addons"
+            element={
+              <ProtectedRoute onlyWithoutSubscription>
+                <OnboardingAddons />
               </ProtectedRoute>
             }
           />

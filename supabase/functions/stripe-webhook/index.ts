@@ -24,6 +24,24 @@ function parseSelectedAddonIds(value: string | undefined) {
     .filter((id) => id.length > 0);
 }
 
+function normalizeInterval(interval?: string | null) {
+  if (!interval) return "month";
+  const lower = interval.toLowerCase();
+  if (lower === "monthly") return "month";
+  if (lower === "yearly" || lower === "annual" || lower === "annually") return "year";
+  if (lower === "weekly") return "week";
+  if (lower === "daily") return "day";
+  return lower;
+}
+
+function toAnnualAmount(price: number, interval?: string | null) {
+  const normalized = normalizeInterval(interval);
+  if (normalized === "year") return price;
+  if (normalized === "week") return price * 52;
+  if (normalized === "day") return price * 365;
+  return price * 12;
+}
+
 async function ensureOrder(
   adminClient: ReturnType<typeof createClient>,
   {
@@ -160,6 +178,7 @@ async function handleCheckoutCompleted(
   if (!memberId || !tier) return;
 
   const selectedAddonIds = parseSelectedAddonIds(session.metadata?.selected_addon_ids);
+  const billingCycle = session.metadata?.billing_cycle === "annual" ? "annual" : "monthly";
   const stripeCustomerId =
     typeof session.customer === "string" ? session.customer : session.customer?.id || null;
   const stripeSubscriptionId =
@@ -198,7 +217,11 @@ async function handleCheckoutCompleted(
     cancelAtPeriodEnd,
   });
 
-  const basePlanAmount = Number(session.metadata?.base_plan_monthly || PLAN_PRICING[tier].monthly);
+  const basePlanAmount = Number(
+    session.metadata?.base_plan_amount ||
+      session.metadata?.base_plan_monthly ||
+      (billingCycle === "annual" ? PLAN_PRICING[tier].annual * 12 : PLAN_PRICING[tier].monthly)
+  );
 
   await ensureOrder(adminClient, {
     memberId,
@@ -212,7 +235,7 @@ async function handleCheckoutCompleted(
 
   const { data: addOnPricingRows } = await adminClient
     .from("service_pricing")
-    .select("service_id, is_included, one_time_price, recurring_price")
+    .select("service_id, is_included, one_time_price, recurring_price, recurring_interval")
     .eq("tier", tier)
     .in("service_id", selectedAddonIds);
 
@@ -221,6 +244,10 @@ async function handleCheckoutCompleted(
 
     const oneTimePrice = Number(pricing.one_time_price || 0);
     const recurringPrice = Number(pricing.recurring_price || 0);
+    const recurringAmount =
+      billingCycle === "annual"
+        ? toAnnualAmount(recurringPrice, pricing.recurring_interval)
+        : recurringPrice;
 
     if (oneTimePrice > 0) {
       await ensureOrder(adminClient, {
@@ -232,12 +259,12 @@ async function handleCheckoutCompleted(
       });
     }
 
-    if (recurringPrice > 0) {
+    if (recurringAmount > 0) {
       await ensureOrder(adminClient, {
         memberId,
         serviceId: pricing.service_id,
         type: "recurring",
-        amount: recurringPrice,
+        amount: recurringAmount,
         dedupeKey: `checkout:${session.id}:${pricing.service_id}:recurring`,
       });
     }
@@ -247,7 +274,7 @@ async function handleCheckoutCompleted(
       serviceId: pricing.service_id,
       tier,
       oneTimePurchased: oneTimePrice > 0,
-      recurringPurchased: recurringPrice > 0,
+      recurringPurchased: recurringAmount > 0,
     });
   }
 }

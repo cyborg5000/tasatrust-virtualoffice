@@ -8,7 +8,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
-import { getTierIncludedFeature, getTierOptionalLineItems } from "@/lib/pricingCatalog";
+import {
+  formatCurrency,
+  getTierIncludedFeature,
+  getTierOptionalLineItems,
+} from "@/lib/pricingCatalog";
 import { isEmphasizedFeatureLabel, SUBSCRIPTION_PLANS } from "@/lib/subscriptionPlans";
 
 export function PricingSection() {
@@ -141,8 +145,24 @@ export function PricingSection() {
                   ) : tierOptionalLineItems[tier.tier].length > 0 ? (
                     <ul className="mt-3 space-y-2">
                       {tierOptionalLineItems[tier.tier].map((line) => (
-                        <li key={`${tier.tier}-${line}`} className="text-sm text-muted-foreground">
-                          {line}
+                        <li key={`${tier.tier}-${line.serviceName}`} className="text-sm text-muted-foreground">
+                          <span>{line.serviceName} (</span>
+                          {line.parts.map((part, partIndex) => (
+                            <span key={`${line.serviceName}-${part.suffix}-${partIndex}`}>
+                              {part.baseline > 0 && part.current > 0 && part.current < part.baseline && (
+                                <span className="mr-1 text-muted-foreground/80 line-through">
+                                  {formatCurrency(part.baseline)}
+                                  {part.suffix}
+                                </span>
+                              )}
+                              <span>
+                                {formatCurrency(part.current)}
+                                {part.suffix}
+                              </span>
+                              {partIndex < line.parts.length - 1 && <span> + </span>}
+                            </span>
+                          ))}
+                          <span>)</span>
                         </li>
                       ))}
                     </ul>
