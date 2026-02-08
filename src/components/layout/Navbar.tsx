@@ -54,11 +54,14 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div
           className={cn(
-            "flex items-center justify-between transition-all duration-300",
-            scrolled ? "h-16" : "h-20"
+            "items-center transition-all duration-300",
+            scrolled ? "h-16" : "h-20",
+            // Mobile: grid layout with logo centered, hamburger on right
+            "grid grid-cols-[1fr_auto_1fr] md:flex md:justify-between"
           )}
         >
-          <Link to="/" className="flex items-center gap-3">
+          {/* Logo - centered on mobile */}
+          <Link to="/" className="flex items-center justify-center gap-3 col-start-2 col-end-3 md:col-auto md:justify-start">
             <img
               src={logo}
               alt="TASA Trust"
@@ -147,11 +150,13 @@ export function Navbar() {
           </div>
 
           <button
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border/70 bg-white/80 md:hidden"
+            className="col-start-3 col-end-4 flex justify-end md:hidden"
             onClick={() => setIsOpen((prev) => !prev)}
             aria-label="Toggle menu"
           >
-            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border/70 bg-white/80">
+              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </div>
           </button>
         </div>
 
