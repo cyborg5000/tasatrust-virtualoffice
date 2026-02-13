@@ -58,7 +58,8 @@ serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+  // Prefer restricted API key when provided; fall back to full secret key.
+  const stripeSecretKey = Deno.env.get("STRIPE_RESTRICTED_KEY") || Deno.env.get("STRIPE_SECRET_KEY");
 
   if (!supabaseUrl || !supabaseAnonKey || !serviceRoleKey || !stripeSecretKey) {
     return jsonResponse({ error: "Missing required environment variables." }, 500);
