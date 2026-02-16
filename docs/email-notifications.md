@@ -28,17 +28,13 @@ All logic is centralized in `supabase/functions/_shared/email.ts` and event-spec
 - Admin recipients default:
   - `admin@tasatrust.com`
   - `business+tasatrust@5amuelchan.com`
-- Admin recipients and sender are both overrideable with environment variables (details below).
+- Admin recipients and sender are fixed in code.
 
 ## 4) Environment variables
 
 Set these in Supabase Edge function secrets:
 
 - `RESEND_API_KEY` (required)
-- `RESEND_DOMAIN` (optional; used to build default from address when `RESEND_FROM_EMAIL` is absent)
-- `RESEND_FROM_EMAIL` / `RESEND_FROM` (optional override)
-- `RESEND_ADMIN_EMAILS` (comma-separated admin recipients, optional)
-- `RESEND_ADMIN_EMAIL` (single fallback for `RESEND_ADMIN_EMAILS`)
 - `CONTACT_NOTIFICATION_EMAIL` (optional contact form recipient override)
 - `SUPPORT_EMAIL` (fallback contact recipient)
 - `RESEND_TO_EMAIL` (fallback contact recipient)
@@ -51,8 +47,6 @@ Example:
 ```bash
 supabase functions secrets set \
   RESEND_API_KEY=... \
-  RESEND_DOMAIN=tasatrust.com \
-  RESEND_ADMIN_EMAILS="admin@tasatrust.com,business+tasatrust@5amuelchan.com" \
   SITE_URL=https://tasatrust.com
 ```
 

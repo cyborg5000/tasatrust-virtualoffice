@@ -46,25 +46,11 @@ export function normalizeEmailList(
 }
 
 export function getResendFromAddress() {
-  const configuredFrom =
-    normalizeEmail(Deno.env.get("RESEND_FROM_EMAIL")) ||
-    normalizeEmail(Deno.env.get("RESEND_FROM"));
-
-  if (configuredFrom) return configuredFrom;
-
-  const configuredDomain = cleanText(Deno.env.get("RESEND_DOMAIN"));
-  if (configuredDomain) {
-    return `no-reply@${configuredDomain}`;
-  }
-
   return DEFAULT_FROM_ADDRESS;
 }
 
 export function getAdminNotificationEmails() {
-  return normalizeEmailList(
-    Deno.env.get("RESEND_ADMIN_EMAILS") || Deno.env.get("RESEND_ADMIN_EMAIL"),
-    DEFAULT_ADMIN_ADDRESSES,
-  );
+  return DEFAULT_ADMIN_ADDRESSES;
 }
 
 export function escapeHtml(value: string) {
