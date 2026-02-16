@@ -13,6 +13,10 @@ import Terms from "./pages/legal/Terms";
 import Cookies from "./pages/legal/Cookies";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+import FAQ from "./pages/Faq";
+import Help from "./pages/Help";
 import MemberDashboard from "./pages/member/Dashboard";
 import MemberServicesPage from "./pages/member/Services";
 import MemberBookings from "./pages/member/Bookings";
@@ -53,6 +57,10 @@ const App = () => (
           <Route path="/cookies" element={<Cookies />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/help" element={<Help />} />
 
           {/* Protected Member Routes */}
           <Route

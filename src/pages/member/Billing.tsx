@@ -8,17 +8,19 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   CreditCard, 
-  Download, 
   FileText,
   Calendar,
   DollarSign,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  ExternalLink,
+  Loader2
 } from "lucide-react";
 import { format } from "date-fns";
 import { Tables } from "@/integrations/supabase/types";
 import { SUBSCRIPTION_PLAN_BY_TIER } from "@/lib/subscriptionPlans";
+import { toast } from "sonner";
 
 type Order = Tables<"orders">;
 type Subscription = Tables<"subscriptions">;
@@ -28,6 +30,7 @@ export default function MemberBilling() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPortalLoading, setIsPortalLoading] = useState(false);
 
   useEffect(() => {
     async function fetchBillingData() {
@@ -97,6 +100,38 @@ export default function MemberBilling() {
   const totalSpent = orders
     .filter(o => o.status === "completed")
     .reduce((sum, o) => sum + Number(o.amount), 0);
+
+  const openBillingPortal = async () => {
+    if (!user) return;
+
+    setIsPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-stripe-portal-session", {
+        body: {
+          returnUrl: `${window.location.origin}/member/billing`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data?.url) {
+        throw new Error("Unable to start the billing portal.");
+      }
+
+      window.location.assign(data.url);
+    } catch (error: unknown) {
+      console.error("Error opening billing portal:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to open billing portal. Please try again."
+      );
+    } finally {
+      setIsPortalLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -202,61 +237,75 @@ export default function MemberBilling() {
               <FileText className="h-5 w-5" />
               Payment History
             </CardTitle>
-            <CardDescription>View and download your invoices</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {orders.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b text-left text-sm text-muted-foreground">
-                      <th className="pb-3 font-medium">Invoice</th>
-                      <th className="pb-3 font-medium">Date</th>
-                      <th className="pb-3 font-medium">Type</th>
-                      <th className="pb-3 font-medium">Amount</th>
-                      <th className="pb-3 font-medium">Status</th>
-                      <th className="pb-3 font-medium text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map((order) => (
-                      <tr key={order.id} className="border-b last:border-0">
-                        <td className="py-4">
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(order.status || "pending")}
-                            <span className="font-mono text-sm">
-                              INV-{order.id.slice(0, 8).toUpperCase()}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-4 text-sm text-muted-foreground">
-                          {order.created_at
-                            ? format(new Date(order.created_at), "MMM d, yyyy")
-                            : "—"}
-                        </td>
-                        <td className="py-4 text-sm capitalize">{order.type}</td>
-                        <td className="py-4 text-sm font-medium">
-                          ${Number(order.amount).toFixed(2)}
-                        </td>
-                        <td className="py-4">
-                          <Badge variant="secondary" className={getStatusColor(order.status || "pending")}>
-                            {order.status}
-                          </Badge>
-                        </td>
-                        <td className="py-4 text-right">
-                          <Button variant="ghost" size="sm" disabled>
-                            <Download className="mr-2 h-4 w-4" />
-                            PDF
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
+                    <CardDescription>
+                      View and manage all invoices and plan details in your Stripe billing portal.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {orders.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="overflow-x-auto">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="border-b text-left text-sm text-muted-foreground">
+                                <th className="pb-3 font-medium">Invoice</th>
+                                <th className="pb-3 font-medium">Date</th>
+                                <th className="pb-3 font-medium">Type</th>
+                                <th className="pb-3 font-medium">Amount</th>
+                                <th className="pb-3 font-medium">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {orders.map((order) => (
+                                <tr key={order.id} className="border-b last:border-0">
+                                  <td className="py-4">
+                                    <div className="flex items-center gap-2">
+                                      {getStatusIcon(order.status || "pending")}
+                                      <span className="font-mono text-sm">
+                                        INV-{order.id.slice(0, 8).toUpperCase()}
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td className="py-4 text-sm text-muted-foreground">
+                                    {order.created_at
+                                      ? format(new Date(order.created_at), "MMM d, yyyy")
+                                      : "—"}
+                                  </td>
+                                  <td className="py-4 text-sm capitalize">{order.type}</td>
+                                  <td className="py-4 text-sm font-medium">
+                                    ${Number(order.amount).toFixed(2)}
+                                  </td>
+                                  <td className="py-4">
+                                    <Badge variant="secondary" className={getStatusColor(order.status || "pending")}>
+                                      {order.status}
+                                    </Badge>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={openBillingPortal}
+                          disabled={isPortalLoading}
+                        >
+                          {isPortalLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Opening portal...
+                            </>
+                          ) : (
+                            <>
+                              <ExternalLink className="mr-2 h-4 w-4" />
+                              Open Stripe Billing Portal
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
                 <h3 className="text-lg font-medium">No invoices yet</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Your payment history will appear here once you make a purchase.
@@ -271,7 +320,7 @@ export default function MemberBilling() {
           <Card>
             <CardHeader>
               <CardTitle>Subscription Management</CardTitle>
-              <CardDescription>Manage your subscription settings</CardDescription>
+              <CardDescription>Manage your subscription and billing details safely</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between rounded-lg border p-4">
@@ -284,16 +333,27 @@ export default function MemberBilling() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" disabled>
-                    Change Plan
-                  </Button>
-                  <Button variant="destructive" disabled>
-                    Cancel
+                  <Button
+                    onClick={openBillingPortal}
+                    disabled={isPortalLoading}
+                    className="gap-2"
+                  >
+                    {isPortalLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Opening portal...
+                      </>
+                    ) : (
+                      <>
+                        <ExternalLink className="h-4 w-4" />
+                        Open Billing Portal
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                * Subscription management features coming soon. Please contact support for changes.
+                Need to switch plans, update card details, or cancel at period end? Open the Stripe billing portal.
               </p>
             </CardContent>
           </Card>

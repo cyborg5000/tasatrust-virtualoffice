@@ -2,8 +2,53 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { PLAN_PRICING, type SubscriptionTier } from "../_shared/plans.ts";
+import {
+  type ResendSendResult,
+  escapeHtml,
+  getAdminNotificationEmails,
+  normalizeEmail,
+  sendResendEmail,
+} from "../_shared/email.ts";
 
 type DbSubscriptionStatus = "active" | "cancelled" | "past_due" | "paused";
+
+type MembershipProfile = {
+  id: string;
+  email: string | null;
+  company_name: string | null;
+  stripe_customer_id: string | null;
+};
+
+type NotificationEventType = "checkout.session.completed" | "customer.subscription.updated" | "customer.subscription.deleted";
+
+type CheckoutSummary = {
+  member: MembershipProfile | null;
+  tier: SubscriptionTier;
+  billingCycle: "monthly" | "annual";
+  subscriptionStatus: DbSubscriptionStatus;
+  subscriptionId: string | null;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  amountChargedCents: number | null;
+  currency: string;
+  customerEmail: string | null;
+};
+
+type SubscriptionSummary = {
+  member: MembershipProfile | null;
+  tier: SubscriptionTier;
+  subscriptionStatus: DbSubscriptionStatus;
+  subscriptionId: string;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  shouldNotify: boolean;
+  previousStatus: DbSubscriptionStatus | null;
+  eventType: NotificationEventType;
+  billingCycle: "monthly" | "annual";
+  currency: string;
+};
 
 function isTier(value: string | undefined): value is SubscriptionTier {
   return value === "basic" || value === "essential" || value === "professional";
@@ -40,6 +85,21 @@ function toAnnualAmount(price: number, interval?: string | null) {
   if (normalized === "week") return price * 52;
   if (normalized === "day") return price * 365;
   return price * 12;
+}
+
+function formatCurrencyFromCents(cents: number | null | undefined, currency: string) {
+  if (typeof cents !== "number" || Number.isNaN(cents)) return null;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase() || "USD",
+  }).format(cents / 100);
+}
+
+function formatDate(value: string | null) {
+  if (!value) return "Not available";
+  return new Intl.DateTimeFormat("en-SG", { dateStyle: "medium", timeStyle: "short" }).format(
+    new Date(value),
+  );
 }
 
 async function ensureOrder(
@@ -168,14 +228,327 @@ async function upsertMemberSubscription(
   }
 }
 
+async function getMemberProfile(
+  adminClient: ReturnType<typeof createClient>,
+  memberId?: string | null,
+  customerId?: string | null
+) {
+  if (memberId) {
+    const { data: byId } = await adminClient
+      .from("members")
+      .select("id, email, company_name, stripe_customer_id")
+      .eq("id", memberId)
+      .maybeSingle();
+
+    if (byId) return byId as MembershipProfile;
+  }
+
+  if (!customerId) return null;
+
+  const { data: byCustomer } = await adminClient
+    .from("members")
+    .select("id, email, company_name, stripe_customer_id")
+    .eq("stripe_customer_id", customerId)
+    .maybeSingle();
+
+  return byCustomer as MembershipProfile | null;
+}
+
+function buildCheckoutCompletedCustomerEmail({
+  companyName,
+  tier,
+  billingCycle,
+  amount,
+  currency,
+  startDate,
+  endDate,
+  dashboardUrl,
+  subscriptionId,
+}: {
+  companyName: string;
+  tier: SubscriptionTier;
+  billingCycle: "monthly" | "annual";
+  amount: string | null;
+  currency: string;
+  startDate: string;
+  endDate: string;
+  dashboardUrl: string;
+  subscriptionId: string;
+}) {
+  return `
+    <h2>Your TASA Trust subscription is active</h2>
+    <p>Hi ${escapeHtml(companyName)},</p>
+    <p>
+      Your <strong>${PLAN_PRICING[tier].name}</strong> plan is now active on a <strong>${billingCycle}</strong> cycle.
+    </p>
+    <p><strong>Subscription ID:</strong> ${escapeHtml(subscriptionId)}</p>
+    <p><strong>Amount paid:</strong> ${amount ? `${amount} (${currency})` : "N/A"}</p>
+    <p><strong>Coverage:</strong> ${startDate} to ${endDate}</p>
+    <p>
+      <a href="${dashboardUrl}/member/billing">Go to your billing page</a>
+    </p>
+  `;
+}
+
+function buildCheckoutCompletedAdminEmail({
+  companyName,
+  email,
+  tier,
+  billingCycle,
+  amount,
+  currency,
+  subscriptionId,
+  customerEmail,
+  startDate,
+  endDate,
+}: {
+  companyName: string;
+  email: string;
+  tier: SubscriptionTier;
+  billingCycle: "monthly" | "annual";
+  amount: string | null;
+  currency: string;
+  subscriptionId: string;
+  customerEmail: string;
+  startDate: string;
+  endDate: string;
+}) {
+  return `
+    <h2>New paid subscription</h2>
+    <p><strong>Company:</strong> ${escapeHtml(companyName)}</p>
+    <p><strong>Contact:</strong> ${escapeHtml(customerEmail)}</p>
+    <p><strong>Signup email:</strong> ${escapeHtml(email)}</p>
+    <p><strong>Plan:</strong> ${PLAN_PRICING[tier].name} (${billingCycle})</p>
+    <p><strong>Subscription ID:</strong> ${escapeHtml(subscriptionId)}</p>
+    <p><strong>Amount:</strong> ${amount ? `${amount} (${currency})` : "N/A"}</p>
+    <p><strong>Period:</strong> ${startDate} to ${endDate}</p>
+  `;
+}
+
+function buildSubscriptionUpdatedCustomerEmail({
+  companyName,
+  tier,
+  status,
+  periodEnd,
+  cancelAtPeriodEnd,
+  dashboardUrl,
+  previousStatus,
+  subscriptionId,
+  eventName,
+}: {
+  companyName: string;
+  tier: SubscriptionTier;
+  status: DbSubscriptionStatus;
+  periodEnd: string;
+  cancelAtPeriodEnd: boolean;
+  dashboardUrl: string;
+  previousStatus: DbSubscriptionStatus | null;
+  subscriptionId: string;
+  eventName: "updated" | "cancelled";
+}) {
+  const statusMessage =
+    eventName === "cancelled"
+      ? "Your subscription has been cancelled."
+      : `Your subscription status changed from ${
+          previousStatus || "unknown"
+        } to ${status}.`;
+
+  return `
+    <h2>Subscription status update</h2>
+    <p>Hi ${escapeHtml(companyName)},</p>
+    <p>${statusMessage}</p>
+    <p><strong>Plan:</strong> ${PLAN_PRICING[tier].name}</p>
+    <p><strong>Subscription ID:</strong> ${escapeHtml(subscriptionId)}</p>
+    <p><strong>Current status:</strong> ${status}</p>
+    <p><strong>Auto-renew:</strong> ${cancelAtPeriodEnd ? "Ends on period end" : "Enabled"}</p>
+    <p><strong>Current period ends:</strong> ${periodEnd}</p>
+    <p>
+      <a href="${dashboardUrl}/member/billing">View subscription details</a>
+    </p>
+  `;
+}
+
+function buildSubscriptionUpdatedAdminEmail({
+  companyName,
+  email,
+  tier,
+  status,
+  previousStatus,
+  periodEnd,
+  subscriptionId,
+  eventName,
+}: {
+  companyName: string;
+  email: string;
+  tier: SubscriptionTier;
+  status: DbSubscriptionStatus;
+  previousStatus: DbSubscriptionStatus | null;
+  periodEnd: string;
+  subscriptionId: string;
+  eventName: "updated" | "cancelled";
+}) {
+  return `
+    <h2>Subscription ${eventName}</h2>
+    <p><strong>Company:</strong> ${escapeHtml(companyName)}</p>
+    <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+    <p><strong>Plan:</strong> ${PLAN_PRICING[tier].name}</p>
+    <p><strong>Subscription ID:</strong> ${escapeHtml(subscriptionId)}</p>
+    <p><strong>New status:</strong> ${status}</p>
+    ${
+      previousStatus
+        ? `<p><strong>Previous status:</strong> ${previousStatus}</p>`
+        : ""
+    }
+    <p><strong>Period end:</strong> ${periodEnd}</p>
+  `;
+}
+
+async function notifySubscriptionEvent({
+  eventType,
+  siteUrl,
+  customerEmail,
+  summary,
+  sourceCustomerEmail,
+  billingCycle,
+  amountChargedCents,
+  currency,
+}: {
+  eventType: "checkout.session.completed" | "customer.subscription.updated" | "customer.subscription.deleted";
+  siteUrl: string;
+  customerEmail: string | null;
+  summary: CheckoutSummary | SubscriptionSummary;
+  sourceCustomerEmail?: string | null;
+  billingCycle?: "monthly" | "annual";
+  amountChargedCents?: number | null;
+  currency?: string;
+}) {
+  const companyName = summary.member?.company_name?.trim() || "Member";
+  const memberEmail = summary.member?.email || customerEmail || sourceCustomerEmail || null;
+  const emailToMember = memberEmail ? normalizeEmail(memberEmail) : null;
+  const dashboardUrl = siteUrl;
+  const startDate = formatDate(summary.currentPeriodStart);
+  const endDate = formatDate(summary.currentPeriodEnd);
+  const adminEmails = getAdminNotificationEmails();
+  const planAmount = formatCurrencyFromCents(
+    eventType === "checkout.session.completed" ? summary.amountChargedCents : null,
+    currency || summary.currency || "USD",
+  );
+
+  const userSubject =
+    eventType === "checkout.session.completed"
+      ? "Your TASA Trust subscription is active"
+      : eventType === "customer.subscription.deleted"
+        ? "Your TASA Trust subscription has ended"
+        : "Your TASA Trust subscription was updated";
+
+  const adminSubject =
+    eventType === "checkout.session.completed"
+      ? "New paid subscription created"
+      : eventType === "customer.subscription.deleted"
+        ? "Subscription cancelled"
+        : "Subscription updated";
+
+  const userTasks: Promise<ResendSendResult>[] = [];
+
+  if (emailToMember) {
+    userTasks.push(
+      sendResendEmail({
+        to: emailToMember,
+        subject: userSubject,
+        replyTo: adminEmails[0] || undefined,
+        html:
+          eventType === "checkout.session.completed"
+            ? buildCheckoutCompletedCustomerEmail({
+                companyName,
+                tier: summary.tier,
+                billingCycle: eventType === "checkout.session.completed"
+                  ? (summary.billingCycle || billingCycle || "monthly")
+                  : "monthly",
+                amount: planAmount,
+                currency: (currency || summary.currency || "USD").toUpperCase(),
+                startDate: startDate,
+                endDate: endDate,
+                dashboardUrl,
+                subscriptionId: summary.subscriptionId || "N/A",
+              })
+            : buildSubscriptionUpdatedCustomerEmail({
+                companyName,
+                tier: summary.tier,
+                status: summary.subscriptionStatus,
+                previousStatus: eventType === "customer.subscription.updated" ? summary.previousStatus : null,
+                periodEnd: endDate,
+                cancelAtPeriodEnd: summary.cancelAtPeriodEnd,
+                dashboardUrl,
+                subscriptionId: summary.subscriptionId || "N/A",
+                eventName: eventType === "customer.subscription.deleted" ? "cancelled" : "updated",
+              }),
+      }),
+    );
+  }
+
+  userTasks.push(
+    sendResendEmail({
+      to: adminEmails,
+      subject: adminSubject,
+      replyTo: emailToMember || sourceCustomerEmail || undefined,
+      html:
+        eventType === "checkout.session.completed"
+          ? buildCheckoutCompletedAdminEmail({
+              companyName,
+              email: summary.member?.email || emailToMember || "Unavailable",
+              tier: summary.tier,
+              billingCycle: eventType === "checkout.session.completed"
+                ? (summary.billingCycle || billingCycle || "monthly")
+                : billingCycle || "monthly",
+              amount: planAmount,
+              currency: (currency || summary.currency || "USD").toUpperCase(),
+              subscriptionId: summary.subscriptionId || "N/A",
+              customerEmail: summary.member?.email || emailToMember || sourceCustomerEmail || "Unavailable",
+              startDate: startDate,
+              endDate: endDate,
+            })
+          : buildSubscriptionUpdatedAdminEmail({
+              companyName,
+              email: summary.member?.email || emailToMember || "Unavailable",
+              tier: summary.tier,
+              status: summary.subscriptionStatus,
+              previousStatus: eventType === "customer.subscription.updated" ? summary.previousStatus : null,
+              periodEnd: endDate,
+              subscriptionId: summary.subscriptionId || "N/A",
+              eventName: eventType === "customer.subscription.deleted" ? "cancelled" : "updated",
+            }),
+    }),
+  );
+
+  const settled = await Promise.allSettled(userTasks);
+  const failed = settled.some((result) => {
+    if (result.status === "rejected") return true;
+    return !result.value.ok;
+  });
+  if (failed) {
+    const reasons = settled
+      .filter((result) => result.status === "rejected")
+      .map((result) => result.reason);
+    const failedResponses = settled
+      .filter((result) => result.status === "fulfilled" && !result.value.ok)
+      .map((result) => result.value.error)
+      .filter(Boolean);
+
+    console.error("Failed to send subscription notification email(s).", {
+      reasonErrors: reasons,
+      responseErrors: failedResponses,
+    });
+  }
+}
+
 async function handleCheckoutCompleted(
   stripe: Stripe,
   adminClient: ReturnType<typeof createClient>,
   session: Stripe.Checkout.Session
-) {
+): Promise<CheckoutSummary | null> {
   const memberId = session.metadata?.member_id || session.client_reference_id;
-  const tier = isTier(session.metadata?.tier) ? session.metadata?.tier : undefined;
-  if (!memberId || !tier) return;
+  const tier = isTier(session.metadata?.tier) ? session.metadata.tier : undefined;
+  if (!memberId || !tier) return null;
 
   const selectedAddonIds = parseSelectedAddonIds(session.metadata?.selected_addon_ids);
   const billingCycle = session.metadata?.billing_cycle === "annual" ? "annual" : "monthly";
@@ -183,6 +556,7 @@ async function handleCheckoutCompleted(
     typeof session.customer === "string" ? session.customer : session.customer?.id || null;
   const stripeSubscriptionId =
     typeof session.subscription === "string" ? session.subscription : session.subscription?.id || null;
+  const sourceCustomerEmail = session.customer_details?.email || null;
 
   if (stripeCustomerId) {
     await adminClient
@@ -220,7 +594,7 @@ async function handleCheckoutCompleted(
   const basePlanAmount = Number(
     session.metadata?.base_plan_amount ||
       session.metadata?.base_plan_monthly ||
-      (billingCycle === "annual" ? PLAN_PRICING[tier].annual * 12 : PLAN_PRICING[tier].monthly)
+      (billingCycle === "annual" ? PLAN_PRICING[tier].annual * 12 : PLAN_PRICING[tier].monthly),
   );
 
   await ensureOrder(adminClient, {
@@ -231,7 +605,22 @@ async function handleCheckoutCompleted(
     dedupeKey: `checkout:${session.id}:plan`,
   });
 
-  if (selectedAddonIds.length === 0) return;
+  if (selectedAddonIds.length === 0) {
+    const memberProfile = await getMemberProfile(adminClient, memberId, stripeCustomerId);
+    return {
+      member: memberProfile,
+      tier,
+      billingCycle,
+      subscriptionStatus,
+      subscriptionId: stripeSubscriptionId,
+      currentPeriodStart,
+      currentPeriodEnd,
+      cancelAtPeriodEnd,
+      amountChargedCents: session.amount_total ?? null,
+      currency: session.currency || "usd",
+      customerEmail: sourceCustomerEmail,
+    };
+  }
 
   const { data: addOnPricingRows } = await adminClient
     .from("service_pricing")
@@ -277,25 +666,74 @@ async function handleCheckoutCompleted(
       recurringPurchased: recurringAmount > 0,
     });
   }
+
+  const memberProfile = await getMemberProfile(adminClient, memberId, stripeCustomerId);
+  return {
+    member: memberProfile,
+    tier,
+    billingCycle,
+    subscriptionStatus,
+    subscriptionId: stripeSubscriptionId,
+    currentPeriodStart,
+    currentPeriodEnd,
+    cancelAtPeriodEnd,
+    amountChargedCents: session.amount_total ?? null,
+    currency: session.currency || "usd",
+    customerEmail: sourceCustomerEmail,
+  };
 }
 
 async function handleSubscriptionUpdated(
   adminClient: ReturnType<typeof createClient>,
-  subscription: Stripe.Subscription
-) {
-  const memberId = subscription.metadata?.member_id;
+  eventType: "customer.subscription.updated" | "customer.subscription.deleted",
+  subscription: Stripe.Subscription,
+  previousAttributes?: Partial<Stripe.Subscription>,
+): Promise<SubscriptionSummary | null> {
+  const memberId = subscription.metadata?.member_id || undefined;
   const tier = isTier(subscription.metadata?.tier) ? subscription.metadata.tier : null;
-  if (!memberId || !tier) return;
+  if (!memberId || !tier) return null;
+
+  const memberProfile = await getMemberProfile(
+    adminClient,
+    memberId,
+    typeof subscription.customer === "string" ? subscription.customer : null,
+  );
+
+  const mappedCurrentStatus = mapStripeStatus(subscription.status);
+  const mappedPreviousStatus = typeof previousAttributes?.status === "string"
+    ? mapStripeStatus(previousAttributes.status)
+    : null;
+  const hasStatusChange = Boolean(mappedPreviousStatus && mappedPreviousStatus !== mappedCurrentStatus);
+  const hasCancelWindowChange =
+    typeof previousAttributes?.cancel_at_period_end === "boolean" &&
+    previousAttributes.cancel_at_period_end !== subscription.cancel_at_period_end;
 
   await upsertMemberSubscription(adminClient, {
     memberId,
     tier,
-    status: mapStripeStatus(subscription.status),
+    status: mappedCurrentStatus,
     stripeSubscriptionId: subscription.id,
     currentPeriodStart: new Date(subscription.current_period_start * 1000).toISOString(),
     currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
     cancelAtPeriodEnd: subscription.cancel_at_period_end,
   });
+
+  const shouldNotify = eventType === "customer.subscription.deleted" || hasStatusChange || hasCancelWindowChange;
+
+  return {
+    member: memberProfile,
+    tier,
+    subscriptionStatus: mappedCurrentStatus,
+    subscriptionId: subscription.id,
+    currentPeriodStart: new Date(subscription.current_period_start * 1000).toISOString(),
+    currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
+    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    shouldNotify,
+    previousStatus: mappedPreviousStatus,
+    eventType,
+    billingCycle: "monthly",
+    currency: "USD",
+  };
 }
 
 serve(async (req) => {
@@ -305,7 +743,6 @@ serve(async (req) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  // Prefer restricted API key when provided; fall back to full secret key.
   const stripeSecretKey = Deno.env.get("STRIPE_RESTRICTED_KEY") || Deno.env.get("STRIPE_SECRET_KEY");
   const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
@@ -330,22 +767,51 @@ serve(async (req) => {
     return new Response("Invalid signature", { status: 400 });
   }
 
+  const siteUrl = (Deno.env.get("SITE_URL") || req.headers.get("origin") || "https://tasatrust.com").replace(
+    /\/+$/,
+    "",
+  );
+
   try {
     switch (event.type) {
-      case "checkout.session.completed":
-        await handleCheckoutCompleted(
+      case "checkout.session.completed": {
+        const summary = await handleCheckoutCompleted(
           stripe,
           adminClient,
-          event.data.object as Stripe.Checkout.Session
+          event.data.object as Stripe.Checkout.Session,
         );
+
+        if (summary) {
+          await notifySubscriptionEvent({
+            eventType: "checkout.session.completed",
+            siteUrl,
+            summary,
+            customerEmail: summary.customerEmail,
+          });
+        }
         break;
+      }
       case "customer.subscription.updated":
-      case "customer.subscription.deleted":
-        await handleSubscriptionUpdated(
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object as Stripe.Subscription;
+        const previousAttributes = event.data.previous_attributes as
+          | Partial<Stripe.Subscription>
+          | undefined;
+        const summary = await handleSubscriptionUpdated(
           adminClient,
-          event.data.object as Stripe.Subscription
+          event.type,
+          subscription,
+          previousAttributes,
         );
+        if (summary && summary.shouldNotify) {
+          await notifySubscriptionEvent({
+            eventType: event.type,
+            siteUrl,
+            summary,
+          });
+        }
         break;
+      }
       default:
         break;
     }

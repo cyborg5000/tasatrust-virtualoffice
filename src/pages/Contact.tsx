@@ -12,6 +12,7 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Mail, Phone, MapPin, Clock, MessageCircle } from "lucide-react";
 import corporateBuilding from "@/assets/corporate-building.jpg";
+import { supabase } from "@/integrations/supabase/client";
 
 const contactSchema = z.object({
   name: z
@@ -106,17 +107,32 @@ export default function Contact() {
 
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Message sent!",
-      description: "Thank you for reaching out. We'll get back to you within 24 hours.",
-    });
-    
-    form.reset();
-    setIsSubmitting(false);
+
+    try {
+      const { error } = await supabase.functions.invoke("submit-contact-message", {
+        body: data,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message sent!",
+        description: "Thank you for reaching out. We'll get back to you within 24 hours.",
+      });
+
+      form.reset();
+    } catch (error: unknown) {
+      console.error("Contact submit failed:", error);
+      toast({
+        title: "Failed to send message",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong while sending your message. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

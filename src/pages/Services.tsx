@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle } from "lucide-react";
@@ -52,6 +53,24 @@ const coreServices = [
 ];
 
 export default function Services() {
+  const [searchParams] = useSearchParams();
+  const requestedCategory = (searchParams.get("cat") || "").toLowerCase();
+
+  const categoryBySlug: Record<string, string> = {
+    "virtual-office": "Virtual Office",
+    accounting: "Accounting & Bookkeeping",
+    tax: "Taxation Services",
+    "corp-sec": "Corporate Services",
+    payroll: "Payroll Services",
+  };
+
+  const filteredServices = useMemo(() => {
+    if (!requestedCategory) return coreServices;
+    const targetCategory = categoryBySlug[requestedCategory];
+    if (!targetCategory) return coreServices;
+    return coreServices.filter((item) => item.category === targetCategory);
+  }, [requestedCategory]);
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -71,7 +90,7 @@ export default function Services() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="space-y-16">
-            {coreServices.map((category) => (
+            {filteredServices.map((category) => (
               <div key={category.category}>
                 <div className="mb-6 flex items-center gap-3">
                   <span className="text-3xl">{category.icon}</span>
@@ -95,6 +114,13 @@ export default function Services() {
                 </div>
               </div>
             ))}
+            {filteredServices.length === 0 && (
+              <div className="rounded-lg border border-dashed border-border p-8 text-center">
+                <p className="text-muted-foreground">
+                  No service category was found for this filter. Explore all available services below.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>

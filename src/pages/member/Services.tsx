@@ -50,6 +50,7 @@ export default function MemberServices() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [showIncludedServices, setShowIncludedServices] = useState(true);
 
   // Fetch user's subscription tier
   useEffect(() => {
@@ -173,9 +174,13 @@ export default function MemberServices() {
         }
       }
 
+      if (!showIncludedServices && service.isIncluded) {
+        return false;
+      }
+
       return true;
     });
-  }, [services, searchQuery, selectedCategories, priceRange]);
+  }, [services, searchQuery, selectedCategories, priceRange, showIncludedServices]);
 
   const handleAddToCart = (serviceId: string) => {
     const service = services.find((s) => s.id === serviceId);
@@ -231,6 +236,7 @@ export default function MemberServices() {
     setSelectedCategories([]);
     setPriceRange([0, maxPrice]);
     setSearchQuery("");
+    setShowIncludedServices(true);
   };
 
   return (
@@ -286,6 +292,8 @@ export default function MemberServices() {
                 priceRange={priceRange}
                 maxPrice={maxPrice}
                 onPriceRangeChange={setPriceRange}
+                showIncludedServices={showIncludedServices}
+                onShowIncludedServicesChange={setShowIncludedServices}
                 onClearFilters={handleClearFilters}
               />
             </SheetContent>
@@ -304,6 +312,8 @@ export default function MemberServices() {
                 priceRange={priceRange}
                 maxPrice={maxPrice}
                 onPriceRangeChange={setPriceRange}
+                showIncludedServices={showIncludedServices}
+                onShowIncludedServicesChange={setShowIncludedServices}
                 onClearFilters={handleClearFilters}
               />
             </div>

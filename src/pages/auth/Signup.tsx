@@ -44,6 +44,18 @@ export default function Signup() {
         if (memberError) {
           console.error("Error creating member:", memberError);
         }
+
+        void supabase.functions
+          .invoke("send-welcome-email", {
+            body: {
+              userId: authData.user.id,
+              email,
+              companyName,
+            },
+          })
+          .catch((error) => {
+            console.error("Welcome email trigger failed:", error);
+          });
       }
 
       if (authData.session) {

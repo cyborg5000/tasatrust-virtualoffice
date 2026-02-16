@@ -12,6 +12,8 @@ interface FilterSidebarProps {
   maxPrice: number;
   onPriceRangeChange: (range: [number, number]) => void;
   onClearFilters: () => void;
+  showIncludedServices: boolean;
+  onShowIncludedServicesChange: (show: boolean) => void;
 }
 
 export function FilterSidebar({
@@ -22,6 +24,8 @@ export function FilterSidebar({
   maxPrice,
   onPriceRangeChange,
   onClearFilters,
+  showIncludedServices,
+  onShowIncludedServicesChange,
 }: FilterSidebarProps) {
   const handleCategoryToggle = (category: string) => {
     if (selectedCategories.includes(category)) {
@@ -31,7 +35,8 @@ export function FilterSidebar({
     }
   };
 
-  const hasActiveFilters = selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < maxPrice;
+  const hasActiveFilters =
+    selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < maxPrice || !showIncludedServices;
 
   return (
     <div className="space-y-6">
@@ -95,7 +100,11 @@ export function FilterSidebar({
       <div className="space-y-3">
         <Label className="text-sm font-medium">Plan Benefits</Label>
         <div className="flex items-center space-x-2">
-          <Checkbox id="show-included" defaultChecked />
+          <Checkbox
+            id="show-included"
+            checked={showIncludedServices}
+            onCheckedChange={(value) => onShowIncludedServicesChange(Boolean(value))}
+          />
           <label
             htmlFor="show-included"
             className="text-sm cursor-pointer text-muted-foreground hover:text-foreground"
