@@ -104,7 +104,21 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/15 pt-8 md:flex-row">
-          <p className="text-sm text-white/65">© {new Date().getFullYear()} TASA Trust Pte. Ltd. All rights reserved.</p>
+          <div className="flex flex-col items-center gap-1 md:flex-row md:gap-4">
+            <p className="text-sm text-white/65">© {new Date().getFullYear()} TASA Trust Pte. Ltd. All rights reserved.</p>
+            <span className="hidden text-white/40 md:inline">|</span>
+            <p className="text-sm text-white/65">
+              Powered by{' '}
+              <a
+                href="https://essentialblock.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
+                Essential Block
+              </a>
+            </p>
+          </div>
           <div className="flex gap-2">
             {socialLinks.map((social) => (
               <a
