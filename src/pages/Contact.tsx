@@ -63,8 +63,8 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Office",
-    value: "Blk 2 Joo Chiat Road #05-1131",
-    description: "Singapore 420002",
+    value: "101 Cecil Street #15-06",
+    description: "Singapore 069533",
   },
   {
     icon: Clock,

@@ -215,13 +215,13 @@ export default function About() {
               Visit Our Office
             </h2>
             <p className="mb-6 text-muted-foreground">
-              We're located in the heart of Singapore's East district.
+              We're located in the heart of Singapore's CBD.
             </p>
             <div className="rounded-lg bg-muted p-6 text-left">
               <p className="font-semibold text-foreground">TASA Trust Pte. Ltd.</p>
               <p className="text-muted-foreground">
-                Blk 2 Joo Chiat Road #05-1131<br />
-                Singapore 420002
+                101 Cecil Street #15-06<br />
+                Singapore 069533
               </p>
               <p className="mt-4 text-muted-foreground">
                 <span className="font-medium">Office Hours:</span><br />

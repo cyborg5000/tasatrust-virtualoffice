@@ -46,7 +46,7 @@ export function Footer() {
             <div className="mt-6 space-y-3">
               <div className="flex items-start gap-3 text-sm text-white/80">
                 <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                <span>101 Cecil Street #15-06 Tong Eng Building, Singapore 069533</span>
+                <span>101 Cecil Street #15-06, Singapore 069533</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-white/80">
                 <Phone className="h-4 w-4 text-primary" />

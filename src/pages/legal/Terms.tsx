@@ -134,7 +134,7 @@ export default function Terms() {
               <div className="mt-4 space-y-2 text-muted-foreground">
                 <p><strong>Email:</strong> info@tasatrust.com</p>
                 <p><strong>Phone:</strong> +65 8446 3191</p>
-                <p><strong>Address:</strong> 101 Cecil Street #15-06 Tong Eng Building, Singapore 069533</p>
+                <p><strong>Address:</strong> 101 Cecil Street #15-06, Singapore 069533</p>
               </div>
             </div>
 
