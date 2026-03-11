@@ -11,4 +11,10 @@ User-agent: facebookexternalhit
 Allow: /
 
 User-agent: *
+Disallow: /admin
+Disallow: /member
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
 Allow: /
