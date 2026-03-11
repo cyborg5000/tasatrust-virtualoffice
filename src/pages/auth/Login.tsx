@@ -10,6 +10,14 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import logo from "@/assets/logo.png";
 
+function isMemberPath(path: string) {
+  return path === "/member" || path.startsWith("/member/");
+}
+
+function isOnboardingPath(path: string) {
+  return path === "/member/onboarding" || path.startsWith("/member/onboarding/");
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,19 +30,53 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
+      const userId = authData.user?.id;
+      let hasActiveSubscription = false;
+
+      if (userId) {
+        const { data: subscriptions, error: subscriptionError } = await supabase
+          .from("subscriptions")
+          .select("id")
+          .eq("member_id", userId)
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (subscriptionError) {
+          console.error("Error loading subscription after login:", subscriptionError);
+        } else {
+          hasActiveSubscription = (subscriptions?.length || 0) > 0;
+        }
+      }
+
       toast.success("Welcome back!");
       const fromLocation = (location.state as { from?: Location } | undefined)?.from;
-      const fromPath = fromLocation ? `${fromLocation.pathname || ""}${fromLocation.search || ""}${fromLocation.hash || ""}` : "/member";
-      navigate(fromPath || "/member", { replace: true });
-    } catch (error: any) {
-      toast.error(error.message || "Failed to sign in");
+      const fromPath = fromLocation
+        ? `${fromLocation.pathname || ""}${fromLocation.search || ""}${fromLocation.hash || ""}`
+        : "";
+
+      let destination = fromPath || (hasActiveSubscription ? "/member" : "/member/onboarding");
+
+      if (isMemberPath(destination)) {
+        if (hasActiveSubscription && isOnboardingPath(destination)) {
+          destination = "/member";
+        }
+
+        if (!hasActiveSubscription && !isOnboardingPath(destination) && destination !== "/member/checkout/success") {
+          destination = "/member/onboarding";
+        }
+      }
+
+      navigate(destination, { replace: true });
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to sign in");
     } finally {
       setLoading(false);
     }

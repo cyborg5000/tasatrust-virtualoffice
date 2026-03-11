@@ -16,11 +16,13 @@ const VALID_TIERS = new Set(["basic", "essential", "professional"]);
 export function useMemberSubscription(userId?: string): UseMemberSubscriptionResult {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const [resolvedUserId, setResolvedUserId] = useState<string | undefined>(undefined);
 
   const refresh = useCallback(async () => {
     if (!userId) {
       setSubscription(null);
       setLoading(false);
+      setResolvedUserId(undefined);
       return;
     }
 
@@ -42,6 +44,7 @@ export function useMemberSubscription(userId?: string): UseMemberSubscriptionRes
       }
     } finally {
       setLoading(false);
+      setResolvedUserId(userId);
     }
   }, [userId]);
 
@@ -94,5 +97,12 @@ export function useMemberSubscription(userId?: string): UseMemberSubscriptionRes
       VALID_TIERS.has(subscription.tier)
   );
 
-  return { subscription, hasActiveSubscription, loading, refresh };
+  const isResolvedForCurrentUser = !userId || resolvedUserId === userId;
+
+  return {
+    subscription,
+    hasActiveSubscription,
+    loading: loading || !isResolvedForCurrentUser,
+    refresh,
+  };
 }
