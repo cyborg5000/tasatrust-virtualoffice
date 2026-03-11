@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import type { Enums } from "@/integrations/supabase/types";
+import { getSubscriptionTierLabel } from "@/lib/subscriptionPlans";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Building2, Loader2, Mail, Phone, Calendar, CreditCard, Package, ShieldCheck } from "lucide-react";
@@ -182,7 +183,7 @@ export function MemberDetailDrawer({
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Plan</span>
                   <Badge className={tierColors[member.subscription.tier] || ""}>
-                    {member.subscription.tier.charAt(0).toUpperCase() + member.subscription.tier.slice(1)}
+                    {getSubscriptionTierLabel(member.subscription.tier as SubscriptionTier)}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">

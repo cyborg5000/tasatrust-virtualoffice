@@ -19,7 +19,11 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { Tables } from "@/integrations/supabase/types";
-import { SUBSCRIPTION_PLAN_BY_TIER } from "@/lib/subscriptionPlans";
+import {
+  getSubscriptionTierLabel,
+  SUBSCRIPTION_PLAN_BY_TIER,
+  type SubscriptionTier,
+} from "@/lib/subscriptionPlans";
 import { toast } from "sonner";
 
 type Order = Tables<"orders">;
@@ -171,7 +175,9 @@ export default function MemberBilling() {
               {subscription ? (
                 <>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold capitalize">{subscription.tier}</span>
+                    <span className="text-2xl font-bold">
+                      {getSubscriptionTierLabel(subscription.tier as SubscriptionTier)}
+                    </span>
                     <Badge variant="secondary" className="bg-primary/10 text-primary">
                       Active
                     </Badge>
@@ -338,7 +344,9 @@ export default function MemberBilling() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div>
-                  <p className="font-medium capitalize">{subscription.tier} Plan</p>
+                  <p className="font-medium">
+                    {getSubscriptionTierLabel(subscription.tier as SubscriptionTier)} Plan
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     {hasStripeManagedSubscription
                       ? subscription.cancel_at_period_end

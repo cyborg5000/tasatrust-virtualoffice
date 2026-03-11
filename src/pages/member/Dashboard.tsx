@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { Tables } from "@/integrations/supabase/types";
+import { getSubscriptionTierLabel, type SubscriptionTier } from "@/lib/subscriptionPlans";
 
 type Order = Tables<"orders">;
 type Subscription = Tables<"subscriptions">;
@@ -139,7 +140,7 @@ export default function MemberDashboard() {
                       {subscription.status}
                     </span>
                     <Badge className={getTierColor(subscription.tier)}>
-                      {subscription.tier}
+                      {getSubscriptionTierLabel(subscription.tier as SubscriptionTier)}
                     </Badge>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">

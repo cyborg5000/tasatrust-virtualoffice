@@ -23,6 +23,10 @@ export function isEmphasizedFeatureLabel(label: string) {
   return EMPHASIZED_FEATURE_LABELS.has(label);
 }
 
+export function getSubscriptionTierLabel(tier: SubscriptionTier) {
+  return SUBSCRIPTION_PLAN_BY_TIER[tier].name;
+}
+
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     tier: "basic",

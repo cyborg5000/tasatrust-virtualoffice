@@ -23,6 +23,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { getSubscriptionTierLabel, type SubscriptionTier } from "@/lib/subscriptionPlans";
 import { Search, Eye, Users, Filter } from "lucide-react";
 
 interface MemberWithSubscription {
@@ -253,7 +254,7 @@ export default function AdminMembers() {
                   <SelectItem value="all">All Tiers</SelectItem>
                   <SelectItem value="basic">Basic</SelectItem>
                   <SelectItem value="essential">Essential</SelectItem>
-                  <SelectItem value="professional">Professional</SelectItem>
+                  <SelectItem value="professional">Premium</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -311,8 +312,7 @@ export default function AdminMembers() {
                       <TableCell>
                         {member.subscription ? (
                           <Badge className={tierColors[member.subscription.tier] || ""}>
-                            {member.subscription.tier.charAt(0).toUpperCase() +
-                              member.subscription.tier.slice(1)}
+                            {getSubscriptionTierLabel(member.subscription.tier as SubscriptionTier)}
                           </Badge>
                         ) : (
                           <span className="text-xs text-muted-foreground">—</span>

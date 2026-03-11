@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { getSubscriptionTierLabel, type SubscriptionTier } from "@/lib/subscriptionPlans";
 
 interface MemberTopBarProps {
   companyName?: string;
@@ -61,11 +62,12 @@ export function MemberTopBar({ companyName }: MemberTopBarProps) {
         const nextNotifications: NotificationItem[] = [];
 
         if (subscription) {
+          const tierLabel = getSubscriptionTierLabel(subscription.tier as SubscriptionTier);
           const statusText = subscription.stripe_subscription_id
             ? subscription.cancel_at_period_end
-              ? `Your ${subscription.tier} plan is set to end on ${subscription.current_period_end ? format(new Date(subscription.current_period_end), "MMM d, yyyy") : "the period end date"}`
-              : `Your ${subscription.tier} plan is active and will renew automatically.`
-            : `Your ${subscription.tier} plan is active and managed by the TASA Trust team.`;
+              ? `Your ${tierLabel} plan is set to end on ${subscription.current_period_end ? format(new Date(subscription.current_period_end), "MMM d, yyyy") : "the period end date"}`
+              : `Your ${tierLabel} plan is active and will renew automatically.`
+            : `Your ${tierLabel} plan is active and managed by the TASA Trust team.`;
 
           nextNotifications.push({
             id: `subscription-${subscription.id}`,
