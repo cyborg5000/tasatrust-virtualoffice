@@ -447,6 +447,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_member_subscription: {
+        Args: {
+          _member_id: string
+          _tier: Database["public"]["Enums"]["subscription_tier"]
+        }
+        Returns: Database["public"]["Tables"]["subscriptions"]["Row"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

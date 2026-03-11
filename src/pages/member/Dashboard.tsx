@@ -143,7 +143,9 @@ export default function MemberDashboard() {
                     </Badge>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Your plan is active
+                    {subscription.stripe_subscription_id
+                      ? "Your plan is active"
+                      : "Your plan is active and managed by admin"}
                   </p>
                 </>
               ) : (
@@ -179,9 +181,13 @@ export default function MemberDashboard() {
                 </>
               ) : (
                 <>
-                  <span className="text-2xl font-bold">—</span>
+                  <span className="text-2xl font-bold">
+                    {subscription ? "Managed offline" : "—"}
+                  </span>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    No active subscription
+                    {subscription
+                      ? "No Stripe renewal is scheduled for this plan"
+                      : "No active subscription"}
                   </p>
                 </>
               )}

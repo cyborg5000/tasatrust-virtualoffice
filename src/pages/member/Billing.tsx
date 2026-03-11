@@ -100,9 +100,10 @@ export default function MemberBilling() {
   const totalSpent = orders
     .filter(o => o.status === "completed")
     .reduce((sum, o) => sum + Number(o.amount), 0);
+  const hasStripeManagedSubscription = Boolean(subscription?.stripe_subscription_id);
 
   const openBillingPortal = async () => {
-    if (!user) return;
+    if (!user || !hasStripeManagedSubscription) return;
 
     setIsPortalLoading(true);
     try {
@@ -176,7 +177,9 @@ export default function MemberBilling() {
                     </Badge>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {getTierPrice(subscription.tier)}/month
+                    {hasStripeManagedSubscription
+                      ? `${getTierPrice(subscription.tier)}/month`
+                      : "Admin-managed plan"}
                   </p>
                 </>
               ) : (
@@ -208,8 +211,12 @@ export default function MemberBilling() {
                 </>
               ) : (
                 <>
-                  <span className="text-2xl font-bold">—</span>
-                  <p className="mt-1 text-sm text-muted-foreground">No upcoming payment</p>
+                  <span className="text-2xl font-bold">
+                    {subscription ? "Managed offline" : "—"}
+                  </span>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {subscription ? "No Stripe billing schedule is attached to this plan" : "No upcoming payment"}
+                  </p>
                 </>
               )}
             </CardContent>
@@ -285,23 +292,29 @@ export default function MemberBilling() {
                             </tbody>
                           </table>
                         </div>
-                        <Button
-                          variant="outline"
-                          onClick={openBillingPortal}
-                          disabled={isPortalLoading}
-                        >
-                          {isPortalLoading ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Opening portal...
-                            </>
-                          ) : (
-                            <>
-                              <ExternalLink className="mr-2 h-4 w-4" />
-                              Open Stripe Billing Portal
-                            </>
-                          )}
-                        </Button>
+                        {hasStripeManagedSubscription ? (
+                          <Button
+                            variant="outline"
+                            onClick={openBillingPortal}
+                            disabled={isPortalLoading}
+                          >
+                            {isPortalLoading ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Opening portal...
+                              </>
+                            ) : (
+                              <>
+                                <ExternalLink className="mr-2 h-4 w-4" />
+                                Open Stripe Billing Portal
+                              </>
+                            )}
+                          </Button>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            This plan was assigned by admin, so there is no Stripe billing portal for it yet.
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -327,33 +340,39 @@ export default function MemberBilling() {
                 <div>
                   <p className="font-medium capitalize">{subscription.tier} Plan</p>
                   <p className="text-sm text-muted-foreground">
-                    {subscription.cancel_at_period_end
-                      ? "Your subscription will end on " + format(new Date(subscription.current_period_end!), "MMMM d, yyyy")
-                      : "Your subscription renews automatically"}
+                    {hasStripeManagedSubscription
+                      ? subscription.cancel_at_period_end
+                        ? "Your subscription will end on " + format(new Date(subscription.current_period_end!), "MMMM d, yyyy")
+                        : "Your subscription renews automatically"
+                      : "This plan is active and managed manually by the TASA Trust team"}
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    onClick={openBillingPortal}
-                    disabled={isPortalLoading}
-                    className="gap-2"
-                  >
-                    {isPortalLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Opening portal...
-                      </>
-                    ) : (
-                      <>
-                        <ExternalLink className="h-4 w-4" />
-                        Open Billing Portal
-                      </>
-                    )}
-                  </Button>
+                  {hasStripeManagedSubscription ? (
+                    <Button
+                      onClick={openBillingPortal}
+                      disabled={isPortalLoading}
+                      className="gap-2"
+                    >
+                      {isPortalLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Opening portal...
+                        </>
+                      ) : (
+                        <>
+                          <ExternalLink className="h-4 w-4" />
+                          Open Billing Portal
+                        </>
+                      )}
+                    </Button>
+                  ) : null}
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Need to switch plans, update card details, or cancel at period end? Open the Stripe billing portal.
+                {hasStripeManagedSubscription
+                  ? "Need to switch plans, update card details, or cancel at period end? Open the Stripe billing portal."
+                  : "Need to change this plan? Contact the TASA Trust admin team to update the manual assignment."}
               </p>
             </CardContent>
           </Card>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { MemberDetailDrawer } from "@/components/admin/MemberDetailDrawer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +36,7 @@ interface MemberWithSubscription {
     tier: string;
     status: string;
     current_period_end: string | null;
+    stripe_subscription_id: string | null;
   } | null;
   orders?: Array<{
     id: string;
@@ -55,42 +56,57 @@ export default function AdminMembers() {
   const [selectedMember, setSelectedMember] = useState<MemberWithSubscription | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  useEffect(() => {
-    async function fetchMembers() {
-      setIsLoading(true);
+  const fetchMembers = useCallback(async () => {
+    setIsLoading(true);
 
-      // Fetch all members with their subscriptions
-      const { data: membersData, error } = await supabase
-        .from("members")
-        .select(`
-          *,
-          subscriptions (
-            tier,
-            status,
-            current_period_end
-          )
-        `)
-        .order("created_at", { ascending: false });
+    const { data: membersData, error } = await supabase
+      .from("members")
+      .select(`
+        *,
+        subscriptions (
+          tier,
+          status,
+          current_period_end,
+          stripe_subscription_id,
+          created_at
+        )
+      `)
+      .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching members:", error);
-        setIsLoading(false);
-        return;
-      }
-
-      // Map data to include first subscription as main subscription
-      const mappedMembers: MemberWithSubscription[] = (membersData || []).map((member) => ({
-        ...member,
-        subscription: member.subscriptions?.[0] || null,
-      }));
-
-      setMembers(mappedMembers);
-      setFilteredMembers(mappedMembers);
+    if (error) {
+      console.error("Error fetching members:", error);
       setIsLoading(false);
+      return;
     }
 
-    fetchMembers();
+    const mappedMembers: MemberWithSubscription[] = (membersData || []).map((member) => {
+      const subscriptions = [...(member.subscriptions || [])].sort((a, b) => {
+        if (a.status === "active" && b.status !== "active") return -1;
+        if (a.status !== "active" && b.status === "active") return 1;
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      });
+
+      return {
+        ...member,
+        subscription: subscriptions[0]
+          ? {
+              tier: subscriptions[0].tier,
+              status: subscriptions[0].status,
+              current_period_end: subscriptions[0].current_period_end,
+              stripe_subscription_id: subscriptions[0].stripe_subscription_id,
+            }
+          : null,
+      };
+    });
+
+    setMembers(mappedMembers);
+    setFilteredMembers(mappedMembers);
+    setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    void fetchMembers();
+  }, [fetchMembers]);
 
   // Apply filters
   useEffect(() => {
@@ -138,6 +154,31 @@ export default function AdminMembers() {
       orders: ordersData || [],
     });
     setIsDrawerOpen(true);
+  };
+
+  const handleSubscriptionAssigned = (
+    memberId: string,
+    subscription: MemberWithSubscription["subscription"]
+  ) => {
+    setMembers((currentMembers) =>
+      currentMembers.map((member) =>
+        member.id === memberId
+          ? {
+              ...member,
+              subscription,
+            }
+          : member
+      )
+    );
+
+    setSelectedMember((currentMember) =>
+      currentMember && currentMember.id === memberId
+        ? {
+            ...currentMember,
+            subscription,
+          }
+        : currentMember
+    );
   };
 
   const tierColors: Record<string, string> = {
@@ -316,6 +357,7 @@ export default function AdminMembers() {
         member={selectedMember}
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
+        onSubscriptionAssigned={handleSubscriptionAssigned}
       />
     </AdminLayout>
   );
