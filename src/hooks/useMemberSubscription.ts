@@ -28,6 +28,12 @@ export function useMemberSubscription(userId?: string): UseMemberSubscriptionRes
 
     setLoading(true);
     try {
+      const { error: ensureMemberError } = await supabase.rpc("ensure_member_profile");
+
+      if (ensureMemberError) {
+        console.error("Error reconciling member profile:", ensureMemberError);
+      }
+
       const { data, error } = await supabase
         .from("subscriptions")
         .select("*")

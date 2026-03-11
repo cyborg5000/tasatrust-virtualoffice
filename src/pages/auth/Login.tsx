@@ -40,6 +40,11 @@ export default function Login() {
       const userId = authData.user?.id;
       let hasActiveSubscription = false;
 
+      const { error: ensureMemberError } = await supabase.rpc("ensure_member_profile");
+      if (ensureMemberError) {
+        console.error("Error reconciling member profile during login:", ensureMemberError);
+      }
+
       if (userId) {
         const { data: subscriptions, error: subscriptionError } = await supabase
           .from("subscriptions")
