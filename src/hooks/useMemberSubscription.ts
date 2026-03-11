@@ -32,14 +32,13 @@ export function useMemberSubscription(userId?: string): UseMemberSubscriptionRes
         .eq("member_id", userId)
         .eq("status", "active")
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(1);
 
       if (error) {
         console.error("Error loading member subscription:", error);
         setSubscription(null);
       } else {
-        setSubscription(data);
+        setSubscription(data?.[0] || null);
       }
     } finally {
       setLoading(false);
@@ -49,6 +48,45 @@ export function useMemberSubscription(userId?: string): UseMemberSubscriptionRes
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`member-subscription-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "subscriptions",
+          filter: `member_id=eq.${userId}`,
+        },
+        () => {
+          void refresh();
+        }
+      )
+      .subscribe();
+
+    const handleFocus = () => {
+      void refresh();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void refresh();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      void supabase.removeChannel(channel);
+    };
+  }, [userId, refresh]);
 
   const hasActiveSubscription = Boolean(
     subscription &&
