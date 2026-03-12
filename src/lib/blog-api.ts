@@ -1,7 +1,10 @@
-import { supabase } from "@/integrations/supabase/client";
-
 export const BLOG_PAGE_SIZE = 24;
 const BLOG_FUNCTION_NAME = import.meta.env.VITE_CONTENT_FUNCTION_NAME || "get-blog-content";
+const SUPABASE_URL =
+  import.meta.env.VITE_SUPABASE_URL || "https://wktusutjeoyokptqbdeu.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdHVzdXRqZW95b2twdHFiZGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNjg3NTEsImV4cCI6MjA4NTk0NDc1MX0.FawtlFEp-pV5ZALskrHoTcX870nc1bz4t3XugLam7XY";
 
 export interface CmsSite {
   id: string;
@@ -70,15 +73,24 @@ function normalizeRequest(request: ArticleListRequest = {}) {
 }
 
 async function invokeBlogFunction<T>(body: Record<string, unknown>): Promise<T> {
-  const { data, error } = await supabase.functions.invoke(BLOG_FUNCTION_NAME, {
-    body,
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/${BLOG_FUNCTION_NAME}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+    },
+    body: JSON.stringify(body),
   });
 
-  if (error) {
-    throw error;
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Blog content request failed (${response.status}): ${errorText || response.statusText}`,
+    );
   }
 
-  return data as T;
+  return (await response.json()) as T;
 }
 
 export function getArticleListRequestKey(request: ArticleListRequest = {}) {

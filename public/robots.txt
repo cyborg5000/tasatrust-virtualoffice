@@ -18,3 +18,5 @@ Disallow: /signup
 Disallow: /forgot-password
 Disallow: /reset-password
 Allow: /
+
+Sitemap: https://www.tasatrust.com/sitemap.xml
