@@ -7,7 +7,9 @@ import logo from "@/assets/logo.png";
 
 const navLinks = [
   { href: "/", label: "Home" },
+  { href: "/about", label: "About Us" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/blog", label: "Blog" },
 ];
 
 const servicesLinks = [
@@ -18,9 +20,16 @@ const servicesLinks = [
 ];
 
 const footerNavLinks = [
-  { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact" },
 ];
+
+const isLinkActive = (pathname: string, href: string) => {
+  if (href === "/") {
+    return pathname === "/";
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+};
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -114,10 +123,12 @@ export function Navbar() {
               <Link
                 key={link.href}
                 to={link.href}
-                aria-current={location.pathname === link.href ? "page" : undefined}
+                aria-current={isLinkActive(location.pathname, link.href) ? "page" : undefined}
                 className={cn(
                   "text-sm font-semibold transition-colors",
-                  location.pathname === link.href ? "text-secondary" : "text-muted-foreground hover:text-secondary"
+                  isLinkActive(location.pathname, link.href)
+                    ? "text-secondary"
+                    : "text-muted-foreground hover:text-secondary"
                 )}
               >
                 {link.label}
@@ -230,16 +241,16 @@ export function Navbar() {
             <div id="mobile-nav" ref={mobileMenuRef} className="surface-panel p-4">
               <div className="space-y-2">
                 {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    aria-current={location.pathname === link.href ? "page" : undefined}
-                    className={cn(
-                      "block rounded-lg px-3 py-2 text-sm font-semibold",
-                      location.pathname === link.href
-                        ? "bg-secondary text-secondary-foreground"
-                        : "text-secondary hover:bg-muted"
-                    )}
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  aria-current={isLinkActive(location.pathname, link.href) ? "page" : undefined}
+                  className={cn(
+                    "block rounded-lg px-3 py-2 text-sm font-semibold",
+                    isLinkActive(location.pathname, link.href)
+                      ? "bg-secondary text-secondary-foreground"
+                      : "text-secondary hover:bg-muted"
+                  )}
                     onClick={closeMobileMenu}
                   >
                     {link.label}

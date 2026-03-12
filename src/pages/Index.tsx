@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { BlogPreviewSection } from "@/components/blog/BlogPreviewSection";
 import { Button } from "@/components/ui/button";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { MapPin, Mail, Phone, Building, CheckCircle2, ArrowRight, Shield, Clock3, Globe2 } from "lucide-react";
@@ -97,6 +98,8 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      <BlogPreviewSection />
 
       <section className="py-20">
         <div className="container mx-auto px-4">

@@ -146,6 +146,97 @@
   @apply not-sr-only fixed left-4 top-4 z-50 inline-block rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-secondary-foreground shadow-md;
 }
 
+.blog-prose {
+  @apply text-base leading-8 text-foreground;
+}
+
+.blog-prose > * + * {
+  margin-top: 1.2rem;
+}
+
+.blog-prose h2,
+.blog-prose h3,
+.blog-prose h4 {
+  color: hsl(var(--secondary));
+  line-height: 1.2;
+  scroll-margin-top: 7rem;
+}
+
+.blog-prose h2 {
+  @apply mt-10 text-3xl font-bold;
+}
+
+.blog-prose h3 {
+  @apply mt-8 text-2xl font-bold;
+}
+
+.blog-prose h4 {
+  @apply mt-6 text-xl font-bold;
+}
+
+.blog-prose p,
+.blog-prose li {
+  color: hsl(var(--foreground) / 0.9);
+}
+
+.blog-prose ul,
+.blog-prose ol {
+  padding-left: 1.3rem;
+}
+
+.blog-prose ul {
+  list-style: disc;
+}
+
+.blog-prose ol {
+  list-style: decimal;
+}
+
+.blog-prose a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-decoration-color: hsl(var(--primary) / 0.45);
+  text-underline-offset: 0.18rem;
+}
+
+.blog-prose blockquote {
+  @apply border-l-4 border-primary/35 pl-5 italic text-muted-foreground;
+}
+
+.blog-prose img {
+  @apply rounded-2xl;
+}
+
+.blog-prose table {
+  width: 100%;
+  overflow: hidden;
+  border-collapse: collapse;
+  border-radius: 1rem;
+  border: 1px solid hsl(var(--border));
+}
+
+.blog-prose th,
+.blog-prose td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.9rem 1rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.blog-prose th {
+  background: hsl(var(--muted));
+  color: hsl(var(--secondary));
+  font-weight: 700;
+}
+
+.blog-prose details {
+  @apply rounded-2xl border border-border/80 bg-muted/40 px-5 py-4;
+}
+
+.blog-prose summary {
+  @apply cursor-pointer list-none font-semibold text-secondary;
+}
+
 /* Custom utility classes */
 @layer utilities {
   .text-gradient {

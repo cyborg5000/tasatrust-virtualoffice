@@ -5,6 +5,7 @@ import logo from "@/assets/logo.png";
 const footerLinks = {
   company: [
     { href: "/about", label: "About Us" },
+    { href: "/blog", label: "Blog" },
     { href: "/services", label: "Services" },
     { href: "/pricing", label: "Pricing" },
     { href: "/contact", label: "Contact" },
@@ -15,6 +16,7 @@ const footerLinks = {
     { href: "/cookies", label: "Cookie Policy" },
   ],
   support: [
+    { href: "/blog", label: "Blog Archive" },
     { href: "/faq", label: "FAQ" },
     { href: "/help", label: "Help Center" },
     { href: "/contact", label: "Support" },

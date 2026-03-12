@@ -58,6 +58,11 @@ const routeSeoMap: Record<string, SeoConfig> = {
     title: "Help Center",
     description: "Get help and support for TASA Trust services and account management.",
   },
+  "/blog": {
+    title: "Blog",
+    description:
+      "Read TASA Trust articles on virtual offices, accounting, compliance, and running a business in Singapore.",
+  },
   "/login": {
     title: "Member Login",
     description: "Sign in to access your TASA Trust dashboard and service management tools.",
@@ -200,12 +205,16 @@ const pickRouteSeo = (pathname: string): SeoConfig => {
   const normalized = normalizePath(pathname);
   const matchedSeo = routeSeoMap[normalized];
 
+  if (normalized === "/blog" || normalized.startsWith("/blog/")) {
+    return matchedSeo || routeSeoMap["/blog"];
+  }
+
   if (
     !matchedSeo &&
     noIndexPrefixes.every((prefix) => normalized !== prefix && !normalized.startsWith(`${prefix}/`))
   ) {
     const isKnownPublicRoute =
-      ["/", "/pricing", "/contact", "/services", "/about", "/privacy", "/terms", "/cookies", "/faq", "/help"].includes(
+      ["/", "/pricing", "/contact", "/services", "/about", "/privacy", "/terms", "/cookies", "/faq", "/help", "/blog"].includes(
         normalized,
       );
     if (!isKnownPublicRoute) {

@@ -18,6 +18,10 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import FAQ from "./pages/Faq";
 import Help from "./pages/Help";
+import Blog from "./pages/blog/Blog";
+import BlogPost from "./pages/blog/BlogPost";
+import BlogCategory from "./pages/blog/BlogCategory";
+import BlogAuthor from "./pages/blog/BlogAuthor";
 import MemberDashboard from "./pages/member/Dashboard";
 import MemberServicesPage from "./pages/member/Services";
 import MemberBookings from "./pages/member/Bookings";
@@ -63,6 +67,10 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/blog/category/:category" element={<BlogCategory />} />
+          <Route path="/blog/author/:author" element={<BlogAuthor />} />
 
           {/* Protected Member Routes */}
           <Route
