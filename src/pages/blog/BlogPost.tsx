@@ -79,10 +79,10 @@ export default function BlogPost() {
         />
       )}
 
-      <section className="relative overflow-hidden bg-secondary py-16">
+      <section className="relative overflow-hidden bg-secondary py-10 md:py-12">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.22),transparent_34%)]" aria-hidden="true" />
         <div className="container relative mx-auto px-4">
-          <Button asChild variant="ghost" className="mb-8 gap-2 text-white hover:bg-white/10 hover:text-white">
+          <Button asChild variant="ghost" className="mb-5 gap-2 text-white hover:bg-white/10 hover:text-white">
             <Link to="/blog">
               <ArrowLeft className="h-4 w-4" />
               Back to blog
@@ -104,7 +104,7 @@ export default function BlogPost() {
               </p>
             </div>
           ) : (
-            <div className="max-w-4xl">
+            <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                 {article.category && article.category_slug ? (
                   <Link to={buildCategoryPath(article.category_slug)}>{article.category}</Link>
@@ -113,17 +113,17 @@ export default function BlogPost() {
                 )}
               </div>
 
-              <h1 className="mt-4 text-4xl font-bold text-secondary-foreground md:text-5xl">
+              <h1 className="mt-3 text-3xl font-bold leading-tight text-secondary-foreground md:text-4xl lg:text-[2.8rem]">
                 {article.title}
               </h1>
 
               {article.excerpt ? (
-                <p className="mt-5 max-w-3xl text-base text-white/75 md:text-lg">
+                <p className="mt-4 max-w-2xl text-sm text-white/75 md:text-base">
                   {article.excerpt}
                 </p>
               ) : null}
 
-              <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-white/75">
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/75">
                 {article.author_name && article.author_slug ? (
                   <Link to={buildAuthorPath(article.author_slug)} className="font-medium text-white">
                     {article.author_name}
@@ -148,13 +148,13 @@ export default function BlogPost() {
 
       {article ? (
         <>
-          <section className="py-10">
+          <section className="py-6 md:py-8">
             <div className="container mx-auto px-4">
               <div className="overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_24px_60px_-38px_hsl(var(--secondary)/0.75)]">
                 <img
                   src={article.featured_image || workspaceProfessional}
                   alt={article.og_image_alt || article.title}
-                  className="h-[260px] w-full object-cover md:h-[420px]"
+                  className="h-[220px] w-full object-cover md:h-[320px] lg:h-[360px]"
                 />
               </div>
             </div>
@@ -162,7 +162,7 @@ export default function BlogPost() {
 
           <section className="pb-20">
             <div className="container mx-auto px-4">
-              <div className="grid gap-8 xl:grid-cols-[220px_minmax(0,1fr)_300px]">
+              <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
                 <TableOfContents headings={decorated.headings} />
 
                 <article className="surface-panel border-white/80 bg-white/92 p-6 md:p-8">

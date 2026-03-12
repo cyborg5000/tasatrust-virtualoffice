@@ -7,7 +7,7 @@ type TableOfContentsProps = {
 
 export function TableOfContents({ headings }: TableOfContentsProps) {
   return (
-    <aside className="surface-panel h-fit border-white/70 bg-white/85 p-5 xl:sticky xl:top-28">
+    <aside className="surface-panel h-fit self-start border-white/70 bg-white/85 p-5 lg:sticky lg:top-24">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         Table of Contents
       </p>
