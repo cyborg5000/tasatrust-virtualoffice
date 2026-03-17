@@ -2,7 +2,15 @@
   "rewrites": [
     {
       "source": "/sitemap.xml",
-      "destination": "/api/sitemap"
+      "destination": "/api/sitemap?kind=index"
+    },
+    {
+      "source": "/sitemap-static.xml",
+      "destination": "/api/sitemap?kind=static"
+    },
+    {
+      "source": "/sitemap-blog.xml",
+      "destination": "/api/sitemap?kind=blog"
     },
     {
       "source": "/((?!api/.*|_next/static|_next/image|favicon.ico|.*\\.png$).*)",

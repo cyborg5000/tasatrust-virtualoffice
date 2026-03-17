@@ -1,8 +1,10 @@
 const DEFAULT_SITE_URL = "https://www.tasatrust.com";
 const DEFAULT_SUPABASE_URL = "https://wktusutjeoyokptqbdeu.supabase.co";
 const DEFAULT_SUPABASE_PUBLISHABLE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdHVzdXRqZW95b2twdHFiZGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNjg3NTEsImV4cCI6MjA4NTk0NDc1MX0.FawtlFEp-pV5ZALskrHoTcX870nc1bz4t3XugLam7XY";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOnN1cGFiYXNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNjg3NTEsImV5cCI6MjA4NTk0NDc1MX0.FawtlFEp-pV5ZALskrHoTcX870nc1bz4t3XugLam7XY";
 const BLOG_PAGE_SIZE = 100;
+
+type SitemapKind = "index" | "static" | "blog";
 
 const SITE_URL =
   process.env.SITE_URL ||
@@ -31,9 +33,26 @@ const staticRoutes = [
   { path: "/blog", priority: "0.9", changefreq: "daily" },
 ];
 
+type SitemapArticle = {
+  slug?: string;
+  canonical_path?: string | null;
+  category_slug?: string | null;
+  author_slug?: string | null;
+  updated_at?: string | null;
+};
+
+type SitemapUrlEntry = {
+  loc: string;
+  lastmod?: string;
+  changefreq?: string;
+  priority?: string;
+};
+
 function normalizeSiteUrl(value: string) {
   if (!value) return DEFAULT_SITE_URL;
-  return value.startsWith("http") ? value.replace(/\/+$/, "") : `https://${value.replace(/\/+$/, "")}`;
+  return value.startsWith("http")
+    ? value.replace(/\/+$/, "")
+    : `https://${value.replace(/\/+$/, "")}`;
 }
 
 function escapeXml(value: string) {
@@ -49,8 +68,21 @@ function buildUrl(baseUrl: string, path: string) {
   return new URL(path, `${baseUrl}/`).toString();
 }
 
+function getKind(url: string | undefined, queryKind?: string): SitemapKind {
+  if (queryKind === "static" || queryKind === "blog" || queryKind === "index") {
+    return queryKind;
+  }
+
+  if (!url) return "index";
+
+  const pathname = new URL(url, "https://www.tasatrust.com").pathname.toLowerCase();
+  if (pathname.endsWith("/sitemap-blog.xml")) return "blog";
+  if (pathname.endsWith("/sitemap-static.xml")) return "static";
+  return "index";
+}
+
 async function fetchAllArticles() {
-  const articles: Record<string, unknown>[] = [];
+  const articles: SitemapArticle[] = [];
   let offset = 0;
   let hasMore = true;
 
@@ -75,7 +107,7 @@ async function fetchAllArticles() {
     }
 
     const payload = (await response.json()) as {
-      articles?: Record<string, unknown>[];
+      articles?: SitemapArticle[];
       pagination?: { has_more?: boolean };
     };
 
@@ -88,12 +120,7 @@ async function fetchAllArticles() {
   return articles;
 }
 
-function renderUrlNode(entry: {
-  loc: string;
-  lastmod?: string;
-  changefreq?: string;
-  priority?: string;
-}) {
+function renderUrlNode(entry: SitemapUrlEntry) {
   return [
     "  <url>",
     `    <loc>${escapeXml(entry.loc)}</loc>`,
@@ -106,90 +133,143 @@ function renderUrlNode(entry: {
     .join("\n");
 }
 
+function renderSitemapIndexNode(entry: SitemapUrlEntry) {
+  return [
+    "  <sitemap>",
+    `    <loc>${escapeXml(entry.loc)}</loc>`,
+    entry.lastmod ? `    <lastmod>${escapeXml(entry.lastmod)}</lastmod>` : "",
+    "  </sitemap>",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function renderSitemapXml(entries: SitemapUrlEntry[]) {
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...entries.map(renderUrlNode),
+    "</urlset>",
+  ].join("\n");
+}
+
+function renderSitemapIndexXml(entries: SitemapUrlEntry[]) {
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...entries.map(renderSitemapIndexNode),
+    "</sitemapindex>",
+  ].join("\n");
+}
+
+async function buildStaticEntries() {
+  return staticRoutes.map((route) => ({
+    loc: route.path ? route.path : "/",
+    changefreq: route.changefreq,
+    priority: route.priority,
+  }));
+}
+
+async function buildBlogEntries(baseUrl: string) {
+  const articles = await fetchAllArticles();
+  const categories = new Map<string, { slug: string; updatedAt?: string }>();
+  const authors = new Map<string, { slug: string; updatedAt?: string }>();
+
+  const articleEntries = articles.map((article) => {
+    const slug = String(article.slug || "").trim();
+    const canonicalPath = article.canonical_path
+      ? String(article.canonical_path)
+      : slug
+        ? `/blog/${encodeURIComponent(slug)}`
+        : "/blog";
+
+    const categorySlug = article.category_slug ? String(article.category_slug) : "";
+    const authorSlug = article.author_slug ? String(article.author_slug) : "";
+    const updatedAt = article.updated_at ? String(article.updated_at) : undefined;
+
+    if (categorySlug) {
+      const current = categories.get(categorySlug);
+      if (!current || (updatedAt && updatedAt > (current.updatedAt || ""))) {
+        categories.set(categorySlug, { slug: categorySlug, updatedAt });
+      }
+    }
+
+    if (authorSlug) {
+      const current = authors.get(authorSlug);
+      if (!current || (updatedAt && updatedAt > (current.updatedAt || ""))) {
+        authors.set(authorSlug, { slug: authorSlug, updatedAt });
+      }
+    }
+
+    return {
+      loc: buildUrl(baseUrl, canonicalPath),
+      lastmod: updatedAt,
+      changefreq: "monthly",
+      priority: "0.8",
+    };
+  });
+
+  const categoryEntries = Array.from(categories.values()).map((category) => ({
+    loc: buildUrl(baseUrl, `/blog/category/${encodeURIComponent(category.slug)}`),
+    lastmod: category.updatedAt,
+    changefreq: "weekly",
+    priority: "0.7",
+  }));
+
+  const authorEntries = Array.from(authors.values()).map((author) => ({
+    loc: buildUrl(baseUrl, `/blog/author/${encodeURIComponent(author.slug)}`),
+    lastmod: author.updatedAt,
+    changefreq: "weekly",
+    priority: "0.6",
+  }));
+
+  return [...articleEntries, ...categoryEntries, ...authorEntries];
+}
+
 export default async function handler(
-  _req: { method?: string },
+  req: {
+    method?: string;
+    url?: string;
+    query?: Record<string, string | string[] | undefined>;
+  },
   res: {
     setHeader: (name: string, value: string) => void;
     status: (code: number) => { send: (body: string) => void };
   },
 ) {
   const baseUrl = normalizeSiteUrl(SITE_URL);
+  const queryKind = Array.isArray(req.query?.kind) ? req.query.kind[0] : req.query?.kind;
+  const kind = getKind(req.url, queryKind);
 
   try {
-    const articles = await fetchAllArticles();
-    const categories = new Map<string, { slug: string; updatedAt?: string }>();
-    const authors = new Map<string, { slug: string; updatedAt?: string }>();
+    let xml = "";
 
-    const entries = [
-      ...staticRoutes.map((route) => ({
-        loc: buildUrl(baseUrl, route.path),
-        changefreq: route.changefreq,
-        priority: route.priority,
-      })),
-      ...articles.map((article) => {
-        const slug = String(article.slug || "").trim();
-        const canonicalPath = article.canonical_path
-          ? String(article.canonical_path)
-          : slug
-            ? `/blog/${encodeURIComponent(slug)}`
-            : "/blog";
+    if (kind === "index") {
+      const indexEntries: SitemapUrlEntry[] = [
+        { loc: buildUrl(baseUrl, "/sitemap-static.xml") },
+        { loc: buildUrl(baseUrl, "/sitemap-blog.xml") },
+      ];
+      xml = renderSitemapIndexXml(indexEntries);
+    } else {
+      const entries =
+        kind === "static"
+          ? await buildStaticEntries()
+          : await buildBlogEntries(baseUrl);
 
-        const categorySlug = article.category_slug ? String(article.category_slug) : "";
-        const authorSlug = article.author_slug ? String(article.author_slug) : "";
-        const updatedAt = article.updated_at ? String(article.updated_at) : undefined;
-
-        if (categorySlug) {
-          const current = categories.get(categorySlug);
-          if (!current || (updatedAt && updatedAt > (current.updatedAt || ""))) {
-            categories.set(categorySlug, { slug: categorySlug, updatedAt });
-          }
-        }
-
-        if (authorSlug) {
-          const current = authors.get(authorSlug);
-          if (!current || (updatedAt && updatedAt > (current.updatedAt || ""))) {
-            authors.set(authorSlug, { slug: authorSlug, updatedAt });
-          }
-        }
-
-        return {
-          loc: buildUrl(baseUrl, canonicalPath),
-          lastmod: updatedAt,
-          changefreq: "monthly",
-          priority: "0.8",
-        };
-      }),
-      ...Array.from(categories.values()).map((category) => ({
-        loc: buildUrl(baseUrl, `/blog/category/${encodeURIComponent(category.slug)}`),
-        lastmod: category.updatedAt,
-        changefreq: "weekly",
-        priority: "0.7",
-      })),
-      ...Array.from(authors.values()).map((author) => ({
-        loc: buildUrl(baseUrl, `/blog/author/${encodeURIComponent(author.slug)}`),
-        lastmod: author.updatedAt,
-        changefreq: "weekly",
-        priority: "0.6",
-      })),
-    ];
-
-    const uniqueEntries = Array.from(
-      new Map(entries.map((entry) => [entry.loc, entry])).values(),
-    );
-
-    const xml = [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-      ...uniqueEntries.map(renderUrlNode),
-      "</urlset>",
-    ].join("\n");
+      const uniqueEntries = Array.from(
+        new Map(entries.map((entry) => [entry.loc, entry])).values(),
+      );
+      xml = renderSitemapXml(uniqueEntries.map((entry) => ({
+        ...entry,
+        loc: buildUrl(baseUrl, entry.loc),
+      })));
+    }
 
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
     res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
     res.status(200).send(xml);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unable to generate sitemap";
+    const message = error instanceof Error ? error.message : "Unable to generate sitemap";
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
     res.status(500).send(
       [

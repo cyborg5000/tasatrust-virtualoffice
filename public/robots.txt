@@ -20,3 +20,5 @@ Disallow: /reset-password
 Allow: /
 
 Sitemap: https://www.tasatrust.com/sitemap.xml
+Sitemap: https://www.tasatrust.com/sitemap-static.xml
+Sitemap: https://www.tasatrust.com/sitemap-blog.xml
