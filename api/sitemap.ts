@@ -1,7 +1,7 @@
 const DEFAULT_SITE_URL = "https://www.tasatrust.com";
 const DEFAULT_SUPABASE_URL = "https://wktusutjeoyokptqbdeu.supabase.co";
 const DEFAULT_SUPABASE_PUBLISHABLE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdHVzdXRqZW95b2twdHFiZGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNjg3NTEsImV5cCI6MjA4NTk0NDc1MX0.FawtlFEp-pV5ZALskrHoTcX870nc1bz4t3XugLam7XY";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdHVzdXRqZW95b2twdHFiZGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNjg3NTEsImV4cCI6MjA4NTk0NDc1MX0.FawtlFEp-pV5ZALskrHoTcX870nc1bz4t3XugLam7XY";
 const CONTENT_API_ENDPOINT_DEFAULT =
   "https://vleqfcpewvdgezensisj.supabase.co/functions/v1/get-client-content";
 const BLOG_PAGE_SIZE = 100;
@@ -35,7 +35,7 @@ const CONTENT_API_KEY_RAW =
 const CONTENT_API_KEY = CONTENT_API_KEY_RAW
   ? CONTENT_API_KEY_RAW.trim().replace(/^["']|["']$/g, "")
   : undefined;
-const isLikelyJwt = (value: string) => value.split(".").length === 3;
+const CONTENT_SITE_ID = process.env.CONTENT_SITE_ID?.trim();
 
 const staticRoutes = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
@@ -50,6 +50,92 @@ const staticRoutes = [
   { path: "/cookies", priority: "0.3", changefreq: "yearly" },
   { path: "/blog", priority: "0.9", changefreq: "daily" },
 ];
+
+type CmsRequestOptions = {
+  headers: Record<string, string>;
+};
+
+function normalizeContentApiToken(raw: string) {
+  return raw
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .replace(/^Bearer\s+/i, "")
+    .trim();
+}
+
+function buildContentApiAuthHeaders(contentApiToken: string): CmsRequestOptions[] {
+  const normalizedToken = normalizeContentApiToken(contentApiToken);
+  const siteHeader: Record<string, string> = {};
+  if (CONTENT_SITE_ID) {
+    siteHeader["x-content-site-id"] = CONTENT_SITE_ID;
+  }
+
+  return [
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${normalizedToken}`,
+        "x-content-api-key": normalizedToken,
+        "x-blog-content-api-key": normalizedToken,
+        ...siteHeader,
+      },
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        apikey: normalizedToken,
+        "x-content-api-key": normalizedToken,
+        "x-blog-content-api-key": normalizedToken,
+        ...siteHeader,
+      },
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: normalizedToken,
+        "x-content-api-key": normalizedToken,
+        "x-blog-content-api-key": normalizedToken,
+        ...siteHeader,
+      },
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${normalizedToken}`,
+        apikey: normalizedToken,
+        "x-content-api-key": normalizedToken,
+        "x-blog-content-api-key": normalizedToken,
+        ...siteHeader,
+      },
+    },
+  ];
+}
+
+async function postToContentEndpoint(body: Record<string, unknown>) {
+  if (!CONTENT_API_KEY) {
+    return null;
+  }
+
+  const bodyText = JSON.stringify(body);
+  const attempts = buildContentApiAuthHeaders(CONTENT_API_KEY);
+  let lastResponse: Response | null = null;
+
+  for (const attempt of attempts) {
+    const response = await fetch(CONTENT_API_ENDPOINT, {
+      method: "POST",
+      headers: attempt.headers,
+      body: bodyText,
+    });
+
+    if (response.status !== 401 && response.status !== 403) {
+      return response;
+    }
+
+    lastResponse = response;
+  }
+
+  return lastResponse;
+}
 
 type SitemapArticle = {
   slug?: string;
@@ -124,20 +210,15 @@ async function fetchAllArticles() {
         };
     let responseText: string | undefined;
 
-    if (CONTENT_API_KEY && isLikelyJwt(CONTENT_API_KEY)) {
-      const directResponse = await fetch(CONTENT_API_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${CONTENT_API_KEY}`,
-        },
-        body: JSON.stringify(body),
-      });
+    if (CONTENT_API_KEY) {
+      const directResponse = await postToContentEndpoint(body);
 
-      if (directResponse.status !== 401 && directResponse.status !== 403) {
+      if (directResponse) {
         response = directResponse;
-      } else {
-        responseText = await directResponse.text();
+      }
+
+      if (!response || response.status === 401 || response.status === 403) {
+        responseText = response ? await response.text() : "No direct response from content API";
         response = await fetch(`${SUPABASE_URL}/functions/v1/${BLOG_FUNCTION_NAME}`, {
           method: "POST",
           headers: {

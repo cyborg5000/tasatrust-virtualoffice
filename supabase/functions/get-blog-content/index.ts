@@ -39,6 +39,95 @@ function sanitizePayload(payload: Record<string, unknown>) {
   return sanitized;
 }
 
+function normalizeContentApiToken(raw: string) {
+  return raw
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .replace(/^Bearer\s+/i, "")
+    .trim();
+}
+
+type CmsRequestOptions = {
+  headers: Record<string, string>;
+};
+
+function buildContentApiAuthHeaders(
+  contentApiKey: string,
+  contentSiteId?: string,
+): CmsRequestOptions[] {
+  const normalizedToken = normalizeContentApiToken(contentApiKey);
+  const siteHeader: Record<string, string> = {};
+  if (contentSiteId) {
+    siteHeader["x-content-site-id"] = contentSiteId;
+  }
+
+  return [
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${normalizedToken}`,
+        "x-content-api-key": normalizedToken,
+        "x-blog-content-api-key": normalizedToken,
+        ...siteHeader,
+      },
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        apikey: normalizedToken,
+        "x-content-api-key": normalizedToken,
+        "x-blog-content-api-key": normalizedToken,
+        ...siteHeader,
+      },
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: normalizedToken,
+        "x-content-api-key": normalizedToken,
+        "x-blog-content-api-key": normalizedToken,
+        ...siteHeader,
+      },
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${normalizedToken}`,
+        apikey: normalizedToken,
+        "x-content-api-key": normalizedToken,
+        "x-blog-content-api-key": normalizedToken,
+        ...siteHeader,
+      },
+    },
+  ];
+}
+
+async function postToContentService(
+  endpoint: string,
+  payload: string,
+  contentApiKey: string,
+  contentSiteId?: string,
+) {
+  const attempts = buildContentApiAuthHeaders(contentApiKey, contentSiteId);
+  let lastResponse: Response | null = null;
+
+  for (const attempt of attempts) {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: attempt.headers,
+      body: payload,
+    });
+
+    if (response.status !== 401 && response.status !== 403) {
+      return response;
+    }
+
+    lastResponse = response;
+  }
+
+  return lastResponse;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -49,11 +138,15 @@ serve(async (req) => {
   }
 
   const contentApiKey =
-    Deno.env.get("CONTENT_API_KEY") ??
     req.headers.get("x-content-api-key")?.trim() ??
-    req.headers.get("x-blog-content-api-key")?.trim();
+    req.headers.get("x-blog-content-api-key")?.trim() ??
+    Deno.env.get("CONTENT_API_KEY");
   const contentApiEndpoint =
     Deno.env.get("CONTENT_API_ENDPOINT") || DEFAULT_CONTENT_API_ENDPOINT;
+  const contentSiteId =
+    req.headers.get("x-content-site-id")?.trim() ||
+    req.headers.get("x-blog-content-site-id")?.trim() ||
+    Deno.env.get("CONTENT_SITE_ID")?.trim();
 
   if (!contentApiKey) {
     return jsonResponse(
@@ -80,20 +173,20 @@ serve(async (req) => {
   }
 
   try {
-    const token = contentApiKey
-      .trim()
-      .replace(/^["']|["']$/g, "")
-      .replace(/^Bearer\s+/i, "")
-      .trim();
+    const payload = JSON.stringify(sanitizedPayload);
+    const upstreamResponse = await postToContentService(
+      contentApiEndpoint,
+      payload,
+      contentApiKey,
+      contentSiteId,
+    );
 
-    const upstreamResponse = await fetch(contentApiEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(sanitizedPayload),
-    });
+    if (!upstreamResponse) {
+      return jsonResponse(
+        { error: "Unable to reach the content service right now." },
+        502,
+      );
+    }
 
     const responseText = await upstreamResponse.text();
 
