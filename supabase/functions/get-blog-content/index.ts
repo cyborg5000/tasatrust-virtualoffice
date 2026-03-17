@@ -48,7 +48,10 @@ serve(async (req) => {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
-  const contentApiKey = Deno.env.get("CONTENT_API_KEY");
+  const contentApiKey =
+    Deno.env.get("CONTENT_API_KEY") ??
+    req.headers.get("x-content-api-key")?.trim() ??
+    req.headers.get("x-blog-content-api-key")?.trim();
   const contentApiEndpoint =
     Deno.env.get("CONTENT_API_ENDPOINT") || DEFAULT_CONTENT_API_ENDPOINT;
 
@@ -77,11 +80,17 @@ serve(async (req) => {
   }
 
   try {
+    const token = contentApiKey
+      .trim()
+      .replace(/^["']|["']$/g, "")
+      .replace(/^Bearer\s+/i, "")
+      .trim();
+
     const upstreamResponse = await fetch(contentApiEndpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${contentApiKey}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(sanitizedPayload),
     });

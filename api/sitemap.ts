@@ -29,7 +29,13 @@ const CONTENT_API_ENDPOINT =
   process.env.CONTENT_API_ENDPOINT ||
   process.env.VITE_CONTENT_API_ENDPOINT ||
   CONTENT_API_ENDPOINT_DEFAULT;
-const CONTENT_API_KEY = process.env.CONTENT_API_KEY || process.env.VITE_CONTENT_API_KEY;
+const CONTENT_API_KEY_RAW =
+  process.env.CONTENT_API_KEY || process.env.VITE_CONTENT_API_KEY;
+
+const CONTENT_API_KEY = CONTENT_API_KEY_RAW
+  ? CONTENT_API_KEY_RAW.trim().replace(/^["']|["']$/g, "")
+  : undefined;
+const isLikelyJwt = (value: string) => value.split(".").length === 3;
 
 const staticRoutes = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
@@ -118,7 +124,7 @@ async function fetchAllArticles() {
         };
     let responseText: string | undefined;
 
-    if (CONTENT_API_KEY) {
+    if (CONTENT_API_KEY && isLikelyJwt(CONTENT_API_KEY)) {
       const directResponse = await fetch(CONTENT_API_ENDPOINT, {
         method: "POST",
         headers: {
@@ -142,6 +148,7 @@ async function fetchAllArticles() {
                   Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
                 }
               : {}),
+            ...(CONTENT_API_KEY ? { "x-content-api-key": CONTENT_API_KEY } : {}),
           },
           body: JSON.stringify(body),
         });
