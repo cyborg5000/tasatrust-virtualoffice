@@ -108,16 +108,31 @@ async function fetchAllArticles() {
       sort: "published_at_desc",
     };
 
-    const response = CONTENT_API_KEY
-      ? await fetch(CONTENT_API_ENDPOINT, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${CONTENT_API_KEY}`,
-          },
-          body: JSON.stringify(body),
-        })
-      : await fetch(`${SUPABASE_URL}/functions/v1/${BLOG_FUNCTION_NAME}`, {
+    let response:
+      | {
+          ok: boolean;
+          status: number;
+          statusText: string;
+          json: () => Promise<unknown>;
+          text: () => Promise<string>;
+        };
+    let responseText: string | undefined;
+
+    if (CONTENT_API_KEY) {
+      const directResponse = await fetch(CONTENT_API_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${CONTENT_API_KEY}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (directResponse.status !== 401 && directResponse.status !== 403) {
+        response = directResponse;
+      } else {
+        responseText = await directResponse.text();
+        response = await fetch(`${SUPABASE_URL}/functions/v1/${BLOG_FUNCTION_NAME}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -130,9 +145,25 @@ async function fetchAllArticles() {
           },
           body: JSON.stringify(body),
         });
+      }
+    } else {
+      response = await fetch(`${SUPABASE_URL}/functions/v1/${BLOG_FUNCTION_NAME}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(SUPABASE_PUBLISHABLE_KEY
+            ? {
+                apikey: SUPABASE_PUBLISHABLE_KEY,
+                Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+              }
+            : {}),
+        },
+        body: JSON.stringify(body),
+      });
+    }
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorText = responseText ?? (await response.text());
       throw new Error(
         `Blog proxy failed with status ${response.status}: ${errorText || response.statusText}`,
       );
