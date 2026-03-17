@@ -1,9 +1,11 @@
 const DEFAULT_SITE_URL = "https://www.tasatrust.com";
 const DEFAULT_SUPABASE_URL = "https://wktusutjeoyokptqbdeu.supabase.co";
 const DEFAULT_SUPABASE_PUBLISHABLE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOnN1cGFiYXNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNjg3NTEsImV5cCI6MjA4NTk0NDc1MX0.FawtlFEp-pV5ZALskrHoTcX870nc1bz4t3XugLam7XY";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdHVzdXRqZW95b2twdHFiZGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNjg3NTEsImV5cCI6MjA4NTk0NDc1MX0.FawtlFEp-pV5ZALskrHoTcX870nc1bz4t3XugLam7XY";
+const CONTENT_API_ENDPOINT_DEFAULT =
+  "https://vleqfcpewvdgezensisj.supabase.co/functions/v1/get-client-content";
 const BLOG_PAGE_SIZE = 100;
-
+const BLOG_FUNCTION_NAME_DEFAULT = "get-blog-content";
 type SitemapKind = "index" | "static" | "blog";
 
 const SITE_URL =
@@ -16,8 +18,18 @@ const SUPABASE_URL =
   DEFAULT_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY =
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_PUBLISHABLE_KEY ||
   DEFAULT_SUPABASE_PUBLISHABLE_KEY;
+const BLOG_FUNCTION_NAME =
+  process.env.VITE_CONTENT_FUNCTION_NAME || BLOG_FUNCTION_NAME_DEFAULT;
+const CONTENT_API_ENDPOINT =
+  process.env.CONTENT_API_ENDPOINT ||
+  process.env.VITE_CONTENT_API_ENDPOINT ||
+  CONTENT_API_ENDPOINT_DEFAULT;
+const CONTENT_API_KEY = process.env.CONTENT_API_KEY || process.env.VITE_CONTENT_API_KEY;
 
 const staticRoutes = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
@@ -74,8 +86,10 @@ function getKind(url: string | undefined, queryKind?: string): SitemapKind {
   }
 
   if (!url) return "index";
-
   const pathname = new URL(url, "https://www.tasatrust.com").pathname.toLowerCase();
+  if (pathname.endsWith("/api/sitemap/blog")) return "blog";
+  if (pathname.endsWith("/api/sitemap/static")) return "static";
+  if (pathname.endsWith("/api/sitemap/index")) return "index";
   if (pathname.endsWith("/sitemap-blog.xml")) return "blog";
   if (pathname.endsWith("/sitemap-static.xml")) return "static";
   return "index";
@@ -87,23 +101,41 @@ async function fetchAllArticles() {
   let hasMore = true;
 
   while (hasMore) {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/get-blog-content`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_PUBLISHABLE_KEY,
-        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-      },
-      body: JSON.stringify({
-        action: "list_articles",
-        limit: BLOG_PAGE_SIZE,
-        offset,
-        sort: "published_at_desc",
-      }),
-    });
+    const body = {
+      action: "list_articles",
+      limit: BLOG_PAGE_SIZE,
+      offset,
+      sort: "published_at_desc",
+    };
+
+    const response = CONTENT_API_KEY
+      ? await fetch(CONTENT_API_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${CONTENT_API_KEY}`,
+          },
+          body: JSON.stringify(body),
+        })
+      : await fetch(`${SUPABASE_URL}/functions/v1/${BLOG_FUNCTION_NAME}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(SUPABASE_PUBLISHABLE_KEY
+              ? {
+                  apikey: SUPABASE_PUBLISHABLE_KEY,
+                  Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+                }
+              : {}),
+          },
+          body: JSON.stringify(body),
+        });
 
     if (!response.ok) {
-      throw new Error(`Blog proxy failed with status ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(
+        `Blog proxy failed with status ${response.status}: ${errorText || response.statusText}`,
+      );
     }
 
     const payload = (await response.json()) as {
@@ -252,17 +284,18 @@ export default async function handler(
       xml = renderSitemapIndexXml(indexEntries);
     } else {
       const entries =
-        kind === "static"
-          ? await buildStaticEntries()
-          : await buildBlogEntries(baseUrl);
+        kind === "static" ? await buildStaticEntries() : await buildBlogEntries(baseUrl);
 
       const uniqueEntries = Array.from(
         new Map(entries.map((entry) => [entry.loc, entry])).values(),
       );
-      xml = renderSitemapXml(uniqueEntries.map((entry) => ({
+
+      const normalizedEntries = uniqueEntries.map((entry) => ({
         ...entry,
-        loc: buildUrl(baseUrl, entry.loc),
-      })));
+        loc: entry.loc.startsWith("http") ? entry.loc : buildUrl(baseUrl, entry.loc),
+      }));
+
+      xml = renderSitemapXml(normalizedEntries);
     }
 
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
@@ -274,7 +307,7 @@ export default async function handler(
     res.status(500).send(
       [
         '<?xml version="1.0" encoding="UTF-8"?>',
-        `<error>${escapeXml(message)}</error>`,
+        `<error>${escapeXml(String(message))}</error>`,
       ].join("\n"),
     );
   }
