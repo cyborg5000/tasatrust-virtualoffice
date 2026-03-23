@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { format } from "date-fns";
-import { ArrowLeft, Clock3 } from "lucide-react";
+import { ArrowLeft, Clock3, List } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import workspaceProfessional from "@/assets/workspace-professional.jpg";
 import { BlogSidebar } from "@/components/blog/BlogSidebar";
@@ -8,6 +8,7 @@ import { TableOfContents } from "@/components/blog/TableOfContents";
 import { Layout } from "@/components/layout/Layout";
 import { PageSeo } from "@/components/seo/PageSeo";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useArticleBySlug, useArticleList } from "@/hooks/useBlog";
 import {
   buildAuthorPath,
@@ -163,7 +164,10 @@ export default function BlogPost() {
           <section className="pb-20">
             <div className="container mx-auto px-4">
               <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
-                <TableOfContents headings={decorated.headings} />
+                {/* Desktop TOC — hidden on mobile */}
+                <div className="hidden lg:block">
+                  <TableOfContents headings={decorated.headings} />
+                </div>
 
                 <article className="surface-panel min-w-0 border-white/80 bg-white/92 p-6 md:p-8">
                   <div
@@ -173,6 +177,26 @@ export default function BlogPost() {
                 </article>
 
                 <BlogSidebar categories={categories} recentPosts={recentPosts} />
+
+                {/* Mobile TOC — floating button + slide-in sheet */}
+                {decorated.headings.length > 0 && (
+                  <div className="fixed bottom-6 left-5 z-40 lg:hidden">
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button
+                          size="icon"
+                          className="h-12 w-12 rounded-full shadow-lg"
+                          aria-label="Open table of contents"
+                        >
+                          <List className="h-5 w-5" />
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="left" className="w-72">
+                        <TableOfContents headings={decorated.headings} />
+                      </SheetContent>
+                    </Sheet>
+                  </div>
+                )}
               </div>
             </div>
           </section>
