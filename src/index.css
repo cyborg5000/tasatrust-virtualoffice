@@ -150,6 +150,10 @@
   @apply text-base leading-8 text-foreground;
 }
 
+.blog-prose * {
+  max-width: 100%;
+}
+
 .blog-prose > * + * {
   margin-top: 1.2rem;
 }
@@ -205,10 +209,29 @@
 
 .blog-prose img {
   @apply rounded-2xl;
+  width: auto;
+  height: auto;
+}
+
+.blog-prose img,
+.blog-prose video,
+.blog-prose iframe,
+.blog-prose canvas,
+.blog-prose svg {
+  max-width: 100%;
+}
+
+.blog-prose pre,
+.blog-prose code {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .blog-prose table {
   width: 100%;
+  max-width: 100%;
   overflow: hidden;
   border-collapse: collapse;
   border-radius: 1rem;

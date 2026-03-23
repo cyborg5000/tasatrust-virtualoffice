@@ -165,7 +165,7 @@ export default function BlogPost() {
               <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
                 <TableOfContents headings={decorated.headings} />
 
-                <article className="surface-panel border-white/80 bg-white/92 p-6 md:p-8">
+                <article className="surface-panel min-w-0 border-white/80 bg-white/92 p-6 md:p-8">
                   <div
                     className="blog-prose max-w-none"
                     dangerouslySetInnerHTML={{ __html: decorated.html }}
