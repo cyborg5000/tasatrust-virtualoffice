@@ -28,6 +28,7 @@ All logic is centralized in `supabase/functions/_shared/email.ts` and event-spec
 - Admin recipients default:
   - `admin@tasatrust.com`
   - `business+tasatrust@5amuelchan.com`
+  - `corpsec@tasatrust.com`
 - Admin recipients and sender are fixed in code.
 
 ## 4) Environment variables

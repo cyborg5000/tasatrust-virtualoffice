@@ -14,7 +14,11 @@ export type ResendSendResult = {
 };
 
 const DEFAULT_FROM_ADDRESS = "no-reply@tasatrust.com";
-const DEFAULT_ADMIN_ADDRESSES = ["admin@tasatrust.com", "business+tasatrust@5amuelchan.com"];
+const DEFAULT_ADMIN_ADDRESSES = [
+  "admin@tasatrust.com",
+  "business+tasatrust@5amuelchan.com",
+  "corpsec@tasatrust.com",
+];
 
 function cleanText(value: string | null | undefined) {
   if (!value) return "";
@@ -54,7 +58,7 @@ export function getAdminNotificationEmails() {
 }
 
 export function escapeHtml(value: string) {
-  return value.replace(/[&<>'\"]/g, (match) => {
+  return value.replace(/[&<>'"]/g, (match) => {
     const mapping: Record<string, string> = {
       "&": "&amp;",
       "<": "&lt;",
