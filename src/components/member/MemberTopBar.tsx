@@ -1,4 +1,4 @@
-import { Bell, LogOut, User, Settings, Shield } from "lucide-react";
+import { Bell, CheckCircle2, LogOut, ReceiptText, Settings, Shield, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +10,6 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +25,7 @@ interface NotificationItem {
   id: string;
   title: string;
   description: string;
+  kind: "subscription" | "payment";
 }
 
 export function MemberTopBar({ companyName, memberEmail }: MemberTopBarProps) {
@@ -78,6 +78,7 @@ export function MemberTopBar({ companyName, memberEmail }: MemberTopBarProps) {
               ? "Subscription Ending"
               : "Subscription Active",
             description: statusText,
+            kind: "subscription",
           });
         }
 
@@ -94,6 +95,7 @@ export function MemberTopBar({ companyName, memberEmail }: MemberTopBarProps) {
               ? `${order.type.charAt(0).toUpperCase()}${order.type.slice(1)} update`
               : "Payment update",
             description: `${format(new Date(order.created_at), "MMM d")} — ${label}`,
+            kind: "payment",
           });
         }
 
@@ -133,18 +135,31 @@ export function MemberTopBar({ companyName, memberEmail }: MemberTopBarProps) {
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative h-10 w-10 rounded-full border border-border/70 bg-background shadow-sm hover:bg-muted/70"
+              aria-label={`Notifications${notifications.length > 0 ? `, ${notifications.length} unread` : ""}`}
+            >
               <Bell className="h-5 w-5" />
               {!loadingNotifications && notifications.length > 0 && (
-                <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs">
+                <span className="absolute right-0 top-0 flex h-4 min-w-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full border-2 border-background bg-primary px-1 text-[10px] font-bold leading-none text-primary-foreground shadow-sm">
                   {notifications.length}
-                </Badge>
+                </span>
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <div className="p-4">
-              <h3 className="font-medium">Notifications</h3>
+          <DropdownMenuContent align="end" className="w-[22rem] max-w-[calc(100vw-2rem)] rounded-xl p-0 shadow-xl">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
+                <p className="text-xs text-muted-foreground">Recent billing and account activity</p>
+              </div>
+              {!loadingNotifications && notifications.length > 0 && (
+                <span className="rounded-full bg-primary/15 px-2 py-1 text-xs font-semibold text-primary">
+                  {notifications.length}
+                </span>
+              )}
             </div>
             <DropdownMenuSeparator />
             <div className="max-h-80 overflow-auto">
@@ -154,16 +169,30 @@ export function MemberTopBar({ companyName, memberEmail }: MemberTopBarProps) {
                 </DropdownMenuItem>
               ) : notifications.length > 0 ? (
                 notifications.map((item) => (
-                  <DropdownMenuItem key={item.id} className="flex flex-col items-start gap-1 p-4">
-                    <span className="font-medium">{item.title}</span>
-                    <span className="text-sm text-muted-foreground">{item.description}</span>
+                  <DropdownMenuItem key={item.id} className="flex items-start gap-3 rounded-none p-4">
+                    <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      {item.kind === "subscription" ? (
+                        <CheckCircle2 className="h-4 w-4" />
+                      ) : (
+                        <ReceiptText className="h-4 w-4" />
+                      )}
+                    </span>
+                    <span className="min-w-0 space-y-1">
+                      <span className="block font-medium text-foreground">{item.title}</span>
+                      <span className="block text-sm leading-5 text-muted-foreground">{item.description}</span>
+                    </span>
                   </DropdownMenuItem>
                 ))
               ) : (
-                <DropdownMenuItem className="flex flex-col items-start gap-1 p-4">
-                  <span className="font-medium">No notifications</span>
-                  <span className="text-sm text-muted-foreground">
-                    You're all caught up. New billing activity will appear here.
+                <DropdownMenuItem className="flex items-start gap-3 rounded-none p-4">
+                  <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4" />
+                  </span>
+                  <span className="space-y-1">
+                    <span className="block font-medium text-foreground">No notifications</span>
+                    <span className="block text-sm leading-5 text-muted-foreground">
+                      You're all caught up. New billing activity will appear here.
+                    </span>
                   </span>
                 </DropdownMenuItem>
               )}

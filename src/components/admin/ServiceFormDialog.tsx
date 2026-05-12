@@ -107,7 +107,11 @@ export function ServiceFormDialog({
     }
   };
 
-  const updatePricing = (tier: SubscriptionTier, field: keyof TierPricing, value: any) => {
+  const updatePricing = <K extends keyof TierPricing>(
+    tier: SubscriptionTier,
+    field: K,
+    value: TierPricing[K]
+  ) => {
     setFormData((prev) => ({
       ...prev,
       pricing: prev.pricing.map((p) =>
