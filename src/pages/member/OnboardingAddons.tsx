@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +36,7 @@ export default function OnboardingAddons() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, signOut } = useAuth();
+  const { effectiveMemberId, isViewingAsMember, returnToAdminView } = useAdminMemberView();
   const { addons, loading: catalogLoading } = usePricingCatalog();
 
   const tierParam = searchParams.get("tier");
@@ -55,11 +57,11 @@ export default function OnboardingAddons() {
 
   useEffect(() => {
     async function loadCompanyName() {
-      if (!user) return;
+      if (!effectiveMemberId) return;
       const { data } = await supabase
         .from("members")
         .select("company_name")
-        .eq("id", user.id)
+        .eq("id", effectiveMemberId)
         .maybeSingle();
 
       if (data?.company_name) {
@@ -68,7 +70,7 @@ export default function OnboardingAddons() {
     }
 
     void loadCompanyName();
-  }, [user]);
+  }, [effectiveMemberId]);
 
   const plan = tier ? SUBSCRIPTION_PLAN_BY_TIER[tier] : null;
   const isAnnual = billingCycle === "annual";
@@ -112,6 +114,12 @@ export default function OnboardingAddons() {
 
   const handleCheckout = async () => {
     if (!tier) return;
+
+    if (isViewingAsMember) {
+      toast.error("Checkout is disabled in admin view-as mode.");
+      return;
+    }
+
     setIsRedirecting(true);
 
     try {
@@ -138,6 +146,11 @@ export default function OnboardingAddons() {
   };
 
   const handleSignOut = async () => {
+    if (isViewingAsMember) {
+      returnToAdminView();
+      return;
+    }
+
     await signOut();
     navigate("/login");
   };
@@ -156,7 +169,7 @@ export default function OnboardingAddons() {
               onClick={handleSignOut}
               className="h-9 text-white hover:bg-white/10 hover:text-white"
             >
-              Sign Out
+              {isViewingAsMember ? "Return to Admin" : "Sign Out"}
             </Button>
           </div>
           <h1 className="mt-4 max-w-3xl text-2xl font-bold sm:text-3xl md:text-4xl">
@@ -316,7 +329,7 @@ export default function OnboardingAddons() {
                   onClick={handleCheckout}
                   className="hidden w-full lg:flex"
                   size="lg"
-                  disabled={isRedirecting}
+                  disabled={isRedirecting || isViewingAsMember}
                 >
                   {isRedirecting ? (
                     <>
@@ -324,7 +337,7 @@ export default function OnboardingAddons() {
                       Redirecting to Stripe...
                     </>
                   ) : (
-                    "Proceed to Secure Checkout"
+                    isViewingAsMember ? "Checkout Disabled in View Mode" : "Proceed to Secure Checkout"
                   )}
                 </Button>
 
@@ -346,14 +359,14 @@ export default function OnboardingAddons() {
               {formatCurrency(recurringTotal)}{recurringSuffix}
             </p>
           </div>
-          <Button onClick={handleCheckout} className="h-11" disabled={isRedirecting}>
+          <Button onClick={handleCheckout} className="h-11" disabled={isRedirecting || isViewingAsMember}>
             {isRedirecting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Redirecting...
               </>
             ) : (
-              "Checkout"
+              isViewingAsMember ? "View Only" : "Checkout"
             )}
           </Button>
         </div>

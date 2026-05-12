@@ -22,8 +22,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { CalendarIcon, Clock, MapPin, Users, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
@@ -47,7 +47,7 @@ const TIER_CREDITS: Record<SubscriptionTier, number> = {
 };
 
 export default function MemberBookings() {
-  const { user } = useAuth();
+  const { effectiveMemberId, isViewingAsMember } = useAdminMemberView();
   const { toast } = useToast();
 
   const [rooms, setRooms] = useState<MeetingRoom[]>([]);
@@ -82,11 +82,11 @@ export default function MemberBookings() {
       }
 
       // Fetch user subscription tier
-      if (user) {
+      if (effectiveMemberId) {
         const { data: subscriptionData } = await supabase
           .from("subscriptions")
           .select("tier")
-          .eq("member_id", user.id)
+          .eq("member_id", effectiveMemberId)
           .eq("status", "active")
           .maybeSingle();
 
@@ -102,7 +102,7 @@ export default function MemberBookings() {
         const { count } = await supabase
           .from("bookings")
           .select("*", { count: "exact", head: true })
-          .eq("member_id", user.id)
+          .eq("member_id", effectiveMemberId)
           .eq("status", "confirmed")
           .gte("created_at", startOfMonth.toISOString());
 
@@ -113,7 +113,7 @@ export default function MemberBookings() {
     }
 
     fetchInitialData();
-  }, [user]);
+  }, [effectiveMemberId]);
 
   // Fetch booked slots when room or date changes
   useEffect(() => {
@@ -197,7 +197,15 @@ export default function MemberBookings() {
   };
 
   const handleBookingConfirm = async (purpose: string, attendees: number) => {
-    if (!user || !selectedRoomId || selectedSlots.length === 0) return;
+    if (isViewingAsMember) {
+      toast({
+        title: "View-only mode",
+        description: "Bookings are not created while an admin is viewing as a member.",
+      });
+      return;
+    }
+
+    if (!effectiveMemberId || !selectedRoomId || selectedSlots.length === 0) return;
 
     const dateStr = format(selectedDate, "yyyy-MM-dd");
 
@@ -272,7 +280,7 @@ export default function MemberBookings() {
 
           // Create booking with existing slot
           const { error: bookingError } = await supabase.from("bookings").insert({
-            member_id: user.id,
+            member_id: effectiveMemberId,
             booking_slot_id: existingSlot.id,
             status: "confirmed",
             purpose: `${purpose} (${attendees} attendees)`,
@@ -282,7 +290,7 @@ export default function MemberBookings() {
         } else {
           // Create booking with new slot
           const { error: bookingError } = await supabase.from("bookings").insert({
-            member_id: user.id,
+            member_id: effectiveMemberId,
             booking_slot_id: slotData.id,
             status: "confirmed",
             purpose: `${purpose} (${attendees} attendees)`,

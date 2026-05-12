@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import logo from "@/assets/logo.png";
 
 const sidebarLinks = [
@@ -28,6 +29,7 @@ export function MemberSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const { isAdmin } = useAdminAuth();
+  const { isViewingAsMember, returnToAdminView } = useAdminMemberView();
 
   const isActive = (href: string, end?: boolean) => {
     if (end) {
@@ -84,7 +86,20 @@ export function MemberSidebar() {
 
       {/* Footer */}
       <div className="border-t border-border p-3">
-        {isAdmin && (
+        {isAdmin && isViewingAsMember && (
+          <Button
+            variant="ghost"
+            className={cn(
+              "mb-2 w-full text-secondary-foreground hover:bg-secondary-foreground/10",
+              collapsed ? "justify-center px-2" : "justify-start"
+            )}
+            onClick={returnToAdminView}
+          >
+            <Shield className={cn("h-4 w-4", !collapsed && "mr-2")} />
+            {!collapsed && "Return Admin"}
+          </Button>
+        )}
+        {isAdmin && !isViewingAsMember && (
           <Button
             variant="ghost"
             asChild

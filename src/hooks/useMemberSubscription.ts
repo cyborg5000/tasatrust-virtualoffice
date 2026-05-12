@@ -13,7 +13,15 @@ interface UseMemberSubscriptionResult {
 
 const VALID_TIERS = new Set(["basic", "essential", "professional"]);
 
-export function useMemberSubscription(userId?: string): UseMemberSubscriptionResult {
+type UseMemberSubscriptionOptions = {
+  reconcileProfile?: boolean;
+};
+
+export function useMemberSubscription(
+  userId?: string,
+  options: UseMemberSubscriptionOptions = {},
+): UseMemberSubscriptionResult {
+  const { reconcileProfile = true } = options;
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [resolvedUserId, setResolvedUserId] = useState<string | undefined>(undefined);
@@ -28,10 +36,12 @@ export function useMemberSubscription(userId?: string): UseMemberSubscriptionRes
 
     setLoading(true);
     try {
-      const { error: ensureMemberError } = await supabase.rpc("ensure_member_profile");
+      if (reconcileProfile) {
+        const { error: ensureMemberError } = await supabase.rpc("ensure_member_profile");
 
-      if (ensureMemberError) {
-        console.error("Error reconciling member profile:", ensureMemberError);
+        if (ensureMemberError) {
+          console.error("Error reconciling member profile:", ensureMemberError);
+        }
       }
 
       const { data, error } = await supabase
@@ -52,7 +62,7 @@ export function useMemberSubscription(userId?: string): UseMemberSubscriptionRes
       setLoading(false);
       setResolvedUserId(userId);
     }
-  }, [userId]);
+  }, [reconcileProfile, userId]);
 
   useEffect(() => {
     void refresh();

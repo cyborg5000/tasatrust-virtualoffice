@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { Search, ShoppingCart, SlidersHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
@@ -38,7 +38,7 @@ interface CartItem {
 }
 
 export default function MemberServices() {
-  const { user } = useAuth();
+  const { effectiveMemberId, isViewingAsMember } = useAdminMemberView();
   const { toast } = useToast();
   
   const [services, setServices] = useState<ServiceWithPricing[]>([]);
@@ -55,12 +55,14 @@ export default function MemberServices() {
   // Fetch user's subscription tier
   useEffect(() => {
     async function fetchUserTier() {
-      if (!user) return;
+      setUserTier("basic");
+
+      if (!effectiveMemberId) return;
 
       const { data } = await supabase
         .from("subscriptions")
         .select("tier")
-        .eq("member_id", user.id)
+        .eq("member_id", effectiveMemberId)
         .eq("status", "active")
         .maybeSingle();
 
@@ -70,7 +72,7 @@ export default function MemberServices() {
     }
 
     fetchUserTier();
-  }, [user]);
+  }, [effectiveMemberId]);
 
   // Fetch services with pricing
   useEffect(() => {
@@ -183,6 +185,14 @@ export default function MemberServices() {
   }, [services, searchQuery, selectedCategories, priceRange, showIncludedServices]);
 
   const handleAddToCart = (serviceId: string) => {
+    if (isViewingAsMember) {
+      toast({
+        title: "View-only mode",
+        description: "Return to admin view to manage this member without simulating a purchase.",
+      });
+      return;
+    }
+
     const service = services.find((s) => s.id === serviceId);
     if (!service) return;
 
@@ -368,7 +378,7 @@ export default function MemberServices() {
         onRemoveItem={handleRemoveFromCart}
         onClearCart={handleClearCart}
         userTier={userTier}
-        memberId={user?.id || ""}
+        memberId={effectiveMemberId || ""}
       />
     </MemberLayout>
   );

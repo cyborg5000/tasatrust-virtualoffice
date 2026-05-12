@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   CreditCard, 
@@ -30,7 +30,7 @@ type Order = Tables<"orders">;
 type Subscription = Tables<"subscriptions">;
 
 export default function MemberBilling() {
-  const { user } = useAuth();
+  const { effectiveMemberId, isViewingAsMember } = useAdminMemberView();
   const [orders, setOrders] = useState<Order[]>([]);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,14 +38,21 @@ export default function MemberBilling() {
 
   useEffect(() => {
     async function fetchBillingData() {
-      if (!user) return;
+      setLoading(true);
+      setSubscription(null);
+      setOrders([]);
+
+      if (!effectiveMemberId) {
+        setLoading(false);
+        return;
+      }
 
       try {
         // Fetch subscription
         const { data: subData } = await supabase
           .from("subscriptions")
           .select("*")
-          .eq("member_id", user.id)
+          .eq("member_id", effectiveMemberId)
           .eq("status", "active")
           .maybeSingle();
         setSubscription(subData);
@@ -54,7 +61,7 @@ export default function MemberBilling() {
         const { data: ordersData } = await supabase
           .from("orders")
           .select("*")
-          .eq("member_id", user.id)
+          .eq("member_id", effectiveMemberId)
           .order("created_at", { ascending: false });
         setOrders(ordersData || []);
       } catch (error) {
@@ -64,8 +71,8 @@ export default function MemberBilling() {
       }
     }
 
-    fetchBillingData();
-  }, [user]);
+    void fetchBillingData();
+  }, [effectiveMemberId]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -107,7 +114,12 @@ export default function MemberBilling() {
   const hasStripeManagedSubscription = Boolean(subscription?.stripe_subscription_id);
 
   const openBillingPortal = async () => {
-    if (!user || !hasStripeManagedSubscription) return;
+    if (isViewingAsMember) {
+      toast.error("Billing portal actions are disabled in admin view-as mode.");
+      return;
+    }
+
+    if (!effectiveMemberId || !hasStripeManagedSubscription) return;
 
     setIsPortalLoading(true);
     try {
@@ -302,7 +314,7 @@ export default function MemberBilling() {
                           <Button
                             variant="outline"
                             onClick={openBillingPortal}
-                            disabled={isPortalLoading}
+                            disabled={isPortalLoading || isViewingAsMember}
                           >
                             {isPortalLoading ? (
                               <>
@@ -359,7 +371,7 @@ export default function MemberBilling() {
                   {hasStripeManagedSubscription ? (
                     <Button
                       onClick={openBillingPortal}
-                      disabled={isPortalLoading}
+                      disabled={isPortalLoading || isViewingAsMember}
                       className="gap-2"
                     >
                       {isPortalLoading ? (

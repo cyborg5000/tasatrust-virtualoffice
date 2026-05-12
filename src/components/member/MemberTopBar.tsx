@@ -1,4 +1,4 @@
-import { Bell, LogOut, User, Settings } from "lucide-react";
+import { Bell, LogOut, User, Settings, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,9 +15,11 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { getSubscriptionTierLabel, type SubscriptionTier } from "@/lib/subscriptionPlans";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 
 interface MemberTopBarProps {
   companyName?: string;
+  memberEmail?: string;
 }
 
 interface NotificationItem {
@@ -26,15 +28,16 @@ interface NotificationItem {
   description: string;
 }
 
-export function MemberTopBar({ companyName }: MemberTopBarProps) {
+export function MemberTopBar({ companyName, memberEmail }: MemberTopBarProps) {
   const { user, signOut } = useAuth();
+  const { effectiveMemberId, isViewingAsMember, returnToAdminView } = useAdminMemberView();
   const navigate = useNavigate();
   const [loadingNotifications, setLoadingNotifications] = useState(true);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   useEffect(() => {
     async function loadNotifications() {
-      if (!user) {
+      if (!effectiveMemberId) {
         setNotifications([]);
         setLoadingNotifications(false);
         return;
@@ -46,7 +49,7 @@ export function MemberTopBar({ companyName }: MemberTopBarProps) {
           supabase
             .from("subscriptions")
             .select("id, tier, status, cancel_at_period_end, current_period_end, stripe_subscription_id")
-            .eq("member_id", user.id)
+            .eq("member_id", effectiveMemberId)
             .eq("status", "active")
             .order("created_at", { ascending: false })
             .limit(1)
@@ -54,7 +57,7 @@ export function MemberTopBar({ companyName }: MemberTopBarProps) {
           supabase
             .from("orders")
             .select("id, amount, status, created_at, type")
-            .eq("member_id", user.id)
+            .eq("member_id", effectiveMemberId)
             .order("created_at", { ascending: false })
             .limit(4),
         ]);
@@ -104,7 +107,7 @@ export function MemberTopBar({ companyName }: MemberTopBarProps) {
     }
 
     void loadNotifications();
-  }, [user]);
+  }, [effectiveMemberId]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -118,7 +121,7 @@ export function MemberTopBar({ companyName }: MemberTopBarProps) {
         .join("")
         .toUpperCase()
         .slice(0, 2)
-    : user?.email?.slice(0, 2).toUpperCase() || "U";
+    : memberEmail?.slice(0, 2).toUpperCase() || user?.email?.slice(0, 2).toUpperCase() || "U";
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur">
@@ -178,11 +181,20 @@ export function MemberTopBar({ companyName }: MemberTopBarProps) {
                 </AvatarFallback>
               </Avatar>
               <span className="hidden text-sm font-medium md:inline">
-                {companyName || user?.email}
+                {companyName || memberEmail || user?.email}
               </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
+            {isViewingAsMember && (
+              <>
+                <DropdownMenuItem onClick={returnToAdminView} className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Return to Admin View
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuItem asChild>
               <Link to="/member/settings" className="flex items-center gap-2">
                 <User className="h-4 w-4" />

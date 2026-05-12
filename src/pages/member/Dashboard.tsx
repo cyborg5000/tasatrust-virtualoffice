@@ -5,7 +5,7 @@ import { WebsiteBuildCard } from "@/components/member/WebsiteBuildCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calendar, 
@@ -25,7 +25,7 @@ type Subscription = Tables<"subscriptions">;
 type Member = Tables<"members">;
 
 export default function MemberDashboard() {
-  const { user } = useAuth();
+  const { effectiveMemberId } = useAdminMemberView();
   const [member, setMember] = useState<Member | null>(null);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -33,14 +33,22 @@ export default function MemberDashboard() {
 
   useEffect(() => {
     async function fetchDashboardData() {
-      if (!user) return;
+      setLoading(true);
+      setMember(null);
+      setSubscription(null);
+      setRecentOrders([]);
+
+      if (!effectiveMemberId) {
+        setLoading(false);
+        return;
+      }
 
       try {
         // Fetch member data
         const { data: memberData } = await supabase
           .from("members")
           .select("*")
-          .eq("id", user.id)
+          .eq("id", effectiveMemberId)
           .maybeSingle();
         setMember(memberData);
 
@@ -48,7 +56,7 @@ export default function MemberDashboard() {
         const { data: subData } = await supabase
           .from("subscriptions")
           .select("*")
-          .eq("member_id", user.id)
+          .eq("member_id", effectiveMemberId)
           .eq("status", "active")
           .maybeSingle();
         setSubscription(subData);
@@ -57,7 +65,7 @@ export default function MemberDashboard() {
         const { data: ordersData } = await supabase
           .from("orders")
           .select("*")
-          .eq("member_id", user.id)
+          .eq("member_id", effectiveMemberId)
           .order("created_at", { ascending: false })
           .limit(5);
         setRecentOrders(ordersData || []);
@@ -68,8 +76,8 @@ export default function MemberDashboard() {
       }
     }
 
-    fetchDashboardData();
-  }, [user]);
+    void fetchDashboardData();
+  }, [effectiveMemberId]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

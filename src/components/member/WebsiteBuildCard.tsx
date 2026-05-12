@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { Globe, CheckCircle, Clock, AlertCircle, Eye } from "lucide-react";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
@@ -23,18 +23,24 @@ const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; classNa
 };
 
 export function WebsiteBuildCard({ tier }: WebsiteBuildCardProps) {
-  const { user } = useAuth();
+  const { effectiveMemberId } = useAdminMemberView();
   const [build, setBuild] = useState<WebsiteBuild | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchBuild() {
-      if (!user) return;
+      setLoading(true);
+      setBuild(null);
+
+      if (!effectiveMemberId) {
+        setLoading(false);
+        return;
+      }
 
       const { data, error } = await supabase
         .from("website_builds")
         .select("*")
-        .eq("member_id", user.id)
+        .eq("member_id", effectiveMemberId)
         .order("created_at", { ascending: false })
         .maybeSingle();
 
@@ -44,8 +50,8 @@ export function WebsiteBuildCard({ tier }: WebsiteBuildCardProps) {
       setLoading(false);
     }
 
-    fetchBuild();
-  }, [user]);
+    void fetchBuild();
+  }, [effectiveMemberId]);
 
   // Only show for Professional tier
   if (tier !== "professional") {

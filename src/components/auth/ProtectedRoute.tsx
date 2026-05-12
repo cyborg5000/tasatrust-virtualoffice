@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useMemberSubscription } from "@/hooks/useMemberSubscription";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
@@ -16,13 +17,19 @@ export function ProtectedRoute({
   onlyWithoutSubscription = false,
 }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
+  const {
+    effectiveMemberId,
+    isViewingAsMember,
+    loading: adminMemberViewLoading,
+  } = useAdminMemberView();
   const location = useLocation();
   const shouldCheckSubscription = requireSubscription || onlyWithoutSubscription;
   const { hasActiveSubscription, loading: subscriptionLoading } = useMemberSubscription(
-    shouldCheckSubscription ? user?.id : undefined
+    shouldCheckSubscription && !adminMemberViewLoading ? effectiveMemberId : undefined,
+    { reconcileProfile: !isViewingAsMember },
   );
 
-  if (loading || (shouldCheckSubscription && subscriptionLoading)) {
+  if (loading || adminMemberViewLoading || (shouldCheckSubscription && subscriptionLoading)) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

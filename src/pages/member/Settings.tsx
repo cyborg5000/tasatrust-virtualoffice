@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Building, User, Shield } from "lucide-react";
@@ -14,7 +14,7 @@ import { Tables } from "@/integrations/supabase/types";
 type Member = Tables<"members">;
 
 export default function MemberSettings() {
-  const { user } = useAuth();
+  const { effectiveMemberId, effectiveMemberEmail, isViewingAsMember } = useAdminMemberView();
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -26,12 +26,18 @@ export default function MemberSettings() {
 
   useEffect(() => {
     async function fetchMemberData() {
-      if (!user) return;
+      setLoading(true);
+      setMember(null);
+
+      if (!effectiveMemberId) {
+        setLoading(false);
+        return;
+      }
 
       const { data, error } = await supabase
         .from("members")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", effectiveMemberId)
         .maybeSingle();
 
       if (data) {
@@ -43,11 +49,16 @@ export default function MemberSettings() {
       setLoading(false);
     }
 
-    fetchMemberData();
-  }, [user]);
+    void fetchMemberData();
+  }, [effectiveMemberId]);
 
   const handleUpdateProfile = async () => {
-    if (!user) return;
+    if (isViewingAsMember) {
+      toast.error("Profile changes are disabled in admin view-as mode.");
+      return;
+    }
+
+    if (!effectiveMemberId) return;
 
     setSaving(true);
     try {
@@ -59,7 +70,7 @@ export default function MemberSettings() {
           phone: phone,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", user.id);
+        .eq("id", effectiveMemberId);
 
       if (error) throw error;
 
@@ -125,11 +136,12 @@ export default function MemberSettings() {
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder="Enter company name"
+                    disabled={isViewingAsMember}
                   />
                 </div>
-                <Button onClick={handleUpdateProfile} disabled={saving}>
+                <Button onClick={handleUpdateProfile} disabled={saving || isViewingAsMember}>
                   {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save Changes
+                  {isViewingAsMember ? "View Only" : "Save Changes"}
                 </Button>
               </CardContent>
             </Card>
@@ -152,13 +164,14 @@ export default function MemberSettings() {
                     value={contactName}
                     onChange={(e) => setContactName(e.target.value)}
                     placeholder="Enter contact name"
+                    disabled={isViewingAsMember}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <Input
                     id="email"
-                    value={user?.email || ""}
+                    value={effectiveMemberEmail || member?.email || ""}
                     disabled
                     className="bg-muted"
                   />
@@ -173,11 +186,12 @@ export default function MemberSettings() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+65 XXXX XXXX"
+                    disabled={isViewingAsMember}
                   />
                 </div>
-                <Button onClick={handleUpdateProfile} disabled={saving}>
+                <Button onClick={handleUpdateProfile} disabled={saving || isViewingAsMember}>
                   {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save Changes
+                  {isViewingAsMember ? "View Only" : "Save Changes"}
                 </Button>
               </CardContent>
             </Card>
@@ -201,10 +215,11 @@ export default function MemberSettings() {
                   <Button
                     variant="outline"
                     className="mt-4"
+                    disabled={isViewingAsMember}
                     onClick={async () => {
-                      if (!user?.email) return;
+                      if (!effectiveMemberEmail) return;
                       const { error } = await supabase.auth.resetPasswordForEmail(
-                        user.email,
+                        effectiveMemberEmail,
                         { redirectTo: `${window.location.origin}/reset-password` }
                       );
                       if (error) {

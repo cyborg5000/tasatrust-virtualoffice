@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +31,7 @@ export default function MemberOnboarding() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, signOut } = useAuth();
+  const { effectiveMemberId, isViewingAsMember, returnToAdminView } = useAdminMemberView();
   const { addons, loading: catalogLoading } = usePricingCatalog();
 
   const initialTier = isTier(searchParams.get("tier")) ? searchParams.get("tier") : null;
@@ -42,20 +44,27 @@ export default function MemberOnboarding() {
 
   useEffect(() => {
     async function loadCompanyName() {
-      if (!user) return;
+      if (!effectiveMemberId) return;
+      const metadataCompanyName =
+        effectiveMemberId === user?.id && typeof user.user_metadata?.company_name === "string"
+          ? user.user_metadata.company_name.trim()
+          : "";
+
       const { data } = await supabase
         .from("members")
         .select("company_name")
-        .eq("id", user.id)
+        .eq("id", effectiveMemberId)
         .maybeSingle();
 
       if (data?.company_name) {
         setCompanyName(data.company_name);
+      } else if (metadataCompanyName) {
+        setCompanyName(metadataCompanyName);
       }
     }
 
     void loadCompanyName();
-  }, [user]);
+  }, [effectiveMemberId, user]);
 
   const optionalLineItemsByTier = useMemo(() => {
     return {
@@ -86,6 +95,11 @@ export default function MemberOnboarding() {
   };
 
   const handleSignOut = async () => {
+    if (isViewingAsMember) {
+      returnToAdminView();
+      return;
+    }
+
     await signOut();
     navigate("/login");
   };
@@ -102,7 +116,7 @@ export default function MemberOnboarding() {
               onClick={handleSignOut}
               className="h-9 text-white hover:bg-white/10 hover:text-white"
             >
-              Sign Out
+              {isViewingAsMember ? "Return to Admin" : "Sign Out"}
             </Button>
           </div>
           <h1 className="mt-4 max-w-3xl text-2xl font-bold sm:text-3xl md:text-4xl">

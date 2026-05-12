@@ -40,6 +40,8 @@ import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { AdminMemberViewProvider } from "@/hooks/useAdminMemberView";
+import { AdminMemberViewSwitcher } from "@/components/admin/AdminMemberViewSwitcher";
 
 const queryClient = new QueryClient();
 
@@ -49,9 +51,11 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <SeoManager />
-          <ScrollToTop />
-          <Routes>
+          <AdminMemberViewProvider>
+            <SeoManager />
+            <ScrollToTop />
+            <AdminMemberViewSwitcher />
+            <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/pricing" element={<Pricing />} />
@@ -190,7 +194,8 @@ const App = () => (
 
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
-        </Routes>
+            </Routes>
+          </AdminMemberViewProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
