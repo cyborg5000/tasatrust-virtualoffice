@@ -71,10 +71,16 @@ serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !supabaseAnonKey || !serviceRoleKey) {
     return jsonResponse({ error: "Server is not configured." }, 500);
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return jsonResponse({ error: "Missing authorization header." }, 401);
   }
 
   let payload: SignupEmailPayload;
@@ -85,8 +91,33 @@ serve(async (req) => {
     return jsonResponse({ error: "Invalid request body." }, 400);
   }
 
-  const recipientEmail = normalizeEmail(payload.email);
-  const companyName = cleanCompanyName(payload.companyName);
+  const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: authHeader,
+      },
+    },
+  });
+
+  const {
+    data: { user },
+    error: userError,
+  } = await userClient.auth.getUser();
+
+  if (userError || !user) {
+    return jsonResponse({ error: "Unauthorized." }, 401);
+  }
+
+  if (payload.userId && payload.userId !== user.id) {
+    return jsonResponse({ error: "Cannot send notifications for another user." }, 403);
+  }
+
+  const recipientEmail = normalizeEmail(user.email);
+  const metadataCompanyName =
+    typeof user.user_metadata?.company_name === "string"
+      ? user.user_metadata.company_name
+      : undefined;
+  const companyName = cleanCompanyName(metadataCompanyName || payload.companyName);
 
   if (!recipientEmail) {
     return jsonResponse({ error: "Recipient email is required." }, 400);
@@ -96,16 +127,14 @@ serve(async (req) => {
   let resolvedEmail = recipientEmail;
   let resolvedCompany = companyName;
 
-  if (payload.userId) {
-    const { data: member } = await adminClient
-      .from("members")
-      .select("email, company_name")
-      .eq("id", payload.userId)
-      .maybeSingle();
+  const { data: member } = await adminClient
+    .from("members")
+    .select("email, company_name")
+    .eq("id", user.id)
+    .maybeSingle();
 
-    if (member?.email) resolvedEmail = normalizeEmail(member.email) || recipientEmail;
-    if (member?.company_name) resolvedCompany = cleanCompanyName(member.company_name);
-  }
+  if (member?.email) resolvedEmail = normalizeEmail(member.email) || recipientEmail;
+  if (member?.company_name) resolvedCompany = cleanCompanyName(member.company_name);
 
   const adminEmails = getAdminNotificationEmails();
 
@@ -122,7 +151,7 @@ serve(async (req) => {
       html: buildAdminSignupEmail({
         companyName: resolvedCompany,
         email: resolvedEmail,
-        userId: payload.userId,
+        userId: user.id,
       }),
       replyTo: resolvedEmail,
     }),

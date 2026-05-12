@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -24,7 +25,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { getSubscriptionTierLabel, type SubscriptionTier } from "@/lib/subscriptionPlans";
-import { Search, Eye, Users, Filter } from "lucide-react";
+import { getMemberReviewSignals, isMemberReviewCandidate } from "@/lib/signupAbuse";
+import { AlertTriangle, Search, Eye, Users, Filter } from "lucide-react";
 
 interface MemberWithSubscription {
   id: string;
@@ -70,6 +72,12 @@ export default function AdminMembers() {
           current_period_end,
           stripe_subscription_id,
           created_at
+        ),
+        orders (
+          id,
+          amount,
+          status,
+          created_at
         )
       `)
       .order("created_at", { ascending: false });
@@ -89,6 +97,7 @@ export default function AdminMembers() {
 
       return {
         ...member,
+        orders: member.orders || [],
         subscription: subscriptions[0]
           ? {
               tier: subscriptions[0].tier,
@@ -104,6 +113,28 @@ export default function AdminMembers() {
     setFilteredMembers(mappedMembers);
     setIsLoading(false);
   }, []);
+
+  const getReviewSignalsForMember = useCallback((member: MemberWithSubscription) => {
+    return getMemberReviewSignals({
+      companyName: member.company_name,
+      email: member.email,
+      createdAt: member.created_at,
+      hasSubscription: Boolean(member.subscription),
+      orderCount: member.orders?.length || 0,
+    });
+  }, []);
+
+  const isReviewCandidate = useCallback(
+    (member: MemberWithSubscription) =>
+      isMemberReviewCandidate({
+        companyName: member.company_name,
+        email: member.email,
+        createdAt: member.created_at,
+        hasSubscription: Boolean(member.subscription),
+        orderCount: member.orders?.length || 0,
+      }),
+    [],
+  );
 
   useEffect(() => {
     void fetchMembers();
@@ -133,13 +164,15 @@ export default function AdminMembers() {
     if (statusFilter !== "all") {
       if (statusFilter === "no_subscription") {
         filtered = filtered.filter((m) => !m.subscription);
+      } else if (statusFilter === "needs_review") {
+        filtered = filtered.filter((m) => isReviewCandidate(m));
       } else {
         filtered = filtered.filter((m) => m.subscription?.status === statusFilter);
       }
     }
 
     setFilteredMembers(filtered);
-  }, [members, searchQuery, tierFilter, statusFilter]);
+  }, [isReviewCandidate, members, searchQuery, tierFilter, statusFilter]);
 
   const handleViewDetails = async (member: MemberWithSubscription) => {
     // Fetch orders for this member
@@ -195,6 +228,8 @@ export default function AdminMembers() {
     paused: "bg-muted text-muted-foreground",
   };
 
+  const reviewCandidateCount = members.filter(isReviewCandidate).length;
+
   if (isLoading) {
     return (
       <AdminLayout>
@@ -218,11 +253,29 @@ export default function AdminMembers() {
               View and manage all registered members
             </p>
           </div>
-          <Badge variant="outline" className="w-fit text-sm">
-            <Users className="mr-1 h-3 w-3" />
-            {members.length} total members
-          </Badge>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline" className="w-fit text-sm">
+              <Users className="mr-1 h-3 w-3" />
+              {members.length} total members
+            </Badge>
+            {reviewCandidateCount > 0 && (
+              <Badge variant="outline" className="w-fit border-amber-300 bg-amber-50 text-sm text-amber-800">
+                <AlertTriangle className="mr-1 h-3 w-3" />
+                {reviewCandidateCount} need review
+              </Badge>
+            )}
+          </div>
         </div>
+
+        {reviewCandidateCount > 0 && (
+          <Alert className="border-amber-200 bg-amber-50 text-amber-900">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Some no-subscription signups match the April bot-signup pattern. Review them before deleting; paid,
+              assigned, and order-bearing members are excluded from this count.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Filters */}
         <Card>
@@ -270,6 +323,7 @@ export default function AdminMembers() {
                   <SelectItem value="past_due">Past Due</SelectItem>
                   <SelectItem value="paused">Paused</SelectItem>
                   <SelectItem value="no_subscription">No Subscription</SelectItem>
+                  <SelectItem value="needs_review">Needs Review</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -298,11 +352,26 @@ export default function AdminMembers() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredMembers.map((member) => (
-                    <TableRow key={member.id}>
+                  filteredMembers.map((member) => {
+                    const reviewSignals = getReviewSignalsForMember(member);
+                    const needsReview = reviewSignals.length > 0;
+
+                    return (
+                    <TableRow key={member.id} className={needsReview ? "bg-amber-50/40" : undefined}>
                       <TableCell>
-                        <div>
-                          <p className="font-medium">{member.company_name}</p>
+                        <div className="space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-medium">{member.company_name}</p>
+                            {needsReview && (
+                              <Badge
+                                variant="outline"
+                                className="border-amber-300 bg-amber-100 text-amber-800"
+                                title={reviewSignals.join(", ")}
+                              >
+                                Review
+                              </Badge>
+                            )}
+                          </div>
                           {member.contact_name && (
                             <p className="text-xs text-muted-foreground">{member.contact_name}</p>
                           )}
@@ -344,7 +413,8 @@ export default function AdminMembers() {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))
+                    );
+                  })
                 )}
               </TableBody>
             </Table>

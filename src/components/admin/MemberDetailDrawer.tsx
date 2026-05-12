@@ -21,9 +21,10 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { Enums } from "@/integrations/supabase/types";
 import { getSubscriptionTierLabel } from "@/lib/subscriptionPlans";
+import { getMemberReviewSignals } from "@/lib/signupAbuse";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Building2, Loader2, Mail, Phone, Calendar, CreditCard, Package, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Building2, Loader2, Mail, Phone, Calendar, CreditCard, Package, ShieldCheck } from "lucide-react";
 
 type SubscriptionTier = Enums<"subscription_tier">;
 
@@ -94,6 +95,13 @@ export function MemberDetailDrawer({
   };
 
   const isStripeManagedSubscription = Boolean(member.subscription?.stripe_subscription_id);
+  const reviewSignals = getMemberReviewSignals({
+    companyName: member.company_name,
+    email: member.email,
+    createdAt: member.created_at,
+    hasSubscription: Boolean(member.subscription),
+    orderCount: member.orders?.length || 0,
+  });
 
   const handleAssignPlan = async () => {
     setIsAssigningPlan(true);
@@ -207,6 +215,27 @@ export function MemberDetailDrawer({
           </div>
 
           <Separator />
+
+          {reviewSignals.length > 0 && (
+            <>
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-700" />
+                  Signup Review
+                </h3>
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                  <p>This no-subscription member matches the current signup-abuse review rules.</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    {reviewSignals.map((signal) => (
+                      <li key={signal}>{signal}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <Separator />
+            </>
+          )}
 
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">

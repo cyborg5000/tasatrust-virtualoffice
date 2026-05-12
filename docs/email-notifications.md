@@ -1,12 +1,12 @@
 # Email Notification Architecture
 
-Last updated: 2026-02-16
+Last updated: 2026-05-12
 
 ## 1) Purpose
 
 The platform now sends transactional emails from Supabase Edge Functions through Resend for:
 
-- New user onboarding
+- Paid user onboarding
 - Contact form alerts
 - Subscription lifecycle updates from Stripe
 
@@ -16,7 +16,7 @@ All logic is centralized in `supabase/functions/_shared/email.ts` and event-spec
 
 | App event | Trigger | Email sent | Recipient |
 |---|---|---|---|
-| New signup form submit | `src/pages/auth/Signup.tsx` | Welcome email + admin alert | User + `admin@tasatrust.com`, `business+tasatrust@5amuelchan.com` |
+| New signup form submit | `src/pages/auth/Signup.tsx` | No email; Auth metadata only | — |
 | Contact form submit | `src/pages/Contact.tsx` → `supabase/functions/submit-contact-message` | Contact alert | `CONTACT_NOTIFICATION_EMAIL` / fallback to `SUPPORT_EMAIL` / `RESEND_TO_EMAIL` / `info@tasatrust.com` |
 | Checkout completed | Stripe `checkout.session.completed` webhook | Subscription confirmation + admin alert | User + configured admin emails |
 | Subscription updated | Stripe `customer.subscription.updated` webhook | Status change alert + admin alert (status/cancel changes only) | User + configured admin emails |
@@ -55,13 +55,13 @@ supabase functions secrets set \
 - `supabase/functions/_shared/email.ts`  
   Shared Resend sender, recipient helpers, email escaping, and reusable send helper.
 - `supabase/functions/send-welcome-email/index.ts`  
-  Triggered from signup flow. Sends welcome email to user and admin alert.
+  Requires an authenticated user and only sends to that user's account email. Kept for authenticated onboarding notifications; not called by public signup.
 - `supabase/functions/submit-contact-message/index.ts`  
   Updated to use shared Resend helper.
 - `supabase/functions/stripe-webhook/index.ts`  
   Updated to send checkout/subscription lifecycle notifications.
 - `src/pages/auth/Signup.tsx`  
-  Calls `send-welcome-email` after successful user registration/member create.
+  Creates the Auth user only. Member rows are created later by checkout/reconciliation so signup spam does not pollute the member table.
 
 ## 6) Operational notes
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -9,60 +9,59 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import logo from "@/assets/logo.png";
+import {
+  cleanSignupCompanyName,
+  normalizeSignupEmail,
+  SIGNUP_VERIFICATION_WORD,
+  validateSignupGuard,
+} from "@/lib/signupAbuse";
 
 export default function Signup() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [website, setWebsite] = useState("");
+  const [verificationWord, setVerificationWord] = useState("");
   const [loading, setLoading] = useState(false);
+  const formStartedAt = useRef(Date.now());
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      const cleanedCompanyName = cleanSignupCompanyName(companyName);
+      const normalizedEmail = normalizeSignupEmail(email);
+      const guard = validateSignupGuard({
+        trapValue: website,
+        verificationValue: verificationWord,
+        elapsedMs: Date.now() - formStartedAt.current,
+      });
+
+      if (!guard.ok) {
+        throw new Error(guard.message || "We could not verify this signup.");
+      }
+
       // Sign up user
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+        email: normalizedEmail,
         password,
         options: {
           emailRedirectTo: window.location.origin,
+          data: {
+            company_name: cleanedCompanyName,
+          },
         },
       });
 
       if (authError) throw authError;
 
-      if (authData.user) {
-        // Create member record
-        const { error: memberError } = await supabase.from("members").upsert({
-          id: authData.user.id,
-          email,
-          company_name: companyName,
-        });
-
-        if (memberError) {
-          console.error("Error creating member:", memberError);
-        }
-
-        void supabase.functions
-          .invoke("send-welcome-email", {
-            body: {
-              userId: authData.user.id,
-              email,
-              companyName,
-            },
-          })
-          .catch((error) => {
-            console.error("Welcome email trigger failed:", error);
-          });
-      }
-
       if (authData.session) {
         toast.success("Account created. Welcome to your member setup.");
-        navigate("/member");
+        navigate("/member/onboarding");
       } else {
-        toast.success("Account created. Please sign in to continue.");
+        toast.success("Account created. Please confirm your email, then sign in.");
         navigate("/login");
       }
     } catch (error: unknown) {
@@ -98,6 +97,17 @@ export default function Signup() {
                   required
                 />
               </div>
+              <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+                <Label htmlFor="website">Website</Label>
+                <Input
+                  id="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -123,6 +133,18 @@ export default function Signup() {
                 <p className="text-xs text-muted-foreground">
                   Minimum 6 characters
                 </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="verificationWord">Verification</Label>
+                <Input
+                  id="verificationWord"
+                  type="text"
+                  placeholder={`Type ${SIGNUP_VERIFICATION_WORD.toUpperCase()}`}
+                  value={verificationWord}
+                  onChange={(e) => setVerificationWord(e.target.value)}
+                  required
+                  autoComplete="off"
+                />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
