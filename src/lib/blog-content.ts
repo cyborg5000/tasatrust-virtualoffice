@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import type { CmsArticle } from "@/lib/blog-api";
 
 export type FaqItem = { question: string; answer: string };
@@ -37,9 +38,19 @@ export function decorateArticleHtml(html: string) {
     return { html: "", headings: [] as HeadingItem[] };
   }
 
+  const sanitized =
+    typeof window !== "undefined"
+      ? DOMPurify.sanitize(html, {
+          USE_PROFILES: { html: true },
+          ADD_TAGS: ["details", "summary"],
+        })
+      : html.replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "")
+            .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "")
+            .replace(/javascript:/gi, "");
+
   if (typeof DOMParser === "undefined") {
     const headings = Array.from(
-      html.matchAll(/<(h[2-4])\b[^>]*>([\s\S]*?)<\/\1>/gi),
+      sanitized.matchAll(/<(h[2-4])\b[^>]*>([\s\S]*?)<\/\1>/gi),
     ).map((match) => {
       const level = Number(match[1].replace("h", ""));
       const text = stripHtml(match[2] || "");
@@ -54,11 +65,11 @@ export function decorateArticleHtml(html: string) {
       };
     });
 
-    return { html, headings };
+    return { html: sanitized, headings };
   }
 
   const parser = new DOMParser();
-  const documentNode = parser.parseFromString(html, "text/html");
+  const documentNode = parser.parseFromString(sanitized, "text/html");
   const usedIds = new Set<string>();
   const headings: HeadingItem[] = [];
 
