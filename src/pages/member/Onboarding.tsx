@@ -34,7 +34,8 @@ export default function MemberOnboarding() {
   const { effectiveMemberId, isViewingAsMember, returnToAdminView } = useAdminMemberView();
   const { addons, loading: catalogLoading } = usePricingCatalog();
 
-  const initialTier = isTier(searchParams.get("tier")) ? searchParams.get("tier") : null;
+  const tierParam = searchParams.get("tier");
+  const initialTier: SubscriptionTier | null = isTier(tierParam) ? tierParam : null;
   const initialBillingCycle: BillingCycle =
     searchParams.get("billing") === "monthly" ? "monthly" : "annual";
 
