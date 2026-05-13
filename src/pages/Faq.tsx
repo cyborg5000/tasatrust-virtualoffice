@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageSeo } from "@/components/seo/PageSeo";
 
 const faqs = [
   {
@@ -25,8 +26,24 @@ const faqs = [
 ];
 
 export default function Faq() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  };
+
   return (
     <Layout>
+      <PageSeo
+        title="Frequently Asked Questions"
+        description="Quick answers about Singapore virtual office setup, billing, plan changes, and add-on services from TASA Trust."
+        canonical="/faq"
+        jsonLd={[faqJsonLd]}
+      />
       <section className="bg-secondary py-16 text-secondary-foreground">
         <div className="container mx-auto px-4 text-center">
           <h1 className="mb-4 text-4xl font-bold md:text-5xl">Frequently Asked Questions</h1>

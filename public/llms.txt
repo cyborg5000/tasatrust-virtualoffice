@@ -1,0 +1,22 @@
+# TASA Trust
+
+> TASA Trust Pte. Ltd. provides Singapore virtual office, corporate secretary, accounting, tax, and compliance services for businesses.
+
+TASA Trust helps companies establish and operate in Singapore with a professional business address, mail handling, bookkeeping, payroll, GST and corporate tax filing, and company secretarial support. Plans are available monthly or annual, with optional add-on services billed one-time or recurring.
+
+## Pages
+
+- [Home](/): Singapore virtual office and corporate services overview.
+- [Services](/services): Full catalog of corporate, accounting, and virtual office services.
+- [Pricing](/pricing): Plan tiers, included services, and add-on pricing.
+- [About](/about): About TASA Trust Pte. Ltd. and the team.
+- [Contact](/contact): Contact information, office hours, and inquiry form.
+- [FAQ](/faq): Frequently asked questions about setup, billing, and services.
+- [Help](/help): Help center and support resources.
+- [Blog](/blog): Articles on virtual offices, compliance, and operating in Singapore.
+
+## Optional
+
+- [Privacy Policy](/privacy): How TASA Trust collects and protects information.
+- [Terms of Service](/terms): Terms and conditions for using TASA Trust services.
+- [Cookie Policy](/cookies): Cookie and tracking technology usage.

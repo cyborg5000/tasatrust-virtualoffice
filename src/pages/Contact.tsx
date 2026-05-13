@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Mail, Phone, MapPin, Clock, MessageCircle } from "lucide-react";
 import corporateBuilding from "@/assets/corporate-building.jpg";
 import { supabase } from "@/integrations/supabase/client";
+import { PageSeo } from "@/components/seo/PageSeo";
 
 const contactSchema = z.object({
   name: z
@@ -135,8 +136,24 @@ export default function Contact() {
     }
   };
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  };
+
   return (
     <Layout>
+      <PageSeo
+        title="Contact TASA Trust"
+        description="Reach TASA Trust for Singapore virtual office, corporate secretary, accounting, and compliance services. Office hours Mon–Fri 9am–6pm."
+        canonical="/contact"
+        jsonLd={[faqJsonLd]}
+      />
       {/* Header Section */}
       <section className="relative overflow-hidden bg-secondary py-20">
         <div 

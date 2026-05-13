@@ -91,6 +91,51 @@ export type Database = {
           },
         ]
       }
+      contact_submissions: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          email: string
+          id: string
+          inquiry_type: string
+          message: string
+          name: string
+          phone: string | null
+          request_ip: string | null
+          status: string
+          updated_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          inquiry_type: string
+          message: string
+          name: string
+          phone?: string | null
+          request_ip?: string | null
+          status?: string
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          inquiry_type?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          request_ip?: string | null
+          status?: string
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       meeting_rooms: {
         Row: {
           capacity: number | null
@@ -452,12 +497,26 @@ export type Database = {
           _member_id: string
           _tier: Database["public"]["Enums"]["subscription_tier"]
         }
-        Returns: Database["public"]["Tables"]["subscriptions"]["Row"]
+        Returns: {
+          cancel_at_period_end: boolean | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          member_id: string | null
+          status: Database["public"]["Enums"]["subscription_status"] | null
+          stripe_subscription_id: string | null
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "subscriptions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
-      ensure_member_profile: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      ensure_member_profile: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
