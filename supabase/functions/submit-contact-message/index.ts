@@ -90,14 +90,26 @@ serve(async (req) => {
   if (!name) {
     return jsonResponse({ error: "Name is required." }, 400);
   }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (name.length > 100) {
+    return jsonResponse({ error: "Name is too long." }, 400);
+  }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255) {
     return jsonResponse({ error: "Please provide a valid email address." }, 400);
+  }
+  if (phone.length > 30) {
+    return jsonResponse({ error: "Phone number is too long." }, 400);
+  }
+  if (company.length > 200) {
+    return jsonResponse({ error: "Company name is too long." }, 400);
   }
   if (!inquiryLabel) {
     return jsonResponse({ error: "Please choose a valid inquiry type." }, 400);
   }
   if (message.length < 10) {
     return jsonResponse({ error: "Message must be at least 10 characters." }, 400);
+  }
+  if (message.length > 1000) {
+    return jsonResponse({ error: "Message is too long." }, 400);
   }
 
   const requestIp = getIpAddress(req);
