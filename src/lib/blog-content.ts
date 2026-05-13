@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import type { CmsArticle } from "@/lib/blog-api";
 
 export type FaqItem = { question: string; answer: string };
