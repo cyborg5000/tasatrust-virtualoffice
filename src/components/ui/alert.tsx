@@ -1,4 +1,4 @@
-import * as React from "react";
+import type { HTMLAttributes, Ref } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -18,25 +18,30 @@ const alertVariants = cva(
   },
 );
 
-const Alert = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
->(({ className, variant, ...props }, ref) => (
+type AlertProps = HTMLAttributes<HTMLDivElement> &
+  VariantProps<typeof alertVariants> & { ref?: Ref<HTMLDivElement> };
+
+const Alert = ({ className, variant, ref, ...props }: AlertProps) => (
   <div ref={ref} role="alert" className={cn(alertVariants({ variant }), className)} {...props} />
-));
+);
 Alert.displayName = "Alert";
 
-const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => (
-    <h5 ref={ref} className={cn("mb-1 font-medium leading-none tracking-tight", className)} {...props} />
-  ),
-);
+type AlertTitleProps = HTMLAttributes<HTMLHeadingElement> & { ref?: Ref<HTMLParagraphElement> };
+
+const AlertTitle = ({ className, children, ref, ...props }: AlertTitleProps) => {
+  if (children == null || children === "") return null;
+  return (
+    <h5 ref={ref} className={cn("mb-1 font-medium leading-none tracking-tight", className)} {...props}>
+      {children}
+    </h5>
+  );
+};
 AlertTitle.displayName = "AlertTitle";
 
-const AlertDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("text-sm [&_p]:leading-relaxed", className)} {...props} />
-  ),
+type AlertDescriptionProps = HTMLAttributes<HTMLParagraphElement> & { ref?: Ref<HTMLParagraphElement> };
+
+const AlertDescription = ({ className, ref, ...props }: AlertDescriptionProps) => (
+  <div ref={ref} className={cn("text-sm [&_p]:leading-relaxed", className)} {...props} />
 );
 AlertDescription.displayName = "AlertDescription";
 
