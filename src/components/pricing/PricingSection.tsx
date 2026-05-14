@@ -30,15 +30,18 @@ export function PricingSection() {
 
   const tierIncludedFeatures = useMemo(
     () => ({
-      basic: addons
-        .map((addon) => getTierIncludedFeature(addon, "basic"))
-        .filter(Boolean) as string[],
-      essential: addons
-        .map((addon) => getTierIncludedFeature(addon, "essential"))
-        .filter(Boolean) as string[],
-      professional: addons
-        .map((addon) => getTierIncludedFeature(addon, "professional"))
-        .filter(Boolean) as string[],
+      basic: addons.flatMap((addon) => {
+        const feature = getTierIncludedFeature(addon, "basic");
+        return feature ? [feature] : [];
+      }),
+      essential: addons.flatMap((addon) => {
+        const feature = getTierIncludedFeature(addon, "essential");
+        return feature ? [feature] : [];
+      }),
+      professional: addons.flatMap((addon) => {
+        const feature = getTierIncludedFeature(addon, "professional");
+        return feature ? [feature] : [];
+      }),
     }),
     [addons]
   );
@@ -49,7 +52,7 @@ export function PricingSection() {
       <div className="container relative mx-auto px-4">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Plans & Pricing</p>
-          <h2 className="mt-4 text-3xl font-bold text-foreground md:text-4xl">
+          <h2 className="mt-4 text-3xl font-semibold text-foreground md:text-4xl">
             Simple, Transparent <span className="text-gradient">Pricing</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
@@ -80,7 +83,7 @@ export function PricingSection() {
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          {SUBSCRIPTION_PLANS.map((tier, index) => (
+          {SUBSCRIPTION_PLANS.map((tier) => (
             <Card
               key={tier.tier}
               className={cn(
@@ -112,9 +115,9 @@ export function PricingSection() {
                 {[...tier.baseFeatures, ...tierIncludedFeatures[tier.tier]].length > 0 ? (
                   <ul className="space-y-3">
                     {[...tier.baseFeatures, ...tierIncludedFeatures[tier.tier]].map((feature) => (
-                      <li key={`${feature}-${index}`} className="flex items-start gap-3">
-                        <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
-                          <Check className="h-3.5 w-3.5 text-primary" />
+                      <li key={`${tier.tier}-${feature}`} className="flex items-start gap-3">
+                        <span className="mt-0.5 inline-flex size-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
+                          <Check className="size-3.5 text-primary" />
                         </span>
                         <span
                           className={cn(
