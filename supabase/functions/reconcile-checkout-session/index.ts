@@ -416,7 +416,7 @@ serve(async (req) => {
 
       // Process pricing rows in parallel — each row's writes are independent of the others.
       await Promise.all((addOnPricingRows || []).map(async (pricing) => {
-        if (!pricing.service_id || pricing.is_included) continue;
+        if (!pricing.service_id || pricing.is_included) return;
 
         const oneTimePrice = Number(pricing.one_time_price || 0);
         const recurringPrice = Number(pricing.recurring_price || 0);
@@ -452,7 +452,7 @@ serve(async (req) => {
           oneTimePurchased: oneTimePrice > 0,
           recurringPurchased: recurringAmount > 0,
         });
-      }
+      }));
     }
 
     return jsonResponse({
