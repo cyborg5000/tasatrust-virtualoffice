@@ -115,9 +115,9 @@ export function PricingSection() {
                 {[...tier.baseFeatures, ...tierIncludedFeatures[tier.tier]].length > 0 ? (
                   <ul className="space-y-3">
                     {[...tier.baseFeatures, ...tierIncludedFeatures[tier.tier]].map((feature) => (
-                      <li key={`${feature}-${index}`} className="flex items-start gap-3">
-                        <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
-                          <Check className="h-3.5 w-3.5 text-primary" />
+                      <li key={`${tier.tier}-${feature}`} className="flex items-start gap-3">
+                        <span className="mt-0.5 inline-flex size-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
+                          <Check className="size-3.5 text-primary" />
                         </span>
                         <span
                           className={cn(
