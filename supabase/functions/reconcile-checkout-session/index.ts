@@ -29,10 +29,11 @@ function mapStripeStatus(status: string): DbSubscriptionStatus {
 
 function parseSelectedAddonIds(value: string | undefined) {
   if (!value) return [];
-  return value
-    .split(",")
-    .map((id) => id.trim())
-    .filter((id) => id.length > 0);
+  return value.split(",").reduce<string[]>((acc, id) => {
+    const trimmed = id.trim();
+    if (trimmed.length > 0) acc.push(trimmed);
+    return acc;
+  }, []);
 }
 
 function normalizeInterval(interval?: string | null) {
@@ -413,8 +414,9 @@ serve(async (req) => {
 
       if (addOnPricingError) throw new Error("Unable to load add-on pricing.");
 
-      for (const pricing of addOnPricingRows || []) {
-        if (!pricing.service_id || pricing.is_included) continue;
+      // Process pricing rows in parallel — each row's writes are independent of the others.
+      await Promise.all((addOnPricingRows || []).map(async (pricing) => {
+        if (!pricing.service_id || pricing.is_included) return;
 
         const oneTimePrice = Number(pricing.one_time_price || 0);
         const recurringPrice = Number(pricing.recurring_price || 0);
@@ -450,7 +452,7 @@ serve(async (req) => {
           oneTimePurchased: oneTimePrice > 0,
           recurringPurchased: recurringAmount > 0,
         });
-      }
+      }));
     }
 
     return jsonResponse({
