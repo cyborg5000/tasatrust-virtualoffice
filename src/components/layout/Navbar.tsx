@@ -52,7 +52,8 @@ export function Navbar() {
   useEffect(() => {
     setIsOpen(false);
     setServicesOpen(false);
-  }, [location.pathname, location.search]);
+    // location is a new object reference on every route change from react-router
+  }, [location]);
 
   useEffect(() => {
     const onEsc = (event: KeyboardEvent) => {
@@ -217,7 +218,7 @@ export function Navbar() {
             <Button asChild className="gap-2">
               <Link to="/signup">
                 Start Now
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="size-4" />
               </Link>
             </Button>
           </div>
@@ -230,8 +231,8 @@ export function Navbar() {
             onClick={() => setIsOpen((prev) => !prev)}
             aria-label={isOpen ? "Close menu" : "Open menu"}
           >
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border/70 bg-white/80">
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            <div className="inline-flex size-10 items-center justify-center rounded-lg border border-border/70 bg-white/80">
+              {isOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </div>
           </button>
         </div>

@@ -47,17 +47,17 @@ export function Footer() {
 
             <div className="mt-6 space-y-3">
               <div className="flex items-start gap-3 text-sm text-white/80">
-                <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                <MapPin className="mt-0.5 size-4 flex-shrink-0 text-primary" />
                 <span>101 Cecil Street #15-06, Singapore 069533</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-white/80">
-                <Phone className="h-4 w-4 text-primary" />
+                <Phone className="size-4 text-primary" />
                 <a href="https://wa.me/6584463191" target="_blank" rel="noopener noreferrer" className="hover:text-primary">
                   +65 8446 3191
                 </a>
               </div>
               <div className="flex items-center gap-3 text-sm text-white/80">
-                <Mail className="h-4 w-4 text-primary" />
+                <Mail className="size-4 text-primary" />
                 <a href="mailto:info@tasatrust.com" className="hover:text-primary">
                   info@tasatrust.com
                 </a>
@@ -107,7 +107,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/15 pt-8 md:flex-row">
           <div className="flex flex-col items-center gap-1 md:flex-row md:gap-4">
-            <p className="text-sm text-white/65">© {new Date().getFullYear()} TASA Trust Pte. Ltd. All rights reserved.</p>
+            <p className="text-sm text-white/65" suppressHydrationWarning>© {new Date().getFullYear()} TASA Trust Pte. Ltd. All rights reserved.</p>
             <span className="hidden text-white/40 md:inline">|</span>
             <p className="text-sm text-white/65">
               Powered by{' '}
@@ -128,10 +128,10 @@ export function Footer() {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/75 transition-colors hover:border-primary/70 hover:text-primary"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-white/20 text-white/75 transition-colors hover:border-primary/70 hover:text-primary"
                 aria-label={social.label}
               >
-                <social.icon className="h-4 w-4" />
+                <social.icon className="size-4" />
               </a>
             ))}
           </div>
