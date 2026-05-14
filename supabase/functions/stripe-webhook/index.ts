@@ -638,8 +638,9 @@ async function handleCheckoutCompleted(
     .eq("tier", tier)
     .in("service_id", selectedAddonIds);
 
-  for (const pricing of addOnPricingRows || []) {
-    if (!pricing.service_id || pricing.is_included) continue;
+  // Process pricing rows in parallel — each row's writes are independent of the others.
+  await Promise.all((addOnPricingRows || []).map(async (pricing) => {
+    if (!pricing.service_id || pricing.is_included) return;
 
     const oneTimePrice = Number(pricing.one_time_price || 0);
     const recurringPrice = Number(pricing.recurring_price || 0);
@@ -675,7 +676,7 @@ async function handleCheckoutCompleted(
       oneTimePurchased: oneTimePrice > 0,
       recurringPurchased: recurringAmount > 0,
     });
-  }
+  }));
 
   const memberProfile = await getMemberProfile(adminClient, memberId, stripeCustomerId);
   return {

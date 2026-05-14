@@ -52,34 +52,36 @@ export function CartModal({
     setIsProcessing(true);
 
     try {
-      // Process each item in the cart
-      for (const item of items) {
-        // Create order entry
-        const { error: orderError } = await supabase.from("orders").insert({
-          member_id: memberId,
-          service_id: item.id,
-          amount: item.price,
-          type: item.priceType,
-          status: "completed",
-          stripe_payment_intent_id: `sim_${Date.now()}_${item.id.slice(0, 8)}`,
-        });
-
-        if (orderError) throw orderError;
-
-        // Create member_services entry
-        const { error: memberServiceError } = await supabase
-          .from("member_services")
-          .insert({
+      // Process all cart items in parallel — each insert is independent.
+      await Promise.all(
+        items.map(async (item) => {
+          // Create order entry
+          const { error: orderError } = await supabase.from("orders").insert({
             member_id: memberId,
             service_id: item.id,
-            tier_at_purchase: userTier as "basic" | "essential" | "professional",
-            one_time_purchased: item.priceType === "one_time",
-            recurring_purchased: item.priceType === "recurring",
-            is_active: true,
+            amount: item.price,
+            type: item.priceType,
+            status: "completed",
+            stripe_payment_intent_id: `sim_${Date.now()}_${item.id.slice(0, 8)}`,
           });
 
-        if (memberServiceError) throw memberServiceError;
-      }
+          if (orderError) throw orderError;
+
+          // Create member_services entry
+          const { error: memberServiceError } = await supabase
+            .from("member_services")
+            .insert({
+              member_id: memberId,
+              service_id: item.id,
+              tier_at_purchase: userTier as "basic" | "essential" | "professional",
+              one_time_purchased: item.priceType === "one_time",
+              recurring_purchased: item.priceType === "recurring",
+              is_active: true,
+            });
+
+          if (memberServiceError) throw memberServiceError;
+        }),
+      );
 
       setIsSuccess(true);
       
