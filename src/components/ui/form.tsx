@@ -1,6 +1,6 @@
 import {
   createContext,
-  use,
+  useContext,
   useId,
   type ComponentPropsWithoutRef,
   type ComponentRef,
@@ -39,8 +39,8 @@ const FormField = <
 };
 
 const useFormField = () => {
-  const fieldContext = use(FormFieldContext);
-  const itemContext = use(FormItemContext);
+  const fieldContext = useContext(FormFieldContext);
+  const itemContext = useContext(FormItemContext);
   const { getFieldState, formState } = useFormContext();
 
   const fieldState = getFieldState(fieldContext.name, formState);

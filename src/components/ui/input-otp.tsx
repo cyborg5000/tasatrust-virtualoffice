@@ -1,4 +1,4 @@
-import { use, type ComponentPropsWithoutRef, type ComponentRef, type Ref } from "react";
+import { useContext, type ComponentPropsWithoutRef, type ComponentRef, type Ref } from "react";
 import { OTPInput, OTPInputContext } from "input-otp";
 import { Dot } from "lucide-react";
 
@@ -31,7 +31,7 @@ type InputOTPSlotProps = ComponentPropsWithoutRef<"div"> & {
 };
 
 const InputOTPSlot = ({ index, className, ref, ...props }: InputOTPSlotProps) => {
-  const inputOTPContext = use(OTPInputContext);
+  const inputOTPContext = useContext(OTPInputContext);
   const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
 
   return (
