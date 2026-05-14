@@ -52,7 +52,7 @@ export function PricingSection() {
       <div className="container relative mx-auto px-4">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Plans & Pricing</p>
-          <h2 className="mt-4 text-3xl font-bold text-foreground md:text-4xl">
+          <h2 className="mt-4 text-3xl font-semibold text-foreground md:text-4xl">
             Simple, Transparent <span className="text-gradient">Pricing</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
