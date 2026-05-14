@@ -11,6 +11,7 @@ type PageSeoProps = {
 };
 
 const SITE_TITLE = "TASA Trust";
+const EMPTY_JSONLD: Record<string, unknown>[] = [];
 
 function upsertMeta(
   selector: string,
@@ -50,7 +51,7 @@ export function PageSeo({
   image,
   type = "website",
   noindex = false,
-  jsonLd = [],
+  jsonLd = EMPTY_JSONLD,
 }: PageSeoProps) {
   useEffect(() => {
     const resolvedCanonical = canonical

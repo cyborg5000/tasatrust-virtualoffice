@@ -112,7 +112,7 @@ export function CartModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5" />
+            <ShoppingCart className="size-5" />
             {isSuccess ? "Order Confirmed" : "Your Cart"}
           </DialogTitle>
           <DialogDescription>
@@ -125,7 +125,7 @@ export function CartModal({
         {isSuccess ? (
           <div className="flex flex-col items-center justify-center py-8">
             <div className="rounded-full bg-primary/10 p-4">
-              <CheckCircle className="h-12 w-12 text-primary" />
+              <CheckCircle className="size-12 text-primary" />
             </div>
             <p className="mt-4 text-lg font-medium text-foreground">Thank you!</p>
             <p className="text-sm text-muted-foreground">
@@ -134,7 +134,7 @@ export function CartModal({
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8">
-            <ShoppingCart className="h-12 w-12 text-muted-foreground/50" />
+            <ShoppingCart className="size-12 text-muted-foreground/50" />
             <p className="mt-4 text-muted-foreground">Your cart is empty</p>
           </div>
         ) : (
@@ -157,10 +157,10 @@ export function CartModal({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    className="size-8 text-muted-foreground hover:text-destructive"
                     onClick={() => onRemoveItem(item.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="size-4" />
                   </Button>
                 </div>
               ))}
@@ -183,8 +183,8 @@ export function CartModal({
               >
                 {isProcessing ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Processing…
                   </>
                 ) : (
                   "Confirm Purchase"
