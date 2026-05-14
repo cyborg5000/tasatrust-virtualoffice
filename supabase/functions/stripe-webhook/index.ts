@@ -63,10 +63,11 @@ function mapStripeStatus(status: string): DbSubscriptionStatus {
 
 function parseSelectedAddonIds(value: string | undefined) {
   if (!value) return [];
-  return value
-    .split(",")
-    .map((id) => id.trim())
-    .filter((id) => id.length > 0);
+  return value.split(",").reduce<string[]>((acc, id) => {
+    const trimmed = id.trim();
+    if (trimmed.length > 0) acc.push(trimmed);
+    return acc;
+  }, []);
 }
 
 function normalizeInterval(interval?: string | null) {
@@ -87,19 +88,26 @@ function toAnnualAmount(price: number, interval?: string | null) {
   return price * 12;
 }
 
-function formatCurrencyFromCents(cents: number | null | undefined, currency: string) {
-  if (typeof cents !== "number" || Number.isNaN(cents)) return null;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency.toUpperCase() || "USD",
-  }).format(cents / 100);
+const currencyFormatters = new Map<string, Intl.NumberFormat>();
+function getCurrencyFormatter(currency: string) {
+  const key = (currency || "USD").toUpperCase();
+  let fmt = currencyFormatters.get(key);
+  if (!fmt) {
+    fmt = new Intl.NumberFormat("en-US", { style: "currency", currency: key });
+    currencyFormatters.set(key, fmt);
+  }
+  return fmt;
 }
 
+function formatCurrencyFromCents(cents: number | null | undefined, currency: string) {
+  if (typeof cents !== "number" || Number.isNaN(cents)) return null;
+  return getCurrencyFormatter(currency).format(cents / 100);
+}
+
+const dateFormatter = new Intl.DateTimeFormat("en-SG", { dateStyle: "medium", timeStyle: "short" });
 function formatDate(value: string | null) {
   if (!value) return "Not available";
-  return new Intl.DateTimeFormat("en-SG", { dateStyle: "medium", timeStyle: "short" }).format(
-    new Date(value),
-  );
+  return dateFormatter.format(new Date(value));
 }
 
 async function ensureOrder(
@@ -526,13 +534,15 @@ async function notifySubscriptionEvent({
     return !result.value.ok;
   });
   if (failed) {
-    const reasons = settled
-      .filter((result) => result.status === "rejected")
-      .map((result) => result.reason);
-    const failedResponses = settled
-      .filter((result) => result.status === "fulfilled" && !result.value.ok)
-      .map((result) => result.value.error)
-      .filter(Boolean);
+    const reasons: unknown[] = [];
+    const failedResponses: unknown[] = [];
+    for (const result of settled) {
+      if (result.status === "rejected") {
+        reasons.push(result.reason);
+      } else if (!result.value.ok && result.value.error) {
+        failedResponses.push(result.value.error);
+      }
+    }
 
     console.error("Failed to send subscription notification email(s).", {
       reasonErrors: reasons,

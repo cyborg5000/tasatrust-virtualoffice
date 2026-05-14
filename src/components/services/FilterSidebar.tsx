@@ -49,7 +49,7 @@ export function FilterSidebar({
             onClick={onClearFilters}
             className="h-auto p-1 text-muted-foreground hover:text-foreground"
           >
-            <X className="h-4 w-4 mr-1" />
+            <X className="size-4 mr-1" />
             Clear
           </Button>
         )}
@@ -60,7 +60,7 @@ export function FilterSidebar({
         <Label className="text-sm font-medium">Category</Label>
         <div className="space-y-2">
           {categories.map((category) => (
-            <div key={category} className="flex items-center space-x-2">
+            <div key={category} className="flex items-center gap-x-2">
               <Checkbox
                 id={`category-${category}`}
                 checked={selectedCategories.includes(category)}
@@ -99,7 +99,7 @@ export function FilterSidebar({
       {/* Show Included Toggle */}
       <div className="space-y-3">
         <Label className="text-sm font-medium">Plan Benefits</Label>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-x-2">
           <Checkbox
             id="show-included"
             checked={showIncludedServices}

@@ -83,8 +83,8 @@ export function ServiceCard({
     <Card className="flex flex-col h-full border-border transition-all hover:shadow-lg hover:border-primary/20">
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <IconComponent className="h-6 w-6 text-primary" />
+          <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10">
+            <IconComponent className="size-6 text-primary" />
           </div>
           {category && (
             <Badge variant="secondary" className="text-xs">
