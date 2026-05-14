@@ -83,7 +83,7 @@ export function PricingSection() {
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          {SUBSCRIPTION_PLANS.map((tier, index) => (
+          {SUBSCRIPTION_PLANS.map((tier) => (
             <Card
               key={tier.tier}
               className={cn(
