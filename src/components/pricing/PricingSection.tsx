@@ -30,15 +30,18 @@ export function PricingSection() {
 
   const tierIncludedFeatures = useMemo(
     () => ({
-      basic: addons
-        .map((addon) => getTierIncludedFeature(addon, "basic"))
-        .filter(Boolean) as string[],
-      essential: addons
-        .map((addon) => getTierIncludedFeature(addon, "essential"))
-        .filter(Boolean) as string[],
-      professional: addons
-        .map((addon) => getTierIncludedFeature(addon, "professional"))
-        .filter(Boolean) as string[],
+      basic: addons.flatMap((addon) => {
+        const feature = getTierIncludedFeature(addon, "basic");
+        return feature ? [feature] : [];
+      }),
+      essential: addons.flatMap((addon) => {
+        const feature = getTierIncludedFeature(addon, "essential");
+        return feature ? [feature] : [];
+      }),
+      professional: addons.flatMap((addon) => {
+        const feature = getTierIncludedFeature(addon, "professional");
+        return feature ? [feature] : [];
+      }),
     }),
     [addons]
   );
