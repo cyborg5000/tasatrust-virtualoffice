@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { WebsiteBuildCard } from "@/components/admin/WebsiteBuildCard";
 import { WebsiteBuildDetailDialog } from "@/components/admin/WebsiteBuildDetailDialog";
@@ -56,7 +56,7 @@ export default function AdminWebsiteBuilds() {
     })
   );
 
-  const fetchBuilds = async () => {
+  const fetchBuilds = useCallback(async () => {
     setIsLoading(true);
     const { data, error } = await supabase
       .from("website_builds")
@@ -74,11 +74,11 @@ export default function AdminWebsiteBuilds() {
       setBuilds(mapped);
     }
     setIsLoading(false);
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchBuilds();
-  }, []);
+  }, [fetchBuilds]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -150,8 +150,8 @@ export default function AdminWebsiteBuilds() {
         <div className="space-y-6">
           <Skeleton className="h-8 w-48" />
           <div className="grid gap-4 md:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-64" />
+            {COLUMNS.map((column) => (
+              <Skeleton key={column.id} className="h-64" />
             ))}
           </div>
         </div>
@@ -165,13 +165,13 @@ export default function AdminWebsiteBuilds() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Website Build Tracker</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Website Build Tracker</h1>
             <p className="text-muted-foreground">
               Manage website build requests for Professional tier members
             </p>
           </div>
           <Badge variant="outline" className="text-sm">
-            <Globe className="mr-1 h-3 w-3" />
+            <Globe className="mr-1 size-3" />
             {builds.length} total builds
           </Badge>
         </div>

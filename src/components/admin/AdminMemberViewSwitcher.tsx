@@ -17,6 +17,7 @@ import { AdminViewMember, useAdminMemberView } from "@/hooks/useAdminMemberView"
 
 export function AdminMemberViewSwitcher() {
   const location = useLocation();
+  const { hash, pathname, search } = location;
   const {
     isAdmin,
     loading: adminViewLoading,
@@ -64,9 +65,9 @@ export function AdminMemberViewSwitcher() {
   }, [isAdmin, members.length, open]);
 
   const returnPath = useMemo(() => {
-    if (!location.pathname.startsWith("/admin")) return undefined;
-    return `${location.pathname}${location.search}${location.hash}`;
-  }, [location.hash, location.pathname, location.search]);
+    if (!pathname.startsWith("/admin")) return undefined;
+    return `${pathname}${search}${hash}`;
+  }, [hash, pathname, search]);
 
   if (!isAdmin || adminViewLoading) {
     return null;
@@ -88,19 +89,19 @@ export function AdminMemberViewSwitcher() {
               isViewingAsMember && "border border-primary/30 bg-secondary text-secondary-foreground hover:bg-secondary/90",
             )}
           >
-            {isViewingAsMember ? <Eye className="h-4 w-4 flex-shrink-0" /> : <UserRound className="h-4 w-4 flex-shrink-0" />}
+            {isViewingAsMember ? <Eye className="size-4 flex-shrink-0" /> : <UserRound className="size-4 flex-shrink-0" />}
             <span className="truncate">{isViewingAsMember ? `Viewing ${triggerLabel}` : triggerLabel}</span>
-            <ChevronsUpDown className="h-3.5 w-3.5 flex-shrink-0 opacity-70" />
+            <ChevronsUpDown className="size-3.5 flex-shrink-0 opacity-70" />
           </Button>
         </PopoverTrigger>
         <PopoverContent align="start" side="top" className="w-96 max-w-[calc(100vw-2rem)] p-0">
           <Command>
-            <CommandInput placeholder="Search members..." />
+            <CommandInput placeholder="Search members…" />
             <CommandList>
               {loadingMembers ? (
                 <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading members...
+                  <Loader2 className="size-4 animate-spin" />
+                  Loading members…
                 </div>
               ) : (
                 <>
@@ -116,8 +117,8 @@ export function AdminMemberViewSwitcher() {
                         }}
                         className="gap-3"
                       >
-                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                          <UserRound className="h-4 w-4" />
+                        <div className="flex size-9 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <UserRound className="size-4" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-medium">{member.company_name}</p>
@@ -128,7 +129,7 @@ export function AdminMemberViewSwitcher() {
                         </div>
                         <Check
                           className={cn(
-                            "h-4 w-4 flex-shrink-0",
+                            "size-4 flex-shrink-0",
                             selectedMemberId === member.id ? "opacity-100" : "opacity-0",
                           )}
                         />
@@ -150,9 +151,9 @@ export function AdminMemberViewSwitcher() {
           className="h-10 gap-2 bg-background/95 shadow-lg backdrop-blur"
           onClick={returnToAdminView}
         >
-          <Shield className="h-4 w-4" />
+          <Shield className="size-4" />
           <span className="hidden sm:inline">Return admin</span>
-          <X className="h-3.5 w-3.5 sm:hidden" />
+          <X className="size-3.5 sm:hidden" />
         </Button>
       )}
     </div>

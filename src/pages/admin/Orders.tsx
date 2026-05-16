@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +61,7 @@ export default function AdminOrders() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setIsLoading(true);
     const { data, error } = await supabase
       .from("orders")
@@ -85,11 +85,11 @@ export default function AdminOrders() {
       setFilteredOrders(mapped);
     }
     setIsLoading(false);
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   // Apply filters
   useEffect(() => {
@@ -151,12 +151,12 @@ export default function AdminOrders() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Order Management</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Order Management</h1>
             <p className="text-muted-foreground">View and manage all transactions</p>
           </div>
           <div className="flex items-center gap-4">
             <Badge variant="outline" className="text-sm">
-              <Receipt className="mr-1 h-3 w-3" />
+              <Receipt className="mr-1 size-3" />
               {filteredOrders.length} orders
             </Badge>
             <Badge className="bg-green-500/20 text-green-700 text-sm">
@@ -170,7 +170,7 @@ export default function AdminOrders() {
           <CardContent className="pt-4">
             <div className="flex flex-col gap-4 sm:flex-row">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search by company, email, service, or order ID..."
                   value={searchQuery}
@@ -192,7 +192,7 @@ export default function AdminOrders() {
                 </SelectContent>
               </Select>
               <Button variant="outline" onClick={fetchOrders}>
-                <RefreshCw className="mr-2 h-4 w-4" />
+                <RefreshCw className="mr-2 size-4" />
                 Refresh
               </Button>
             </div>
@@ -229,6 +229,9 @@ export default function AdminOrders() {
                   ) : (
                     filteredOrders.map((order) => {
                       const statusConfig = STATUS_CONFIG[order.status || "pending"];
+                      const orderDateLabel = order.created_at
+                        ? format(new Date(order.created_at), "MMM d, yyyy HH:mm")
+                        : "—";
                       return (
                         <TableRow key={order.id} className="text-sm">
                           <TableCell className="font-mono text-xs text-muted-foreground">
@@ -261,15 +264,13 @@ export default function AdminOrders() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">
-                            {order.created_at
-                              ? format(new Date(order.created_at), "MMM d, yyyy HH:mm")
-                              : "—"}
+                            {orderDateLabel}
                           </TableCell>
                           <TableCell className="text-right">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreHorizontal className="h-4 w-4" />
+                                <Button variant="ghost" size="icon" className="size-8">
+                                  <MoreHorizontal className="size-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
@@ -277,14 +278,14 @@ export default function AdminOrders() {
                                   onClick={() => handleStatusChange(order.id, "completed")}
                                   disabled={order.status === "completed"}
                                 >
-                                  <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
+                                  <CheckCircle className="mr-2 size-4 text-green-600" />
                                   Mark Completed
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => handleStatusChange(order.id, "processing")}
                                   disabled={order.status === "processing"}
                                 >
-                                  <RefreshCw className="mr-2 h-4 w-4 text-blue-600" />
+                                  <RefreshCw className="mr-2 size-4 text-blue-600" />
                                   Mark Processing
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
@@ -292,14 +293,14 @@ export default function AdminOrders() {
                                   disabled={order.status === "cancelled"}
                                   className="text-destructive focus:text-destructive"
                                 >
-                                  <XCircle className="mr-2 h-4 w-4" />
+                                  <XCircle className="mr-2 size-4" />
                                   Mark Cancelled
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => handleStatusChange(order.id, "refunded")}
                                   disabled={order.status === "refunded"}
                                 >
-                                  <RefreshCw className="mr-2 h-4 w-4" />
+                                  <RefreshCw className="mr-2 size-4" />
                                   Mark Refunded
                                 </DropdownMenuItem>
                               </DropdownMenuContent>

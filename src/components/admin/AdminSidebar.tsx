@@ -36,6 +36,7 @@ const navItems: NavItem[] = [
 
 export function AdminSidebar() {
   const location = useLocation();
+  const { pathname } = location;
   const [searchParams] = useSearchParams();
   const { signOut } = useAuth();
   const [categories, setCategories] = useState<string[]>([]);
@@ -49,7 +50,9 @@ export function AdminSidebar() {
         .not("category", "is", null);
 
       if (data) {
-        const uniqueCategories = [...new Set(data.map((d) => d.category).filter(Boolean))] as string[];
+        const uniqueCategories = [
+          ...new Set(data.flatMap((d) => (d.category ? [d.category] : []))),
+        ];
         setCategories(uniqueCategories.sort());
       }
     }
@@ -58,10 +61,10 @@ export function AdminSidebar() {
 
   // Auto-expand if on services page
   useEffect(() => {
-    if (location.pathname === "/admin/services") {
+    if (pathname === "/admin/services") {
       setServicesExpanded(true);
     }
-  }, [location.pathname]);
+  }, [pathname]);
 
   const currentCategory = searchParams.get("category");
 
@@ -77,8 +80,8 @@ export function AdminSidebar() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
-              location.pathname === item.href ||
-              (item.href !== "/admin" && location.pathname.startsWith(item.href));
+              pathname === item.href ||
+              (item.href !== "/admin" && pathname.startsWith(item.href));
 
             if (item.hasSubmenu) {
               return (
@@ -93,13 +96,13 @@ export function AdminSidebar() {
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <Icon className="h-4 w-4" />
+                      <Icon className="size-4" />
                       {item.label}
                     </div>
                     {servicesExpanded ? (
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className="size-4" />
                     ) : (
-                      <ChevronRight className="h-4 w-4" />
+                      <ChevronRight className="size-4" />
                     )}
                   </button>
                   {servicesExpanded && (
@@ -108,7 +111,7 @@ export function AdminSidebar() {
                         to="/admin/services"
                         className={cn(
                           "block rounded-lg px-3 py-1.5 text-sm transition-colors",
-                          location.pathname === "/admin/services" && !currentCategory
+                          pathname === "/admin/services" && !currentCategory
                             ? "bg-secondary-foreground/15 font-medium text-secondary-foreground"
                             : "text-secondary-foreground/75 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
                         )}
@@ -146,7 +149,7 @@ export function AdminSidebar() {
                     : "text-secondary-foreground/85 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="size-4" />
                 {item.label}
               </Link>
             );
@@ -160,7 +163,7 @@ export function AdminSidebar() {
             asChild
           >
             <Link to="/member">
-              <ChevronLeft className="mr-2 h-4 w-4" />
+              <ChevronLeft className="mr-2 size-4" />
               Member Portal
             </Link>
           </Button>
@@ -169,7 +172,7 @@ export function AdminSidebar() {
             className="w-full justify-start text-secondary-foreground/85 hover:bg-secondary-foreground/10 hover:text-destructive"
             onClick={signOut}
           >
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="mr-2 size-4" />
             Sign Out
           </Button>
         </div>

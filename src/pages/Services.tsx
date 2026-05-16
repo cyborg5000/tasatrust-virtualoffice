@@ -52,17 +52,17 @@ const coreServices = [
   },
 ];
 
+const categoryBySlug: Record<string, string> = {
+  "virtual-office": "Virtual Office",
+  accounting: "Accounting & Bookkeeping",
+  tax: "Taxation Services",
+  "corp-sec": "Corporate Services",
+  payroll: "Payroll Services",
+};
+
 export default function Services() {
   const [searchParams] = useSearchParams();
   const requestedCategory = (searchParams.get("cat") || "").toLowerCase();
-
-  const categoryBySlug: Record<string, string> = {
-    "virtual-office": "Virtual Office",
-    accounting: "Accounting & Bookkeeping",
-    tax: "Taxation Services",
-    "corp-sec": "Corporate Services",
-    payroll: "Payroll Services",
-  };
 
   const filteredServices = useMemo(() => {
     if (!requestedCategory) return coreServices;
@@ -76,7 +76,7 @@ export default function Services() {
       {/* Hero Section */}
       <section className="bg-secondary py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-secondary-foreground md:text-5xl">
+          <h1 className="mb-4 text-4xl font-semibold text-secondary-foreground md:text-5xl">
             Our <span className="text-primary">Services</span>
           </h1>
           <p className="mx-auto max-w-2xl text-muted-foreground">
@@ -94,7 +94,7 @@ export default function Services() {
               <div key={category.category}>
                 <div className="mb-6 flex items-center gap-3">
                   <span className="text-3xl">{category.icon}</span>
-                  <h2 className="text-2xl font-bold text-foreground">
+                  <h2 className="text-2xl font-semibold text-foreground">
                     {category.category}
                   </h2>
                 </div>
@@ -129,12 +129,12 @@ export default function Services() {
       <section className="bg-secondary py-16">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-4 text-3xl font-bold text-secondary-foreground">
+            <h2 className="mb-4 text-3xl font-semibold text-secondary-foreground">
               All-in-1 Service Packages
             </h2>
             <p className="mb-6 text-muted-foreground">
               Get comprehensive coverage with our bundled packages. 
-              Corporate Secretary, Bookkeeping, Taxation, XBRL, and more — all included.
+              Corporate Secretary, Bookkeeping, Taxation, XBRL, and more, all included.
             </p>
             <ul className="mb-8 inline-flex flex-wrap justify-center gap-4 text-sm">
               {[
@@ -146,7 +146,7 @@ export default function Services() {
                 "GST Submission",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-2 text-primary">
-                  <CheckCircle className="h-4 w-4" />
+                  <CheckCircle className="size-4" />
                   {item}
                 </li>
               ))}
@@ -158,7 +158,7 @@ export default function Services() {
             <Button size="lg" asChild className="gap-2">
               <Link to="/contact">
                 Contact Us for Pricing
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="size-4" />
               </Link>
             </Button>
           </div>
@@ -168,7 +168,7 @@ export default function Services() {
       {/* CTA Section */}
       <section className="py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-2xl font-bold text-foreground">
+          <h2 className="mb-4 text-2xl font-semibold text-foreground">
             Not Sure What You Need?
           </h2>
           <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
@@ -179,7 +179,7 @@ export default function Services() {
             <Button size="lg" asChild className="gap-2">
               <Link to="/contact">
                 Schedule a Consultation
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="size-4" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>

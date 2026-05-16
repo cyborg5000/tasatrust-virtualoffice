@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 export default function ResetPassword() {
   const location = useLocation();
+  const { hash, search } = location;
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,8 +19,8 @@ export default function ResetPassword() {
   const [ready, setReady] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const hashParams = useMemo(() => new URLSearchParams((location.hash || "").replace(/^#/, "")), [location.hash]);
-  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const hashParams = useMemo(() => new URLSearchParams((hash || "").replace(/^#/, "")), [hash]);
+  const queryParams = useMemo(() => new URLSearchParams(search), [search]);
 
   const accessToken = hashParams.get("access_token");
   const refreshToken = hashParams.get("refresh_token");
@@ -142,7 +143,7 @@ export default function ResetPassword() {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading || !ready}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
                   Update password
                 </Button>
               </form>
