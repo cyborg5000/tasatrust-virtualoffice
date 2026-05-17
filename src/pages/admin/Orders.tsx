@@ -28,7 +28,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Search, MoreHorizontal, CheckCircle, XCircle, Clock, RefreshCw, Receipt } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -230,8 +230,8 @@ export default function AdminOrders() {
                     filteredOrders.map((order) => {
                       const statusConfig = STATUS_CONFIG[order.status || "pending"];
                       const orderDateLabel = order.created_at
-                        ? format(new Date(order.created_at), "MMM d, yyyy HH:mm")
-                        : "—";
+                        ? format(parseISO(order.created_at), "MMM d, yyyy HH:mm")
+                        : "Not set";
                       return (
                         <TableRow key={order.id} className="text-sm">
                           <TableCell className="font-mono text-xs text-muted-foreground">
@@ -243,12 +243,12 @@ export default function AdminOrders() {
                                 {order.member?.company_name || "Unknown"}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {order.member?.email || "—"}
+                                {order.member?.email || "Not set"}
                               </p>
                             </div>
                           </TableCell>
                           <TableCell className="text-sm">
-                            {order.service?.name || "—"}
+                            {order.service?.name || "Not set"}
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="text-xs capitalize">

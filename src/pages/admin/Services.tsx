@@ -230,7 +230,7 @@ export default function AdminServices() {
         if (serviceError) throw serviceError;
 
         // Upsert pricing for each tier
-        for (const p of data.pricing) {
+        await Promise.all(data.pricing.map(async (p) => {
           const { error: pricingError } = await supabase
             .from("service_pricing")
             .upsert(
@@ -256,7 +256,7 @@ export default function AdminServices() {
               recurring_interval: p.recurring_interval,
             });
           }
-        }
+        }));
 
         toast({ title: "Success", description: "Service updated successfully" });
       }
@@ -394,7 +394,7 @@ export default function AdminServices() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-semibold text-foreground">
               {categoryFilter ? `${categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)} Services` : "Service Management"}
             </h1>
             <p className="text-muted-foreground">
@@ -402,7 +402,7 @@ export default function AdminServices() {
             </p>
           </div>
           <Button onClick={handleCreate}>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="mr-2 size-4" />
             Add Service
           </Button>
         </div>
@@ -411,7 +411,7 @@ export default function AdminServices() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
+              <Package className="size-5" />
               Services ({services.length})
             </CardTitle>
           </CardHeader>
@@ -451,7 +451,7 @@ export default function AdminServices() {
                         {service.category ? (
                           <Badge variant="outline">{service.category}</Badge>
                         ) : (
-                          <span className="text-muted-foreground">—</span>
+                          <span className="text-muted-foreground">None</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -474,19 +474,19 @@ export default function AdminServices() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
+                              <MoreHorizontal className="size-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleEdit(service)}>
-                              <Pencil className="mr-2 h-4 w-4" />
+                              <Pencil className="mr-2 size-4" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleDelete(service)}
                               className="text-destructive focus:text-destructive"
                             >
-                              <Trash2 className="mr-2 h-4 w-4" />
+                              <Trash2 className="mr-2 size-4" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -504,7 +504,7 @@ export default function AdminServices() {
           <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
+                <Building2 className="size-5" />
                 Bookable Rooms
                 <Badge variant="secondary" className="ml-1">
                   {activeRoomCount} active
@@ -515,7 +515,7 @@ export default function AdminServices() {
               </p>
             </div>
             <Button onClick={handleCreateRoom} className="w-fit">
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="mr-2 size-4" />
               Add Room
             </Button>
           </CardHeader>
@@ -551,7 +551,7 @@ export default function AdminServices() {
                         <Skeleton className="h-6 w-12" />
                       </TableCell>
                       <TableCell className="text-right">
-                        <Skeleton className="ml-auto h-8 w-8" />
+                        <Skeleton className="ml-auto size-8" />
                       </TableCell>
                     </TableRow>
                   ))
@@ -566,8 +566,8 @@ export default function AdminServices() {
                     <TableRow key={room.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-                            <DoorOpen className="h-4 w-4" />
+                          <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                            <DoorOpen className="size-4" />
                           </div>
                           <div>
                             <p className="font-medium">{room.name}</p>
@@ -581,18 +581,18 @@ export default function AdminServices() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2 text-sm">
-                          <Users className="h-4 w-4 text-muted-foreground" />
+                          <Users className="size-4 text-muted-foreground" />
                           Up to {room.capacity ?? 1}
                         </div>
                       </TableCell>
                       <TableCell>
                         {room.location ? (
                           <div className="flex items-center gap-2 text-sm">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <MapPin className="size-4 text-muted-foreground" />
                             {room.location}
                           </div>
                         ) : (
-                          <span className="text-muted-foreground">—</span>
+                          <span className="text-muted-foreground">Not set</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -610,12 +610,12 @@ export default function AdminServices() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
+                              <MoreHorizontal className="size-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleEditRoom(room)}>
-                              <Pencil className="mr-2 h-4 w-4" />
+                              <Pencil className="mr-2 size-4" />
                               Edit Room
                             </DropdownMenuItem>
                           </DropdownMenuContent>

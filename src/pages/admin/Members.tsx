@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { getSubscriptionTierLabel, type SubscriptionTier } from "@/lib/subscriptionPlans";
 import { getMemberReviewSignals, isMemberReviewCandidate } from "@/lib/signupAbuse";
 import { AlertTriangle, Search, Eye, Users, Filter } from "lucide-react";
@@ -248,19 +248,19 @@ export default function AdminMembers() {
         {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Member Management</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Member Management</h1>
             <p className="text-muted-foreground">
               View and manage all registered members
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="w-fit text-sm">
-              <Users className="mr-1 h-3 w-3" />
+              <Users className="mr-1 size-3" />
               {members.length} total members
             </Badge>
             {reviewCandidateCount > 0 && (
               <Badge variant="outline" className="w-fit border-amber-300 bg-amber-50 text-sm text-amber-800">
-                <AlertTriangle className="mr-1 h-3 w-3" />
+                <AlertTriangle className="mr-1 size-3" />
                 {reviewCandidateCount} need review
               </Badge>
             )}
@@ -269,7 +269,7 @@ export default function AdminMembers() {
 
         {reviewCandidateCount > 0 && (
           <Alert className="border-amber-200 bg-amber-50 text-amber-900">
-            <AlertTriangle className="h-4 w-4" />
+            <AlertTriangle className="size-4" />
             <AlertDescription>
               Some no-subscription signups match the April bot-signup pattern. Review them before deleting; paid,
               assigned, and order-bearing members are excluded from this count.
@@ -281,7 +281,7 @@ export default function AdminMembers() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <Filter className="h-4 w-4" />
+              <Filter className="size-4" />
               Filters
             </CardTitle>
           </CardHeader>
@@ -289,7 +289,7 @@ export default function AdminMembers() {
             <div className="flex flex-col gap-4 md:flex-row">
               {/* Search */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search by company, email, or contact..."
                   value={searchQuery}
@@ -384,7 +384,7 @@ export default function AdminMembers() {
                             {getSubscriptionTierLabel(member.subscription.tier as SubscriptionTier)}
                           </Badge>
                         ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
+                          <span className="text-xs text-muted-foreground">No subscription</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -399,8 +399,8 @@ export default function AdminMembers() {
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {member.created_at
-                          ? format(new Date(member.created_at), "MMM d, yyyy")
-                          : "—"}
+                          ? format(parseISO(member.created_at), "MMM d, yyyy")
+                          : "Not set"}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
@@ -408,7 +408,7 @@ export default function AdminMembers() {
                           size="sm"
                           onClick={() => handleViewDetails(member)}
                         >
-                          <Eye className="mr-1 h-4 w-4" />
+                          <Eye className="mr-1 size-4" />
                           View
                         </Button>
                       </TableCell>
