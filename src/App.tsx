@@ -44,6 +44,7 @@ import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { AdminMemberViewProvider } from "@/hooks/useAdminMemberView";
 import { AdminMemberViewSwitcher } from "@/components/admin/AdminMemberViewSwitcher";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
           <AdminMemberViewProvider>
             <SeoManager />
             <ScrollToTop />
+            <AnalyticsTracker />
             <AdminMemberViewSwitcher />
             <Routes>
           {/* Public Routes */}
