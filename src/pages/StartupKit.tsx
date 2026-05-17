@@ -134,7 +134,7 @@ export default function StartupKit() {
                   </div>
                   <CardTitle className="text-xl text-secondary">{pillar.hubLabel}</CardTitle>
                 </CardHeader>
-                <CardContent className="flex h-full flex-col justify-between gap-4">
+                <CardContent className="space-y-3">
                   <CardDescription className="text-base text-muted-foreground">
                     {pillar.hubBlurb}
                   </CardDescription>
