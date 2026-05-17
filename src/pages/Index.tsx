@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { BlogPreviewSection } from "@/components/blog/BlogPreviewSection";
@@ -5,9 +6,33 @@ import { Button } from "@/components/ui/button";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { MapPin, Mail, Phone, Building, CheckCircle2, ArrowRight, Shield, Clock3, Globe2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import heroOffice from "@/assets/hero-office.jpg";
 import workspaceProfessional from "@/assets/workspace-professional.jpg";
 import businessHandshake from "@/assets/business-handshake.jpg";
+
+const faqs = [
+  {
+    q: "How do I set up a virtual office in Singapore?",
+    a: "Pick a plan, sign up online, and complete a short KYC. Once verified (usually within 24 hours), you receive a Singapore registered business address you can use for ACRA company registration, on invoices, and on your website.",
+  },
+  {
+    q: "How much does a virtual office in Singapore cost?",
+    a: "TASA Trust virtual office plans start from a low monthly fee that includes a registered business address, mail handling, and call support. Annual plans include a 12% discount — see the pricing section below for current rates.",
+  },
+  {
+    q: "Is a virtual office address accepted by ACRA for company registration?",
+    a: "Yes. Our Singapore address meets ACRA's registered office requirements and can be used to incorporate a Pte Ltd, register a sole proprietorship, or update an existing company's registered address.",
+  },
+  {
+    q: "Why do I need a virtual office in Singapore?",
+    a: "A virtual office gives your business a credible Singapore presence without an expensive lease. You keep your home address private, satisfy ACRA's registered office rule, and get professional mail and call handling — ideal for startups, freelancers, SMEs, and overseas companies entering Singapore.",
+  },
+  {
+    q: "What's included with the virtual office?",
+    a: "Every plan includes a prestigious Singapore business address, mail receipt with scanning and forwarding, professional call answering in your company name, and access to bookable meeting rooms.",
+  },
+];
 
 const virtualOfficeFeatures = [
   {
@@ -51,6 +76,38 @@ const trustHighlights = [
 ];
 
 export default function Index() {
+  useEffect(() => {
+    const scripts: HTMLScriptElement[] = [];
+    const add = (data: Record<string, unknown>) => {
+      const s = document.createElement("script");
+      s.type = "application/ld+json";
+      s.dataset.homeSeo = "true";
+      s.textContent = JSON.stringify(data);
+      document.head.appendChild(s);
+      scripts.push(s);
+    };
+    add({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      serviceType: "Virtual Office",
+      name: "Virtual Office Singapore",
+      areaServed: { "@type": "Country", name: "Singapore" },
+      provider: { "@type": "Organization", name: "TASA Trust Pte. Ltd.", url: "https://www.tasatrust.com" },
+      description:
+        "Singapore virtual office service: ACRA-ready registered business address, mail handling and forwarding, professional call answering, and meeting room access.",
+    });
+    add({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+    return () => scripts.forEach((s) => s.remove());
+  }, []);
+
   return (
     <Layout>
       <section className="relative isolate overflow-hidden py-16 lg:py-28">
@@ -64,7 +121,7 @@ export default function Index() {
                 Singapore's Trusted Virtual Office Provider
               </p>
               <h1 className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl">
-                Your Professional <span className="text-primary">Business Address</span> in Singapore
+                Virtual Office <span className="text-primary">Singapore</span> — Your Professional Business Address
               </h1>
               <p className="mt-6 max-w-2xl text-base text-white/80 md:text-lg">
                 Build a reliable business presence without traditional office overhead. Get a premium address, secure
@@ -211,6 +268,31 @@ export default function Index() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-10 text-center">
+              <h2 className="text-3xl font-bold text-secondary md:text-4xl">
+                Virtual Office Singapore — FAQs
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Common questions about setting up a virtual office and registered business address in Singapore.
+              </p>
+            </div>
+            <Accordion type="single" collapsible className="surface-panel divide-y divide-border/60 px-6">
+              {faqs.map((f, i) => (
+                <AccordionItem key={f.q} value={`faq-${i}`} className="border-0">
+                  <AccordionTrigger className="text-left text-base font-semibold text-secondary">
+                    {f.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">{f.a}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
       </section>
 
