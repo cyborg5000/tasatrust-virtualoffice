@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { BlogPreviewSection } from "@/components/blog/BlogPreviewSection";
@@ -5,9 +6,33 @@ import { Button } from "@/components/ui/button";
 import { PricingSection } from "@/components/pricing/PricingSection";
 import { MapPin, Mail, Phone, Building, CheckCircle2, ArrowRight, Shield, Clock3, Globe2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import heroOffice from "@/assets/hero-office.jpg";
 import workspaceProfessional from "@/assets/workspace-professional.jpg";
 import businessHandshake from "@/assets/business-handshake.jpg";
+
+const faqs = [
+  {
+    q: "How do I set up a virtual office in Singapore?",
+    a: "Pick a plan, sign up online, and complete a short KYC. Once verified (usually within 24 hours), you receive a Singapore registered business address you can use for ACRA company registration, on invoices, and on your website.",
+  },
+  {
+    q: "How much does a virtual office in Singapore cost?",
+    a: "TASA Trust virtual office plans start from a low monthly fee that includes a registered business address, mail handling, and call support. Annual plans include a 12% discount — see the pricing section below for current rates.",
+  },
+  {
+    q: "Is a virtual office address accepted by ACRA for company registration?",
+    a: "Yes. Our Singapore address meets ACRA's registered office requirements and can be used to incorporate a Pte Ltd, register a sole proprietorship, or update an existing company's registered address.",
+  },
+  {
+    q: "Why do I need a virtual office in Singapore?",
+    a: "A virtual office gives your business a credible Singapore presence without an expensive lease. You keep your home address private, satisfy ACRA's registered office rule, and get professional mail and call handling — ideal for startups, freelancers, SMEs, and overseas companies entering Singapore.",
+  },
+  {
+    q: "What's included with the virtual office?",
+    a: "Every plan includes a prestigious Singapore business address, mail receipt with scanning and forwarding, professional call answering in your company name, and access to bookable meeting rooms.",
+  },
+];
 
 const virtualOfficeFeatures = [
   {
