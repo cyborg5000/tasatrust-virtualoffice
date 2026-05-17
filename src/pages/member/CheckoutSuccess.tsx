@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, Loader2, Mail, RefreshCw } from "lucide-reac
 import { useAuth } from "@/hooks/useAuth";
 import { useMemberSubscription } from "@/hooks/useMemberSubscription";
 import { supabase } from "@/integrations/supabase/client";
+import { trackPurchase } from "@/lib/analytics";
 
 export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams();
@@ -19,9 +20,14 @@ export default function CheckoutSuccess() {
   const sessionId = searchParams.get("session_id");
   const attemptsRef = useRef(0);
   const reconcileAttemptedRef = useRef(false);
+  const purchaseTrackedRef = useRef(false);
 
   useEffect(() => {
     if (hasActiveSubscription) {
+      if (!purchaseTrackedRef.current) {
+        purchaseTrackedRef.current = true;
+        trackPurchase({ transactionId: sessionId ?? undefined });
+      }
       navigate("/member", { replace: true });
       return;
     }

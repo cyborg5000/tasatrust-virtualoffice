@@ -14,6 +14,7 @@ import { Mail, Phone, MapPin, Clock, MessageCircle } from "lucide-react";
 import corporateBuilding from "@/assets/corporate-building.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { PageSeo } from "@/components/seo/PageSeo";
+import { trackContactSubmit } from "@/lib/analytics";
 
 const contactSchema = z.object({
   name: z
@@ -115,6 +116,8 @@ export default function Contact() {
       });
 
       if (error) throw error;
+
+      trackContactSubmit(data.inquiryType);
 
       toast({
         title: "Message sent!",

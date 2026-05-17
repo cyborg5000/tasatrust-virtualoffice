@@ -21,6 +21,7 @@ import {
 import { SUBSCRIPTION_PLAN_BY_TIER, type SubscriptionTier } from "@/lib/subscriptionPlans";
 import { ArrowLeft, ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { trackBeginCheckout } from "@/lib/analytics";
 
 type ValidTier = SubscriptionTier;
 
@@ -121,6 +122,12 @@ export default function OnboardingAddons() {
     }
 
     setIsRedirecting(true);
+
+    trackBeginCheckout({
+      tier,
+      billingCycle,
+      addonCount: selectedAddonIds.length,
+    });
 
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {

@@ -15,6 +15,7 @@ import {
   SIGNUP_VERIFICATION_WORD,
   validateSignupGuard,
 } from "@/lib/signupAbuse";
+import { trackSignUp } from "@/lib/analytics";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -56,6 +57,9 @@ export default function Signup() {
       });
 
       if (authError) throw authError;
+
+      trackSignUp("email");
+
 
       if (authData.session) {
         toast.success("Account created. Welcome to your member setup.");
