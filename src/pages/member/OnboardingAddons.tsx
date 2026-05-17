@@ -123,6 +123,12 @@ export default function OnboardingAddons() {
 
     setIsRedirecting(true);
 
+    trackBeginCheckout({
+      tier,
+      billingCycle,
+      addonCount: selectedAddonIds.length,
+    });
+
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: {
