@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, Loader2, Mail, RefreshCw } from "lucide-reac
 import { useAuth } from "@/hooks/useAuth";
 import { useMemberSubscription } from "@/hooks/useMemberSubscription";
 import { supabase } from "@/integrations/supabase/client";
+import { trackPurchase } from "@/lib/analytics";
 
 export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams();
