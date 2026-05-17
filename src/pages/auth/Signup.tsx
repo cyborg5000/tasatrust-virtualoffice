@@ -15,6 +15,7 @@ import {
   SIGNUP_VERIFICATION_WORD,
   validateSignupGuard,
 } from "@/lib/signupAbuse";
+import { trackSignUp } from "@/lib/analytics";
 
 export default function Signup() {
   const navigate = useNavigate();
