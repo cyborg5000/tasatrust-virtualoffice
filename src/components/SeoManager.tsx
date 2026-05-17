@@ -16,14 +16,14 @@ const defaultSeo: SeoConfig = {
 
 const routeSeoMap: Record<string, SeoConfig> = {
   "/": {
-    title: "Singapore Virtual Office & Accounting Services",
+    title: "Virtual Office Singapore — Business Address & Mail Handling",
     description:
-      "Get a professional Singapore virtual office, corporate secretarial support, bookkeeping, tax filing, and payroll services with TASA Trust.",
+      "Set up a virtual office in Singapore: ACRA-ready registered business address, mail scanning and forwarding, call answering, and meeting rooms. Instant setup, no lock-in.",
   },
   "/pricing": {
-    title: "Virtual Office Pricing",
+    title: "Virtual Office Singapore Pricing — Plans from S$/month",
     description:
-      "Compare TASA Trust virtual office pricing plans and find the right package for your Singapore business.",
+      "Compare Singapore virtual office plans: registered business address, mail handling, call answering, and meeting room credits. Monthly or annual, no lock-in.",
   },
   "/contact": {
     title: "Contact TASA Trust",
