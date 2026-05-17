@@ -273,6 +273,31 @@ export default function Index() {
 
       <section className="py-20">
         <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-10 text-center">
+              <h2 className="text-3xl font-bold text-secondary md:text-4xl">
+                Virtual Office Singapore — FAQs
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Common questions about setting up a virtual office and registered business address in Singapore.
+              </p>
+            </div>
+            <Accordion type="single" collapsible className="surface-panel divide-y divide-border/60 px-6">
+              {faqs.map((f, i) => (
+                <AccordionItem key={f.q} value={`faq-${i}`} className="border-0">
+                  <AccordionTrigger className="text-left text-base font-semibold text-secondary">
+                    {f.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">{f.a}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto px-4">
           <div className="mx-auto max-w-5xl rounded-2xl border border-secondary/20 bg-secondary px-6 py-14 text-center text-secondary-foreground shadow-[0_24px_44px_-30px_hsl(var(--secondary)/0.95)] md:px-12">
             <h2 className="text-3xl font-bold md:text-4xl">Ready to Secure Your Singapore Address?</h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm text-white/75 md:text-base">
