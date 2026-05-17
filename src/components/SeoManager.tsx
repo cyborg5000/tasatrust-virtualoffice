@@ -37,6 +37,41 @@ const routeSeoMap: Record<string, SeoConfig> = {
     title: "About TASA Trust",
     description: "Learn how TASA Trust supports Singapore businesses with trusted compliance and accounting solutions.",
   },
+  "/startup-kit": {
+    title: "Startup Kit — Register a Singapore Company End-to-End",
+    description:
+      "Everything a Singapore startup needs: ACRA company registration, corporate secretary, registered office, accounting, tax & GST, plus website and branding. One partner, one kit.",
+  },
+  "/startup-kit/register-company-singapore": {
+    title: "Company Registration Singapore — Incorporate a Pte Ltd",
+    description:
+      "Register a company in Singapore with TASA Trust. ACRA Pte Ltd incorporation, name reservation, constitution, and first-board documents done for you — usually within 24 hours.",
+  },
+  "/startup-kit/foreigner-guide": {
+    title: "How to Register a Company in Singapore as a Foreigner",
+    description:
+      "Foreigner guide to registering a Singapore company: 100% ownership, nominee director, registered address, and ongoing compliance — without an EP or relocating.",
+  },
+  "/startup-kit/corporate-secretary": {
+    title: "Corporate Secretarial Services Singapore",
+    description:
+      "Qualified Singapore corporate secretary service. Annual returns, statutory registers, AGM resolutions, and ACRA filings handled for your Pte Ltd — flat annual fee.",
+  },
+  "/startup-kit/registered-address": {
+    title: "Registered Address Service Singapore — Virtual Office",
+    description:
+      "ACRA-accepted Singapore registered office address with mail receipt, scanning, and forwarding. Use it for company registration, on invoices, and on your website.",
+  },
+  "/startup-kit/accounting-tax": {
+    title: "Accounting, Tax & GST Filing for Singapore Startups",
+    description:
+      "Cloud bookkeeping, un-audited financial statements, XBRL, GST registration and quarterly filing, and corporate tax (Form C-S) for Singapore startups.",
+  },
+  "/startup-kit/website-branding": {
+    title: "Startup Website & Branding — Singapore",
+    description:
+      "Logo, brand kit, and a launch-ready marketing website for Singapore startups. Bundled with your incorporation so you can start selling on day one.",
+  },
   "/privacy": {
     title: "Privacy Policy",
     description: "Read how TASA Trust collects and protects your personal and business information.",

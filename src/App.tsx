@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import Services from "./pages/Services";
+import StartupKit from "./pages/StartupKit";
+import StartupKitSpoke from "./pages/startup-kit/StartupKitSpoke";
 import About from "./pages/About";
 import Privacy from "./pages/legal/Privacy";
 import Terms from "./pages/legal/Terms";
@@ -62,6 +64,8 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
+          <Route path="/startup-kit" element={<StartupKit />} />
+          <Route path="/startup-kit/:slug" element={<StartupKitSpoke />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/cookies" element={<Cookies />} />
