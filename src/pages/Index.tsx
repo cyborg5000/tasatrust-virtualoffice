@@ -76,6 +76,38 @@ const trustHighlights = [
 ];
 
 export default function Index() {
+  useEffect(() => {
+    const scripts: HTMLScriptElement[] = [];
+    const add = (data: Record<string, unknown>) => {
+      const s = document.createElement("script");
+      s.type = "application/ld+json";
+      s.dataset.homeSeo = "true";
+      s.textContent = JSON.stringify(data);
+      document.head.appendChild(s);
+      scripts.push(s);
+    };
+    add({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      serviceType: "Virtual Office",
+      name: "Virtual Office Singapore",
+      areaServed: { "@type": "Country", name: "Singapore" },
+      provider: { "@type": "Organization", name: "TASA Trust Pte. Ltd.", url: "https://www.tasatrust.com" },
+      description:
+        "Singapore virtual office service: ACRA-ready registered business address, mail handling and forwarding, professional call answering, and meeting room access.",
+    });
+    add({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+    return () => scripts.forEach((s) => s.remove());
+  }, []);
+
   return (
     <Layout>
       <section className="relative isolate overflow-hidden py-16 lg:py-28">
@@ -89,7 +121,7 @@ export default function Index() {
                 Singapore's Trusted Virtual Office Provider
               </p>
               <h1 className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl">
-                Your Professional <span className="text-primary">Business Address</span> in Singapore
+                Virtual Office <span className="text-primary">Singapore</span> — Your Professional Business Address
               </h1>
               <p className="mt-6 max-w-2xl text-base text-white/80 md:text-lg">
                 Build a reliable business presence without traditional office overhead. Get a premium address, secure
