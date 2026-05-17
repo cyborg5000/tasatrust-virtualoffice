@@ -58,6 +58,9 @@ export default function Signup() {
 
       if (authError) throw authError;
 
+      trackSignUp("email");
+
+
       if (authData.session) {
         toast.success("Account created. Welcome to your member setup.");
         navigate("/member/onboarding");
