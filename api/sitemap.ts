@@ -49,6 +49,13 @@ const staticRoutes = [
   { path: "/terms", priority: "0.3", changefreq: "yearly" },
   { path: "/cookies", priority: "0.3", changefreq: "yearly" },
   { path: "/blog", priority: "0.9", changefreq: "daily" },
+  { path: "/startup-kit", priority: "0.95", changefreq: "weekly" },
+  { path: "/startup-kit/register-company-singapore", priority: "0.9", changefreq: "weekly" },
+  { path: "/startup-kit/foreigner-guide", priority: "0.85", changefreq: "weekly" },
+  { path: "/startup-kit/corporate-secretary", priority: "0.85", changefreq: "weekly" },
+  { path: "/startup-kit/registered-address", priority: "0.85", changefreq: "weekly" },
+  { path: "/startup-kit/accounting-tax", priority: "0.85", changefreq: "weekly" },
+  { path: "/startup-kit/website-branding", priority: "0.8", changefreq: "weekly" },
 ];
 
 type CmsRequestOptions = {

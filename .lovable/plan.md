@@ -1,73 +1,106 @@
-## Goal
+# Startup Kit — Strategy & Build Plan
 
-Resolve every warning in the latest scan, including the shadcn UI library files we previously left untouched.
+## The opportunity (Semrush, Singapore database)
 
-## Scope
+Founders search the registration topic far more than they search "virtual office". TASA already offers every piece they need next — corporate secretary, address, accounting, website. A "Startup Kit" hub turns that one search into a full-funnel entry point.
 
-### 1. Shadcn UI components — drop React 19 deprecated APIs
+| Search term | Volume/mo | KDI | Intent |
+|---|---|---|---|
+| singapore company incorporation | 3,600 | medium | Ready-to-buy |
+| company registration singapore | 2,900 | 31 (possible) | Ready-to-buy |
+| how to start a business in singapore | 720 | 29 (easy) | Research |
+| how to register a company in singapore | 720 | — | Research |
+| how to register a company in singapore as foreigner | 590 | — | High-value foreigner segment |
+| setting up a company in singapore | 1,000 | — | Research |
+| corporate secretarial services singapore | 1,600 | — | Mid-funnel |
+| best corporate secretarial services singapore | 4,400 | — | Comparison shoppers |
+| web design singapore | 4,400 | 55 (hard) | Adjacent service |
+| website development singapore | 2,400 | — | Adjacent service |
+| startup singapore | 880 | 27 (easy) | Top-funnel |
 
-For each file below, remove `React.forwardRef(...)` wrappers and accept `ref` as a regular prop. Keep `displayName` assignments. Replace `React.useContext(X)` with `use(X)` where flagged.
+Top SERP for "company registration singapore" is dominated by gov sites + Sleek, Wise, SBS, Incorp — beatable with a clear founder-journey hub plus dedicated cluster pages. Most rank with long-form guides, not service pages.
 
-- `src/components/ui/alert.tsx` — also fix `heading-has-content`: `AlertTitle` renders an empty `<h5>` when no children; ensure children are always required (tighten typing) — typical usage already passes children, just need to not allow rendering an empty heading. Add a runtime guard: render nothing if no children.
-- `src/components/ui/alert-dialog.tsx`
-- `src/components/ui/accordion.tsx`
-- `src/components/ui/context-menu.tsx`
-- `src/components/ui/dialog.tsx`
-- `src/components/ui/drawer.tsx`
-- `src/components/ui/dropdown-menu.tsx`
-- `src/components/ui/form.tsx` (also `useContext` → `use` for `FormFieldContext` and `FormItemContext`)
-- `src/components/ui/hover-card.tsx`
-- `src/components/ui/input.tsx`
-- `src/components/ui/input-otp.tsx` (also `useContext(OTPInputContext)` → `use(OTPInputContext)`)
-- `src/components/ui/slider.tsx`
-- `src/components/ui/switch.tsx`
-- `src/components/ui/table.tsx`
-- `src/components/ui/tabs.tsx`
-- `src/components/ui/textarea.tsx`
+## Strategy: hub-and-spoke content cluster
 
-### 2. Tailwind `size-N` shorthand
+Pillar page (the Startup Kit hub) sits at `/startup-kit` and links out to spoke pages. Spokes link back to the hub and across to each other. Google reads the cluster as topical authority on "starting a business in Singapore" and ranks each spoke for its own term.
 
-Collapse matching `w-N h-N` pairs flagged by the scanner in:
+```text
+                    /startup-kit  (pillar)
+       ┌──────────────┬─────┴──────┬──────────────┐
+   Register a       Corporate    Virtual           Marketing &
+   Company          Secretary    Office /          Website
+   /startup-kit/    /startup-kit/ Registered       /startup-kit/
+   register-        corporate-   Address           website-branding
+   company-         secretary    /startup-kit/
+   singapore                     registered-
+                                 address
+                ┌──────────────┴──────────────┐
+            Accounting,                  Foreigner
+            Tax & GST                    Setup Guide
+            /startup-kit/                /startup-kit/
+            accounting-tax               foreigner-guide
+```
 
-- `accordion.tsx` (1), `dialog.tsx` (1), `dropdown-menu.tsx` (4), `context-menu.tsx` (5), `slider.tsx` (1)
+Each spoke targets one primary keyword + 3-5 related/question keywords from the Semrush data above.
 
-### 3. Edge functions — performance
+## Keyword → page mapping
 
-- `supabase/functions/stripe-webhook/index.ts:96` — hoist `new Intl.NumberFormat(...)` at line 96 to module scope (cache by currency, same pattern as the other formatter already cached). Convert the `await` inside the `for…of` at line 652 to `Promise.all(items.map(...))` only if the iterations are independent; otherwise add a comment justifying the sequential ordering and keep as-is.
-- `supabase/functions/reconcile-checkout-session/index.ts:32` — collapse `.map().filter()` into a single `reduce`/`for…of`. Line 427 sequential `await`: parallelize with `Promise.all` only if independent; otherwise leave with explanatory comment.
+| Page | Primary keyword | Supporting question keywords |
+|---|---|---|
+| /startup-kit (pillar) | start a business in singapore | how to start a business in singapore (720); startup singapore (880); how to register a startup in singapore |
+| /startup-kit/register-company-singapore | company registration singapore (2,900) | how to register a company in singapore (720); how to incorporate a company in singapore (140); how long / how much to register |
+| /startup-kit/foreigner-guide | how to register a company in singapore as foreigner (590) | can foreigner register company in singapore (390); can foreigner incorporate singapore company without ep |
+| /startup-kit/corporate-secretary | corporate secretarial services singapore (1,600) | is a corporate secretary compulsory in singapore; do i need a corporate secretary singapore; best corporate secretarial services singapore (4,400) |
+| /startup-kit/registered-address | registered address service singapore (720) | virtual office singapore (1,300); already covered on home — internal link only |
+| /startup-kit/accounting-tax | corporate tax filing singapore (research separately) | gst registration singapore; bookkeeping singapore |
+| /startup-kit/website-branding | website development company singapore (1,600) | startup website singapore; branding for startups |
 
-### 4. CartModal sequential awaits
+Skip going head-to-head on "web design singapore" (KDI 55, agency-dominated). Frame website/branding as a bundled deliverable inside the Startup Kit, not a standalone agency play.
 
-- `src/components/services/CartModal.tsx:58` — review the `for…of await` loop. If items are independent, switch to `Promise.all(items.map(...))`. If ordering or fail-fast semantics matter, keep sequential and add a brief comment noting why.
+## Nav placement
 
-## Technical notes
+New top-level nav item **"Startup Kit"** between Services and Pricing, with a mega-menu listing the six pillars + a "Full Startup Kit (bundled)" CTA. Mobile = expandable group.
 
-- React 19 `forwardRef` removal pattern:
-  ```tsx
-  // Before
-  const X = React.forwardRef<ElRef, Props>(({ className, ...props }, ref) => (
-    <Primitive ref={ref} className={cn(..., className)} {...props} />
-  ));
-  X.displayName = "X";
+## Page anatomy (pillar)
 
-  // After
-  const X = ({ className, ref, ...props }: Props & { ref?: React.Ref<ElRef> }) => (
-    <Primitive ref={ref} className={cn(..., className)} {...props} />
-  );
-  X.displayName = "X";
-  ```
-  Use `React.ComponentRef<typeof Primitive>` (replacement for deprecated `ElementRef`) for the ref element type, and keep `React.ComponentPropsWithoutRef<typeof Primitive>` for props.
+1. Hero — "Everything a Singapore startup needs, in one kit." Two CTAs: *Get the Startup Kit* (bundled offer) / *Talk to us*.
+2. The 6-step founder journey (Register → Address → Secretary → Accounting → Website → Marketing) with one card per pillar linking to its spoke page.
+3. Bundled-package pricing teaser (links to /pricing with a `?bundle=startup` anchor).
+4. "Foreigner setting up in Singapore?" callout linking to the foreigner spoke.
+5. FAQ block (10 questions pulled from the Semrush question keywords above).
+6. Final CTA + lead-capture form (name, email, stage: idea / registering / already registered).
 
-- For `alert.tsx` `heading-has-content`: change `AlertTitle` so it returns `null` when `children` is empty/undefined — this satisfies the rule without changing valid usage.
+## Spoke page anatomy (each)
 
-- For `form.tsx`, `import { use } from "react"` and replace both `React.useContext(...)` calls.
+H1 = exact target keyword. Intro answers the question in 50 words. Step-by-step body. "How TASA does this for you" service block. Cross-links to 2-3 sibling spokes. FAQ accordion. CTA.
 
-## Out of scope
+## Schema & technical SEO
 
-- No behavior changes — purely refactors. No visual changes expected.
-- Not refactoring sequential `await` loops where ordering or rollback semantics are intentional; those will be annotated instead.
+- Pillar: `Service` + `BreadcrumbList` + `FAQPage` JSON-LD.
+- Spokes: `Article` or `HowTo` + `FAQPage` + `BreadcrumbList`.
+- Update `SeoManager` route map for every new path.
+- Add the new routes to `public/sitemap-static.xml` (or generator).
+- Add the pillar + spokes to `public/llms.txt` under a new `## Startup Kit` section.
+- Internal links: home hero adds a secondary CTA "Starting a company? See the Startup Kit". Pricing page adds a "Bundle for new startups" panel. Services page adds a top banner.
 
-## Verification
+## Build phases
 
-- TypeScript build must stay green (the harness runs it automatically).
-- Manually re-check `/member/services` (cart modal), pricing dialogs, and any admin form/dialog to confirm no runtime regressions.
+**Phase 1 — Ship the hub (this PR)**
+- Add `/startup-kit` route + nav item (desktop dropdown + mobile group).
+- Build pillar page with all 6 pillar cards (cards link to anchor sections until spokes exist).
+- Stub the 6 spoke routes returning a "Coming soon" page with the right SEO meta + canonical so we don't ship broken links.
+- Update `SeoManager`, sitemap, llms.txt, schema.
+
+**Phase 2 — Spoke content (follow-up PRs, one per spoke)**
+Order by traffic ROI: register-company → foreigner-guide → corporate-secretary → accounting-tax → registered-address → website-branding.
+
+**Phase 3 — Bundled offer**
+- Pricing page gets a "Startup Kit Bundle" tier (registered address + corp sec + bookkeeping + website credit). Stripe product separate from the existing tiers so we can measure attribution.
+
+## What I'd like to confirm before building Phase 1
+
+1. Nav label: **Startup Kit** as proposed, or do you prefer "For Startups" / "New Business"?
+2. Is there an existing bundled price you want surfaced, or should the pillar's pricing teaser just say "From $X/month — talk to us"?
+3. Foreigner-incorporation: do you currently service this end-to-end (nominee director etc.)? Affects how aggressively we target the 590/mo "as foreigner" keyword.
+
+Reply with answers (or "go ahead, use sensible defaults") and I'll ship Phase 1.
