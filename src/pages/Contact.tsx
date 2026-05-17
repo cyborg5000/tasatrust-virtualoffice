@@ -117,6 +117,8 @@ export default function Contact() {
 
       if (error) throw error;
 
+      trackContactSubmit(data.inquiryType);
+
       toast({
         title: "Message sent!",
         description: "Thank you for reaching out. We'll get back to you within 24 hours.",
