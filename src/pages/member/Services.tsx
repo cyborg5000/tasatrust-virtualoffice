@@ -14,6 +14,7 @@ import { useAdminMemberView } from "@/hooks/useAdminMemberView";
 import { Search, ShoppingCart, SlidersHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
+import { trackAddToCart } from "@/lib/analytics";
 
 type SubscriptionTier = Database["public"]["Enums"]["subscription_tier"];
 
