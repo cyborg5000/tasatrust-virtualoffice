@@ -20,9 +20,14 @@ export default function CheckoutSuccess() {
   const sessionId = searchParams.get("session_id");
   const attemptsRef = useRef(0);
   const reconcileAttemptedRef = useRef(false);
+  const purchaseTrackedRef = useRef(false);
 
   useEffect(() => {
     if (hasActiveSubscription) {
+      if (!purchaseTrackedRef.current) {
+        purchaseTrackedRef.current = true;
+        trackPurchase({ transactionId: sessionId ?? undefined });
+      }
       navigate("/member", { replace: true });
       return;
     }
