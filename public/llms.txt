@@ -15,6 +15,16 @@ TASA Trust helps companies establish and operate in Singapore with a professiona
 - [Help](/help): Help center and support resources.
 - [Blog](/blog): Articles on virtual offices, compliance, and operating in Singapore.
 
+## Startup Kit
+
+- [Startup Kit](/startup-kit): Bundled hub for founders — register a Singapore company, appoint a corporate secretary, secure a registered address, stay tax-compliant, and launch a website.
+- [Register a Company in Singapore](/startup-kit/register-company-singapore): ACRA Pte Ltd incorporation guide and service.
+- [Foreigner Setup Guide](/startup-kit/foreigner-guide): How non-residents can fully own and incorporate a Singapore company.
+- [Corporate Secretary](/startup-kit/corporate-secretary): Mandatory corporate secretarial service for Singapore Pte Ltds.
+- [Registered Address](/startup-kit/registered-address): ACRA-accepted Singapore registered office address with mail handling.
+- [Accounting, Tax & GST](/startup-kit/accounting-tax): Bookkeeping, GST, and corporate tax filing for startups.
+- [Website & Branding](/startup-kit/website-branding): Launch-ready website and brand kit bundled with incorporation.
+
 ## Optional
 
 - [Privacy Policy](/privacy): How TASA Trust collects and protects information.

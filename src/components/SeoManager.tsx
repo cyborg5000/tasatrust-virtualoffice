@@ -244,12 +244,16 @@ const pickRouteSeo = (pathname: string): SeoConfig => {
     return matchedSeo || routeSeoMap["/blog"];
   }
 
+  if (normalized.startsWith("/startup-kit")) {
+    return matchedSeo || routeSeoMap["/startup-kit"];
+  }
+
   if (
     !matchedSeo &&
     noIndexPrefixes.every((prefix) => normalized !== prefix && !normalized.startsWith(`${prefix}/`))
   ) {
     const isKnownPublicRoute =
-      ["/", "/pricing", "/contact", "/services", "/about", "/privacy", "/terms", "/cookies", "/faq", "/help", "/blog"].includes(
+      ["/", "/pricing", "/contact", "/services", "/about", "/privacy", "/terms", "/cookies", "/faq", "/help", "/blog", "/startup-kit"].includes(
         normalized,
       );
     if (!isKnownPublicRoute) {
