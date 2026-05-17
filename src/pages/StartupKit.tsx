@@ -142,7 +142,7 @@ export default function StartupKit() {
                     to={pillar.path}
                     className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-colors group-hover:gap-2"
                   >
-                    Learn more
+                    {pillar.navLabel}
                     <ArrowRight className="size-4" />
                   </Link>
                 </CardContent>
