@@ -221,6 +221,8 @@ export default function MemberServices() {
       },
     ]);
 
+    trackAddToCart({ id: service.id, name: service.name, price, priceType });
+
     toast({
       title: "Added to cart",
       description: `${service.name} has been added to your cart.`,
