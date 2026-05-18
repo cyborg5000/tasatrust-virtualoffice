@@ -45,7 +45,7 @@ export function createEmptyTierPricing(): Record<SubscriptionTier, TierPricing> 
 }
 
 export function formatCurrency(value: number) {
-  return `$${value.toFixed(2)}`;
+  return `S$${value.toFixed(2)}`;
 }
 
 export function normalizeInterval(interval?: string | null) {

@@ -57,7 +57,7 @@ export const TASA_TRUST_INVOICE_ISSUER = {
 const PLAN_AMOUNT_TOLERANCE = 0.05;
 
 export function formatCurrency(value: number) {
-  return `$${Number(value || 0).toFixed(2)}`;
+  return `S$${Number(value || 0).toFixed(2)}`;
 }
 
 export function getInvoiceNumber(orderId: string) {

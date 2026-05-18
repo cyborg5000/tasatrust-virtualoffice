@@ -156,7 +156,7 @@ serve(async (req) => {
     {
       quantity: 1,
       price_data: {
-        currency: "usd",
+        currency: "sgd",
         unit_amount: Math.round(basePlanAmount * 100),
         recurring: { interval: basePlanInterval },
         product_data: {
@@ -213,7 +213,7 @@ serve(async (req) => {
         lineItems.push({
           quantity: 1,
           price_data: {
-            currency: "usd",
+            currency: "sgd",
             unit_amount: Math.round(oneTimePrice * 100),
             product_data: {
               name: `Addon: ${service.name}`,
@@ -232,7 +232,7 @@ serve(async (req) => {
         lineItems.push({
           quantity: 1,
           price_data: {
-            currency: "usd",
+            currency: "sgd",
             unit_amount: Math.round(recurringUnitAmount),
             recurring: {
               interval: (

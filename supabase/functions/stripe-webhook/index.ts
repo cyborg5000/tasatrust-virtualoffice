@@ -90,7 +90,7 @@ function toAnnualAmount(price: number, interval?: string | null) {
 
 const currencyFormatters = new Map<string, Intl.NumberFormat>();
 function getCurrencyFormatter(currency: string) {
-  const key = (currency || "USD").toUpperCase();
+  const key = (currency || "SGD").toUpperCase();
   let fmt = currencyFormatters.get(key);
   if (!fmt) {
     fmt = new Intl.NumberFormat("en-US", { style: "currency", currency: key });
@@ -439,7 +439,7 @@ async function notifySubscriptionEvent({
   const adminEmails = getAdminNotificationEmails();
   const planAmount = formatCurrencyFromCents(
     eventType === "checkout.session.completed" ? summary.amountChargedCents : null,
-    currency || summary.currency || "USD",
+    currency || summary.currency || "SGD",
   );
 
   const userSubject =
@@ -473,7 +473,7 @@ async function notifySubscriptionEvent({
                   ? (summary.billingCycle || billingCycle || "monthly")
                   : "monthly",
                 amount: planAmount,
-                currency: (currency || summary.currency || "USD").toUpperCase(),
+                currency: (currency || summary.currency || "SGD").toUpperCase(),
                 startDate: startDate,
                 endDate: endDate,
                 dashboardUrl,
@@ -509,7 +509,7 @@ async function notifySubscriptionEvent({
                 ? (summary.billingCycle || billingCycle || "monthly")
                 : billingCycle || "monthly",
               amount: planAmount,
-              currency: (currency || summary.currency || "USD").toUpperCase(),
+              currency: (currency || summary.currency || "SGD").toUpperCase(),
               subscriptionId: summary.subscriptionId || "N/A",
               customerEmail: summary.member?.email || emailToMember || sourceCustomerEmail || "Unavailable",
               startDate: startDate,
@@ -627,7 +627,7 @@ async function handleCheckoutCompleted(
       currentPeriodEnd,
       cancelAtPeriodEnd,
       amountChargedCents: session.amount_total ?? null,
-      currency: session.currency || "usd",
+      currency: session.currency || "sgd",
       customerEmail: sourceCustomerEmail,
     };
   }
@@ -689,7 +689,7 @@ async function handleCheckoutCompleted(
     currentPeriodEnd,
     cancelAtPeriodEnd,
     amountChargedCents: session.amount_total ?? null,
-    currency: session.currency || "usd",
+    currency: session.currency || "sgd",
     customerEmail: sourceCustomerEmail,
   };
 }
@@ -743,7 +743,7 @@ async function handleSubscriptionUpdated(
     previousStatus: mappedPreviousStatus,
     eventType,
     billingCycle: "monthly",
-    currency: "USD",
+    currency: "SGD",
   };
 }
 

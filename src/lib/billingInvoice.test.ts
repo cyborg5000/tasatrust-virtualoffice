@@ -38,7 +38,7 @@ describe("billing invoice helpers", () => {
     const cycle = inferSubscriptionBillingCycle(annualSubscription, [annualOrder]);
 
     expect(cycle).toBe("annual");
-    expect(getCurrentPlanRateText(annualSubscription, cycle)).toBe("$203.88/year");
+    expect(getCurrentPlanRateText(annualSubscription, cycle)).toBe("S$203.88/year");
   });
 
   it("builds annual invoice line items without a per-month suffix", () => {
@@ -56,7 +56,7 @@ describe("billing invoice helpers", () => {
 
     expect(invoice.invoiceNumber).toBe("INV-12345678");
     expect(invoice.lineItems[0].periodLabel).toBe("Annual billing");
-    expect(invoice.lineItems[0].amountLabel).toBe("$203.88/year");
+    expect(invoice.lineItems[0].amountLabel).toBe("S$203.88/year");
     expect(invoice.lineItems[0].amountLabel).not.toContain("/month");
   });
 
