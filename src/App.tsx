@@ -10,6 +10,10 @@ import Contact from "./pages/Contact";
 import Services from "./pages/Services";
 import StartupKit from "./pages/StartupKit";
 import StartupKitSpoke from "./pages/startup-kit/StartupKitSpoke";
+import Tools from "./pages/Tools";
+import IncomeTaxCalculator from "./pages/tools/IncomeTaxCalculator";
+import GstCalculator from "./pages/tools/GstCalculator";
+import SsicLookup from "./pages/tools/SsicLookup";
 import About from "./pages/About";
 import Privacy from "./pages/legal/Privacy";
 import Terms from "./pages/legal/Terms";
@@ -68,6 +72,10 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/startup-kit" element={<StartupKit />} />
           <Route path="/startup-kit/:slug" element={<StartupKitSpoke />} />
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/tools/income-tax-calculator" element={<IncomeTaxCalculator />} />
+          <Route path="/tools/gst-calculator" element={<GstCalculator />} />
+          <Route path="/tools/ssic-code-lookup" element={<SsicLookup />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/cookies" element={<Cookies />} />

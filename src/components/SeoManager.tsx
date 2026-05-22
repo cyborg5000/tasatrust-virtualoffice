@@ -72,6 +72,26 @@ const routeSeoMap: Record<string, SeoConfig> = {
     description:
       "Logo, brand kit, and a launch-ready marketing website for Singapore startups. Bundled with your incorporation so you can start selling on day one.",
   },
+  "/tools": {
+    title: "Free Singapore Business Tools — Tax, GST, SSIC",
+    description:
+      "Free calculators and lookups for Singapore businesses: personal income tax calculator (IRAS rates), GST calculator at 9%, and SSIC code lookup for ACRA incorporation.",
+  },
+  "/tools/income-tax-calculator": {
+    title: "Singapore Personal Income Tax Calculator (YA 2024+)",
+    description:
+      "Free Singapore personal income tax calculator using the latest IRAS resident and non-resident rates. See tax payable, effective rate, and take-home pay in seconds.",
+  },
+  "/tools/gst-calculator": {
+    title: "Singapore GST Calculator (9%) — Add or Remove GST",
+    description:
+      "Free Singapore GST calculator at the current 9% rate. Add GST to a net amount or extract GST from a GST-inclusive price for invoicing.",
+  },
+  "/tools/ssic-code-lookup": {
+    title: "SSIC Code Lookup — Singapore Industrial Classification",
+    description:
+      "Search ACRA's Singapore Standard Industrial Classification (SSIC 2020) codes for company registration. Find the right primary or secondary business activity code instantly.",
+  },
   "/privacy": {
     title: "Privacy Policy",
     description: "Read how TASA Trust collects and protects your personal and business information.",
@@ -248,12 +268,16 @@ const pickRouteSeo = (pathname: string): SeoConfig => {
     return matchedSeo || routeSeoMap["/startup-kit"];
   }
 
+  if (normalized.startsWith("/tools")) {
+    return matchedSeo || routeSeoMap["/tools"];
+  }
+
   if (
     !matchedSeo &&
     noIndexPrefixes.every((prefix) => normalized !== prefix && !normalized.startsWith(`${prefix}/`))
   ) {
     const isKnownPublicRoute =
-      ["/", "/pricing", "/contact", "/services", "/about", "/privacy", "/terms", "/cookies", "/faq", "/help", "/blog", "/startup-kit"].includes(
+      ["/", "/pricing", "/contact", "/services", "/about", "/privacy", "/terms", "/cookies", "/faq", "/help", "/blog", "/startup-kit", "/tools"].includes(
         normalized,
       );
     if (!isKnownPublicRoute) {
