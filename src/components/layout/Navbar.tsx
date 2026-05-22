@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/about", label: "About Us" },
   { href: "/startup-kit", label: "Startup Kit" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/tools", label: "Free Tools" },
   { href: "/blog", label: "Blog" },
 ];
 

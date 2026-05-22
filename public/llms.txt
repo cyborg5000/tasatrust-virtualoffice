@@ -25,6 +25,13 @@ TASA Trust helps companies establish and operate in Singapore with a professiona
 - [Accounting, Tax & GST](/startup-kit/accounting-tax): Bookkeeping, GST, and corporate tax filing for startups.
 - [Website & Branding](/startup-kit/website-branding): Launch-ready website and brand kit bundled with incorporation.
 
+## Free Tools
+
+- [Free Singapore Business Tools](/tools): Hub of free calculators and lookups for Singapore businesses.
+- [Income Tax Calculator](/tools/income-tax-calculator): Singapore personal income tax calculator (IRAS YA 2024+ rates).
+- [GST Calculator](/tools/gst-calculator): Add or remove 9% Singapore GST.
+- [SSIC Code Lookup](/tools/ssic-code-lookup): Search ACRA's SSIC 2020 codes for company registration.
+
 ## Optional
 
 - [Privacy Policy](/privacy): How TASA Trust collects and protects information.
