@@ -112,12 +112,12 @@ export function Footer() {
             <p className="text-sm text-white/65">
               Powered by{' '}
               <a
-                href="https://essentialblock.com"
+                href="https://digital9labs.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:text-primary/80 transition-colors"
               >
-                Essential Block
+                Digital 9 Labs
               </a>
             </p>
           </div>

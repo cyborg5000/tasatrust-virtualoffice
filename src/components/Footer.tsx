@@ -5,12 +5,12 @@ export default function Footer() {
         <p className="text-sm text-gray-300">
           Powered by{' '}
           <a
-            href="https://essentialblock.com"
+            href="https://digital9labs.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#BCA868] hover:text-[#d4c080] transition-colors"
           >
-            Essential Block
+            Digital 9 Labs
           </a>
         </p>
       </div>
