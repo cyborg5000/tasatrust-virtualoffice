@@ -14,6 +14,16 @@ import Tools from "./pages/Tools";
 import IncomeTaxCalculator from "./pages/tools/IncomeTaxCalculator";
 import GstCalculator from "./pages/tools/GstCalculator";
 import SsicLookup from "./pages/tools/SsicLookup";
+import CpfCalculator from "./pages/tools/CpfCalculator";
+import SalaryCalculator from "./pages/tools/SalaryCalculator";
+import SdlCalculator from "./pages/tools/SdlCalculator";
+import StampDutyCalculator from "./pages/tools/StampDutyCalculator";
+import CorporateTaxCalculator from "./pages/tools/CorporateTaxCalculator";
+import DocumentGenerator from "./pages/tools/DocumentGenerator";
+import PaynowQrGenerator from "./pages/tools/PaynowQrGenerator";
+import PayslipGenerator from "./pages/tools/PayslipGenerator";
+import UenLookup from "./pages/tools/UenLookup";
+import TemplateBuilder from "./pages/tools/TemplateBuilder";
 import About from "./pages/About";
 import Privacy from "./pages/legal/Privacy";
 import Terms from "./pages/legal/Terms";
@@ -76,6 +86,19 @@ const App = () => (
           <Route path="/tools/income-tax-calculator" element={<IncomeTaxCalculator />} />
           <Route path="/tools/gst-calculator" element={<GstCalculator />} />
           <Route path="/tools/ssic-code-lookup" element={<SsicLookup />} />
+          <Route path="/tools/cpf-calculator" element={<CpfCalculator />} />
+          <Route path="/tools/salary-calculator" element={<SalaryCalculator />} />
+          <Route path="/tools/sdl-calculator" element={<SdlCalculator />} />
+          <Route path="/tools/stamp-duty-calculator" element={<StampDutyCalculator />} />
+          <Route path="/tools/corporate-tax-calculator" element={<CorporateTaxCalculator />} />
+          <Route path="/tools/invoice-generator" element={<DocumentGenerator mode="invoice" />} />
+          <Route path="/tools/quotation-generator" element={<DocumentGenerator mode="quotation" />} />
+          <Route path="/tools/receipt-generator" element={<DocumentGenerator mode="receipt" />} />
+          <Route path="/tools/paynow-qr-generator" element={<PaynowQrGenerator />} />
+          <Route path="/tools/payslip-generator" element={<PayslipGenerator />} />
+          <Route path="/tools/uen-lookup" element={<UenLookup />} />
+          <Route path="/tools/employment-contract-template" element={<TemplateBuilder mode="employment" />} />
+          <Route path="/tools/tenancy-agreement-template" element={<TemplateBuilder mode="tenancy" />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/cookies" element={<Cookies />} />

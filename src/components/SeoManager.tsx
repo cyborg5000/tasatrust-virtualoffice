@@ -87,6 +87,19 @@ const routeSeoMap: Record<string, SeoConfig> = {
     description:
       "Free Singapore GST calculator at the current 9% rate. Add GST to a net amount or extract GST from a GST-inclusive price for invoicing.",
   },
+  "/tools/cpf-calculator": { title: "CPF Contribution Calculator 2026 — Employer & Employee Rates", description: "Free CPF calculator with 2026 rates and the S$8,000 OW ceiling. Employer, employee and total contributions plus take-home pay, by age band." },
+  "/tools/salary-calculator": { title: "Salary Calculator Singapore — Take-Home Pay After CPF (2026)", description: "Net take-home pay after employee CPF at 2026 rates, total employer cost, and pro-rated salary for incomplete months." },
+  "/tools/sdl-calculator": { title: "SDL Calculator Singapore — Skills Development Levy", description: "SDL at 0.25% per employee per month, min S$2, max S$11.25. Paste all wages, get the total levy payable." },
+  "/tools/stamp-duty-calculator": { title: "Stamp Duty Calculator Singapore — BSD, ABSD & Share Transfer", description: "Buyer's Stamp Duty bands, ABSD by buyer profile and 0.2% share-transfer duty, at current IRAS rates." },
+  "/tools/corporate-tax-calculator": { title: "Corporate Tax Calculator Singapore (17% with Exemptions)", description: "Estimate corporate income tax with Partial or Start-Up Tax Exemption applied automatically." },
+  "/tools/invoice-generator": { title: "Free Invoice Generator Singapore — GST & PayNow QR", description: "Create professional Singapore invoices with 9% GST and a scan-to-pay PayNow QR — free PDF download." },
+  "/tools/quotation-generator": { title: "Free Quotation Generator Singapore", description: "Professional itemised quotations with your logo and terms — free PDF download." },
+  "/tools/receipt-generator": { title: "Free Receipt Generator Singapore", description: "Numbered, itemised payment receipts with your logo — free PDF download." },
+  "/tools/paynow-qr-generator": { title: "PayNow QR Code Generator — Free SGQR for UEN & Mobile", description: "Generate a PayNow QR for your UEN or mobile with fixed amount and reference — download as PNG." },
+  "/tools/payslip-generator": { title: "Payslip Generator Singapore — MOM-Compliant Itemised Payslips", description: "Itemised payslips with 2026 employee CPF computed automatically — free PDF download." },
+  "/tools/uen-lookup": { title: "UEN Number Check & Company Name Search Singapore (ACRA)", description: "Check any UEN or company name against ACRA's public records — fast availability check before you register." },
+  "/tools/employment-contract-template": { title: "Employment Contract Template Singapore — Free Builder", description: "KET-aligned Singapore employment contract from a short form — free PDF download." },
+  "/tools/tenancy-agreement-template": { title: "Tenancy Agreement Template Singapore — Free Builder", description: "Straightforward Singapore tenancy agreement from a short form — free PDF download." },
   "/tools/ssic-code-lookup": {
     title: "SSIC Code Lookup — Singapore Industrial Classification",
     description:

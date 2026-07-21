@@ -38,6 +38,23 @@ const CONTENT_API_KEY = CONTENT_API_KEY_RAW
 const CONTENT_SITE_ID = process.env.CONTENT_SITE_ID?.trim();
 
 const staticRoutes = [
+  { path: "/tools", priority: "0.9", changefreq: "weekly" },
+  { path: "/tools/income-tax-calculator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/gst-calculator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/ssic-code-lookup", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/cpf-calculator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/salary-calculator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/sdl-calculator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/stamp-duty-calculator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/corporate-tax-calculator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/invoice-generator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/quotation-generator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/receipt-generator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/paynow-qr-generator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/payslip-generator", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/uen-lookup", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/employment-contract-template", priority: "0.8", changefreq: "monthly" },
+  { path: "/tools/tenancy-agreement-template", priority: "0.8", changefreq: "monthly" },
   { path: "/", priority: "1.0", changefreq: "weekly" },
   { path: "/about", priority: "0.8", changefreq: "monthly" },
   { path: "/pricing", priority: "0.9", changefreq: "weekly" },
