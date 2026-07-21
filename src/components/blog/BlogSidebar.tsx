@@ -20,6 +20,34 @@ type BlogSidebarProps = {
 export function BlogSidebar({ categories, recentPosts }: BlogSidebarProps) {
   return (
     <aside className="space-y-6 xl:sticky xl:top-28">
+      <section className="surface-panel border-primary/30 bg-secondary p-5 text-secondary-foreground">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+          ACRA-Ready Business Address
+        </p>
+        <p className="mt-3 text-lg font-bold leading-snug">
+          Your registered address, mail handling and compliance — one provider.
+        </p>
+        <ul className="mt-3 space-y-1.5 text-sm text-white/85">
+          <li>• Registered address included in every plan</li>
+          <li>• From S$15.99/month, no lock-in</li>
+          <li>• Corp sec, accounting and tax under the same roof</li>
+        </ul>
+        <div className="mt-4 flex flex-col gap-2">
+          <Link
+            to="/pricing"
+            className="rounded-md bg-primary px-4 py-2.5 text-center text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            View plans &amp; pricing
+          </Link>
+          <Link
+            to="/signup"
+            className="rounded-md border border-white/25 px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10"
+          >
+            Set up in minutes
+          </Link>
+        </div>
+      </section>
+
       <section className="surface-panel border-white/70 bg-white/88 p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Categories

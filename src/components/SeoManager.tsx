@@ -21,7 +21,7 @@ const routeSeoMap: Record<string, SeoConfig> = {
       "Set up a virtual office in Singapore: ACRA-ready registered business address, mail scanning and forwarding, call answering, and meeting rooms. Instant setup, no lock-in.",
   },
   "/pricing": {
-    title: "Virtual Office Singapore Pricing — Plans from S$/month",
+    title: "Virtual Office Singapore Pricing — Plans from S$15.99/month",
     description:
       "Compare Singapore virtual office plans: registered business address, mail handling, call answering, and meeting room credits. Monthly or annual, no lock-in.",
   },
@@ -306,7 +306,8 @@ export function SeoManager() {
   useEffect(() => {
     const seo = pickRouteSeo(pathname);
     const normalizedPath = normalizePath(pathname);
-    const canonical = `${window.location.origin}${normalizedPath}`;
+    // Fixed canonical host: apex/www both resolve, www is canonical (301'd in vercel.json).
+    const canonical = `https://www.tasatrust.com${normalizedPath === "/" ? "/" : normalizedPath}`;
     const fullTitle = `${seo.title} | ${siteTitle}`;
 
     document.title = fullTitle;
