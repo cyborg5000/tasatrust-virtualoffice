@@ -1,6 +1,6 @@
 // Authentication Context
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
 import { supabase, supabaseHelpers } from '../lib/supabase';
 
 interface Member {
