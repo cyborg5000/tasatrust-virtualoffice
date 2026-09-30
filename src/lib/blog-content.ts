@@ -9,6 +9,67 @@ export type HeadingItem = {
   level: number;
 };
 
+// The only embeds allowed through the article sanitizer: a YouTube player, by exact URL shape.
+const YOUTUBE_EMBED_SRC =
+  /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com)\/embed\/[A-Za-z0-9_-]{11}(\?[^"'<>\s]*)?$/;
+
+const IFRAME_ALLOWED_ATTRS = new Set([
+  "src",
+  "width",
+  "height",
+  "title",
+  "allow",
+  "allowfullscreen",
+  "frameborder",
+  "referrerpolicy",
+  "loading",
+]);
+
+function isYoutubeEmbed(node: Element) {
+  return (
+    !node.hasAttribute("srcdoc") &&
+    YOUTUBE_EMBED_SRC.test(node.getAttribute("src") || "")
+  );
+}
+
+let articlePurifier: ReturnType<typeof DOMPurify> | null = null;
+
+// DOMPurify hooks are global to an instance, so the iframe rule lives on its own
+// instance and never touches the shared default export.
+function getArticlePurifier() {
+  if (articlePurifier) return articlePurifier;
+
+  const purifier = DOMPurify(window);
+
+  purifier.addHook("uponSanitizeElement", (node, data) => {
+    if (data.tagName !== "iframe") return;
+    const iframe = node as Element;
+
+    if (!isYoutubeEmbed(iframe)) {
+      iframe.parentNode?.removeChild(iframe);
+      return;
+    }
+
+    for (const attr of Array.from(iframe.attributes)) {
+      if (!IFRAME_ALLOWED_ATTRS.has(attr.name.toLowerCase())) {
+        iframe.removeAttribute(attr.name);
+      }
+    }
+    iframe.textContent = "";
+  });
+
+  // Re-check the src that actually survived attribute sanitizing.
+  purifier.addHook("afterSanitizeAttributes", (node) => {
+    if (node.nodeName?.toLowerCase() !== "iframe") return;
+    if (!isYoutubeEmbed(node)) {
+      node.parentNode?.removeChild(node);
+    }
+  });
+
+  articlePurifier = purifier;
+  return purifier;
+}
+
 function stripHtml(value: string) {
   return value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -40,9 +101,11 @@ export function decorateArticleHtml(html: string) {
 
   const sanitized =
     typeof window !== "undefined"
-      ? DOMPurify.sanitize(html, {
+      ? getArticlePurifier().sanitize(html, {
           USE_PROFILES: { html: true },
-          ADD_TAGS: ["details", "summary"],
+          ADD_TAGS: ["details", "summary", "iframe"],
+          ADD_ATTR: (attributeName, tagName) =>
+            tagName === "iframe" && IFRAME_ALLOWED_ATTRS.has(attributeName),
         })
       : html.replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "")
             .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "")
