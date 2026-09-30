@@ -103,6 +103,37 @@ describe("article video embeds", () => {
     expect(container.innerHTML).toBe(`<iframe src="${YOUTUBE}"></iframe>`);
   });
 
+  it.each([
+    [
+      "a decoy YouTube src quoted inside another attribute",
+      `<iframe title='src="${YOUTUBE}"' src="https://evil.com/x"></iframe>`,
+    ],
+    ["a hostile src ahead of a YouTube src", `<iframe src="https://evil.com/x" src="${YOUTUBE}"></iframe>`],
+  ])("removes an iframe with %s", (_label, hostile) => {
+    const container = render(`<p>Before</p>${hostile}<p>After</p>`);
+
+    expect(container.querySelector("iframe")).toBeNull();
+    expect(container.innerHTML).not.toMatch(/evil/);
+  });
+
+  it.each([
+    ["a > inside an attribute next to onload", `<iframe src="${YOUTUBE}" title="a>b" onload="alert(1)"></iframe>`],
+    ["a nested hostile iframe", `<iframe src="${YOUTUBE}"><iframe src="https://evil.com/x"></iframe></iframe>`],
+    [
+      "a comment that closes the iframe early",
+      `<iframe src="${YOUTUBE}"><!--</iframe><img src="x" onerror="alert(1)">--></iframe>`,
+    ],
+    ["a YouTube src ahead of a hostile src", `<iframe src="${YOUTUBE}" src="https://evil.com/x"></iframe>`],
+  ])("keeps one clean embed and nothing else from %s", (_label, html) => {
+    const container = render(html);
+    const iframes = container.querySelectorAll("iframe");
+
+    expect(iframes).toHaveLength(1);
+    expect(iframes[0].getAttribute("src")).toBe(YOUTUBE);
+    expect(iframes[0].innerHTML).toBe("");
+    expect(container.innerHTML).not.toMatch(/evil|onload|onerror|alert/);
+  });
+
   it("still strips everything else it stripped before", () => {
     const container = render(
       `<p onclick="alert(1)">Text</p><script>alert(1)</script><img src="x" onerror="alert(1)"><a href="javascript:alert(1)">link</a><object data="https://evil.com/x.swf"></object><embed src="https://evil.com/x.swf"><p allow="camera" allowfullscreen referrerpolicy="unsafe-url" frameborder="0">Attrs</p>`,
