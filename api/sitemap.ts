@@ -2,8 +2,7 @@ const DEFAULT_SITE_URL = "https://www.tasatrust.com";
 const DEFAULT_SUPABASE_URL = "https://wktusutjeoyokptqbdeu.supabase.co";
 const DEFAULT_SUPABASE_PUBLISHABLE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdHVzdXRqZW95b2twdHFiZGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNjg3NTEsImV4cCI6MjA4NTk0NDc1MX0.FawtlFEp-pV5ZALskrHoTcX870nc1bz4t3XugLam7XY";
-const CONTENT_API_ENDPOINT_DEFAULT =
-  "https://vleqfcpewvdgezensisj.supabase.co/functions/v1/get-client-content";
+const CONTENT_API_ENDPOINT_DEFAULT = "https://loom.qweaver.com/api/content";
 const BLOG_PAGE_SIZE = 100;
 const BLOG_FUNCTION_NAME_DEFAULT = "get-blog-content";
 type SitemapKind = "index" | "static" | "blog";
