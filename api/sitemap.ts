@@ -1,29 +1,12 @@
 const DEFAULT_SITE_URL = "https://www.tasatrust.com";
-const DEFAULT_SUPABASE_URL = "https://wktusutjeoyokptqbdeu.supabase.co";
-const DEFAULT_SUPABASE_PUBLISHABLE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrdHVzdXRqZW95b2twdHFiZGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNjg3NTEsImV4cCI6MjA4NTk0NDc1MX0.FawtlFEp-pV5ZALskrHoTcX870nc1bz4t3XugLam7XY";
 const CONTENT_API_ENDPOINT_DEFAULT = "https://loom.qweaver.com/api/content";
 const BLOG_PAGE_SIZE = 100;
-const BLOG_FUNCTION_NAME_DEFAULT = "get-blog-content";
 type SitemapKind = "index" | "static" | "blog";
 
 const SITE_URL =
   process.env.SITE_URL ||
   process.env.VERCEL_PROJECT_PRODUCTION_URL ||
   DEFAULT_SITE_URL;
-const SUPABASE_URL =
-  process.env.VITE_SUPABASE_URL ||
-  process.env.SUPABASE_URL ||
-  DEFAULT_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY =
-  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_PUBLISHABLE_KEY ||
-  DEFAULT_SUPABASE_PUBLISHABLE_KEY;
-const BLOG_FUNCTION_NAME =
-  process.env.VITE_CONTENT_FUNCTION_NAME || BLOG_FUNCTION_NAME_DEFAULT;
 const CONTENT_API_ENDPOINT =
   process.env.CONTENT_API_ENDPOINT ||
   process.env.VITE_CONTENT_API_ENDPOINT ||
@@ -223,58 +206,15 @@ async function fetchAllArticles() {
       sort: "published_at_desc",
     };
 
-    let response:
-      | {
-          ok: boolean;
-          status: number;
-          statusText: string;
-          json: () => Promise<unknown>;
-          text: () => Promise<string>;
-        };
-    let responseText: string | undefined;
-
-    if (CONTENT_API_KEY) {
-      const directResponse = await postToContentEndpoint(body);
-
-      if (directResponse) {
-        response = directResponse;
-      }
-
-      if (!response || response.status === 401 || response.status === 403) {
-        responseText = response ? await response.text() : "No direct response from content API";
-        response = await fetch(`${SUPABASE_URL}/functions/v1/${BLOG_FUNCTION_NAME}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(SUPABASE_PUBLISHABLE_KEY
-              ? {
-                  apikey: SUPABASE_PUBLISHABLE_KEY,
-                  Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-                }
-              : {}),
-            ...(CONTENT_API_KEY ? { "x-content-api-key": CONTENT_API_KEY } : {}),
-          },
-          body: JSON.stringify(body),
-        });
-      }
-    } else {
-      response = await fetch(`${SUPABASE_URL}/functions/v1/${BLOG_FUNCTION_NAME}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(SUPABASE_PUBLISHABLE_KEY
-            ? {
-                apikey: SUPABASE_PUBLISHABLE_KEY,
-                Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-              }
-            : {}),
-        },
-        body: JSON.stringify(body),
-      });
+    // Loom on Neon only (CONTENT_API_ENDPOINT). The old fallback to this site's get-blog-content Supabase
+    // function is gone: its upstream was the retired Loom Supabase project (23 Nov 2026).
+    const response = await postToContentEndpoint(body);
+    if (!response) {
+      throw new Error("Blog sitemap needs CONTENT_API_KEY to read the content API.");
     }
 
     if (!response.ok) {
-      const errorText = responseText ?? (await response.text());
+      const errorText = await response.text();
       throw new Error(
         `Blog proxy failed with status ${response.status}: ${errorText || response.statusText}`,
       );
