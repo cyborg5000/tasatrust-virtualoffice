@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 
 const DEFAULT_CONTENT_API_ENDPOINT =
-  "https://vleqfcpewvdgezensisj.supabase.co/functions/v1/get-client-content";
+  "https://loom.qweaver.com/api/content";
 
 const ALLOWED_KEYS = new Set([
   "action",
